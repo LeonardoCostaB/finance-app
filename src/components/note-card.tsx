@@ -1,58 +1,68 @@
 'use client';
 
-import * as Dialog from "@radix-ui/react-dialog";
-import { formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { X } from "lucide-react";
+import { TrendingUp, X } from "lucide-react";
+import Link from "next/link";
 
 interface NoteCardProps {
    note: {
+      id: string;
+      month: string;
+      lastUpdate?: Date;
       date: Date;
+      balance: number
       content: string;
    }
+   onNoteDeleted: (id: string) => void;
 }
 
-export function NoteCard({ note }: NoteCardProps) {
+export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
+   const date = new Date(note.date)
+
    return (
-      <Dialog.Root>
-         <Dialog.Trigger className="rounded-md text-left flex flex-col gap-3 bg-slate-800 p-5 space-y-3 overflow-hidden relative outline-none hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400">
-            <span className="text-sm font-medium text-slate-200">
-               {note.date.toISOString()}
-            </span>
+      <Link href={`/${note.id}/month`} className="rounded-md text-left flex flex-col gap-3 bg-slate-800 p-5 overflow-hidden relative outline-none hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400">
+         <div className="flex items-start justify-between w-full">
+            <div className="flex flex-col gap-2">
+               <h2 className="text-xl">{`${date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`}</h2>
 
-            <p className="text-sm leading-6 text-slate-400">
-               {note.content}
-            </p>
+               <span className="text-sm text-slate-200">
+               {note.lastUpdate ? 'Ultima atualização' : 'Criado'}{' '}
 
-            <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/60 to-black/0 pointer-events-none" />
-         </Dialog.Trigger>
-
-         <Dialog.Portal>
-            <Dialog.Overlay className="inset-0 fixed bg-black/60" />
-
-            <Dialog.Content className="fixed overflow-hidden left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[640px] w-full h-[60vh] bg-slate-700 rounded-md flex flex-col outline-none">
-               <Dialog.Close className="absolute right-0 top-0 bg-slate-800 p-1.5 text-slate-400 hover:text-slate-100">
-                  <X className="size-5"/>
-               </Dialog.Close>
-
-               <div className="flex flex-1 flex-col gap-3 p-5">
-                  <span className="text-sm font-medium text-slate-200">
+               <strong
+                     title={format(note.date, 'dd/MM/yyyy')}
+                  >
                      {formatDistanceToNow(note.date, { locale: ptBR, addSuffix: true })}
-                  </span>
+                  </strong>
+               </span>
+            </div>
 
-                  <p className="text-sm leading-6 text-slate-400">
-                     {note.content}
-                  </p>
-               </div>
+            <span className="text-xs text-green-700 flex items-center gap-1 pt-[6px]">
+               {note.balance} <TrendingUp size={16} className="text-green-500" />
+            </span>
+         </div>
 
-               <button
-                  type="button"
-                  className="w-full bg-slate-800 py-4 text-center text-sm text-slate-300 outline-none font-medium group"
-               >
-                  Deseja <span className="text-red-400 group-hover:underline">apagar essa nota?</span>
-               </button>
-            </Dialog.Content>
-         </Dialog.Portal>
-      </Dialog.Root>
+         <div>
+            <div className="text-green-500 text-base">
+               Ganhos:
+
+               <ul className="list-disc ml-8 text-gray-300 text-sm">
+                  <li>Salario</li>
+                  <li>Salario</li>
+               </ul>
+            </div>
+
+            <div className="mt-4 text-red-500 text-base">
+               Gastos:
+
+               <ul className="list-disc ml-8 text-gray-300 text-sm">
+                  <li>Cartões</li>
+                  <li>Site</li>
+               </ul>
+            </div>
+         </div>
+
+         <div className="absolute bottom-0 left-0 right-0 h-1/2 mt-3 bg-gradient-to-t from-black/60 to-black/0 pointer-events-none" />
+      </Link>
    )
 }

@@ -9,15 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.6.0",
     "@radix-ui/react-dialog": "^1.0.5",
+    "clsx": "^2.1.1",
     "date-fns": "^3.3.1",
     "lucide-react": "^0.323.0",
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18",
-    "sonner": "^1.4.0"
+    "react-hook-form": "^7.52.0",
+    "sonner": "^1.4.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/dom-speech-recognition": "^0.0.4",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

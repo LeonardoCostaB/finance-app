@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+#table::-webkit-scrollbar {
+   width: 1px;
+   height: 10px;
+}
+
+#table::-webkit-scrollbar-track {
+   background-color: transparent;
+}
+
+#table::-webkit-scrollbar-thumb {
+   @apply bg-slate-800;
+   border-radius: 20px;
+   border: 1px solid transparent;
+}
+
+.input-wrapper:has(input:focus) label,
+.input-wrapper:has(textarea:focus) label,
+#open-options:has(input[type="text"]:focus) > label,
+label.filled {
+   top: -8px;
+   left: 12px;
+
+   @apply text-xs;
+}
