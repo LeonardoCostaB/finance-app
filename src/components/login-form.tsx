@@ -4,8 +4,21 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
+import { gql, useMutation } from '@apollo/client';
+import cookie from 'js-cookie';
+
 import { Input } from './input';
 import { Loader2Icon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+const LOGIN = gql`
+   mutation Login($email: String!, $password: String!) {
+      login(data: { email: $email, password: $password }) {
+         token
+      }
+   }
+ `
 
 const userLoginFormSchema = z.object({
    email: z.string().email('Email inválido').nonempty('Email é obrigatório'),
@@ -15,6 +28,9 @@ const userLoginFormSchema = z.object({
 type UserLoginFormData = z.infer<typeof userLoginFormSchema>;
 
 export function LoginForm() {
+   const [ login, { loading, data } ] = useMutation(LOGIN)
+   const router = useRouter()
+
    const {
       register,
       handleSubmit,
@@ -24,10 +40,29 @@ export function LoginForm() {
       resolver: zodResolver(userLoginFormSchema),
    });
 
+   function handleLogin({ email, password }: UserLoginFormData) {
+      login({
+         variables: {
+            email,
+            password
+         }
+      })
+   }
+
+   useEffect(() => {
+      if (data?.login.token) {
+         cookie.set('isLoggedIn', data.login.token, {
+            expires: 5,
+         })
+
+         router.push('/');
+      }
+   }, [data])
+
    return (
       <>
          <form
-            onSubmit={handleSubmit(() => false)}
+            onSubmit={handleSubmit(handleLogin)}
             className="mx-auto my-0 flex w-full flex-col gap-8 max-md:px-4 sm:max-w-sm"
          >
             <Input
@@ -65,9 +100,9 @@ export function LoginForm() {
             <button
                type="submit"
                className="flex h-10 w-full items-center justify-center rounded-lg bg-indigo-500 py-2 text-white transition-all duration-300 ease-out hover:bg-indigo-700 disabled:cursor-no-drop disabled:opacity-50"
-               disabled={false}
+               disabled={loading}
             >
-               {false ? (
+               {loading ? (
                   <Loader2Icon size={24} className="animate-spin" />
                ) : (
                   'Entrar'
