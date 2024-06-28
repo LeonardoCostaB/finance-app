@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { NewNoteCard } from "@/components/new-note-card";
 import { NoteCard } from "@/components/note-card";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 
 export interface Note {

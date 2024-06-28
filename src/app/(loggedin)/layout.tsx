@@ -1,23 +1,21 @@
 'use client'
 
-import type { Metadata } from "next";
-import { Menu } from "@/components/menu";
 import { useEffect } from "react";
 import Cookies from "js-cookie";
+import { useRouter } from 'next/navigation';
 
-// export const metadata: Metadata = {
-//    title: "note recording app",
-//    description: "Aplicativo de registro de nota",
-// };
+import { Menu } from "@/components/menu";
 
 export default function RootLayout({
    children,
 }: Readonly<{
    children: React.ReactNode;
 }>) {
+   const router = useRouter();
+
    useEffect(() => {
       if (!Cookies.get('isLoggedIn')) {
-         window.location.href = '/login'
+         router.push('/unauthenticated');
       }
    }, [])
 

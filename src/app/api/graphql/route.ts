@@ -6,6 +6,7 @@ import { typeDefs, resolvers } from '../../../graphql/schema';
 
 import { LoginApi } from '@/graphql/login/data-source';
 import { UserApi } from '@/graphql/createUser/data-source';
+import { userIsLoggedIn } from '@/utils/verify-user';
 
 const apolloServer = new ApolloServer({ typeDefs, resolvers });
 
@@ -17,6 +18,7 @@ const handler = startServerAndCreateNextHandler<NextRequest>(apolloServer, {
          loginApi: new LoginApi(),
          userApi: new UserApi(),
       },
+      isLoggedIn: await userIsLoggedIn(),
    }),
 });
 

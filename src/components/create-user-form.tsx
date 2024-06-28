@@ -3,9 +3,19 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2Icon } from 'lucide-react';
 import { Input } from './input';
 import { PasswordInput } from './password-input';
+import gql from 'graphql-tag';
+import { useMutation } from '@apollo/client';
+
+const CREATE_USER = gql`
+   mutation createUser($name: String!, $email: String!, $password: String!) {
+      createUser(data: { userName: $name, email: $email, password: $password }) {
+         userName
+      }
+   }
+`
 
 const createUserFormSchema = z.object({
    name: z.string().min(3, 'Mínimo 3 caracteres'),
@@ -37,8 +47,10 @@ export function CreateUserForm() {
       resolver: zodResolver(createUserFormSchema),
    });
 
-   async function createUser({ email, password }: CreateUserFormData) {
-      console.log({ email, password });
+   const [createSubscriber, { data, loading }] = useMutation(CREATE_USER);
+
+   async function handleCreateUser({ name, email, password }: CreateUserFormData) {
+      createSubscriber({ variables:{ name, email, password } });
    }
 
    const errorMessageShow =
@@ -47,7 +59,7 @@ export function CreateUserForm() {
 
    return (
       <form
-         onSubmit={handleSubmit(createUser)}
+         onSubmit={handleSubmit(handleCreateUser)}
          className="mx-auto my-0 flex w-full max-w-lg flex-col gap-7"
       >
          <Input
@@ -125,9 +137,14 @@ export function CreateUserForm() {
 
          <button
             type="submit"
-            className="w-full rounded-lg bg-indigo-500 py-2 text-white transition-all duration-300 ease-out hover:bg-indigo-700"
+            className="w-full rounded-lg flex items-center justify-center bg-indigo-500 py-2 text-white transition-all duration-300 ease-out hover:bg-indigo-700"
+            disabled={loading}
          >
-            Cadastrar
+            {loading ? (
+               <Loader2Icon size={24} className="animate-spin" />
+            ) : (
+               'Entrar'
+            )}
          </button>
       </form>
    );

@@ -1,6 +1,6 @@
 'use client'
 
-import { Note } from "@/app/page";
+import { Note } from "../../page";
 import { FormattedPrice } from "@/components/formatted-price";
 import { Header } from "@/components/header";
 import { useEffect, useState } from "react"

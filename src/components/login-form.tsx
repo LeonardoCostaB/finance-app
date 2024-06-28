@@ -5,12 +5,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
 import { gql, useMutation } from '@apollo/client';
-import cookie from 'js-cookie';
 
 import { Input } from './input';
 import { Loader2Icon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { PasswordInput } from './password-input';
 
 const LOGIN = gql`
    mutation Login($email: String!, $password: String!) {
@@ -51,10 +51,6 @@ export function LoginForm() {
 
    useEffect(() => {
       if (data?.login.token) {
-         cookie.set('isLoggedIn', data.login.token, {
-            expires: 5,
-         })
-
          router.push('/');
       }
    }, [data])
@@ -81,7 +77,7 @@ export function LoginForm() {
                }}
             />
 
-            <Input
+            <PasswordInput
                container={{
                   classNames: 'h-12'
                }}

@@ -1,24 +1,23 @@
-import '../globals.css';
-// import { useApp } from '@/hooks/useApp';
-// import { userIsLoggedIn } from '@/utils/userIsLoggedIn';
-import Image from 'next/image';
-import { useEffect } from 'react';
+'use client'
 
-export const metadata = {
-   title: 'Template Admin',
-   description: 'Template Admin Creation',
-};
+import { useEffect } from 'react';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation'
+
+import '../globals.css';
 
 export default function LoggedInLayout({
    children,
 }: {
    children: React.ReactNode;
 }) {
-   // const { theme } = useApp();
+   const router = useRouter();
 
-   // useEffect(() => {
-   //    userIsLoggedIn();
-   // }, []);
+   useEffect(() => {
+      if (Cookies.get('isLoggedIn')) {
+         router.push('/');
+      }
+   }, [])
 
    return (
       <div className={`flex w-full`}>
@@ -28,7 +27,6 @@ export default function LoggedInLayout({
                alt="Imagens aleatória para tela de login"
                width={1200}
                height={1200}
-               // objectFit="cover"
                className="hidden h-screen w-full md:block"
             />
          </picture>

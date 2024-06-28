@@ -1,5 +1,9 @@
 import { PiggyBank } from "lucide-react";
 import Image from "next/image";
+import  jwt  from "jsonwebtoken";
+
+import Cookies from "js-cookie";import { useEffect } from "react";
+3
 
 interface HeaderProps {
    search?: {

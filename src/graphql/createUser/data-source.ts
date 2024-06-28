@@ -12,12 +12,59 @@ type UserApiParams = {
       email: string;
       password: string;
    }
+   getUser: {
+      data: {
+         id: string;
+         token: string;
+      }
+   }
 }
 
 export class UserApi extends RESTDataSource {
    constructor() {
       super();
       this.baseURL = process.env.BASE_URL as string;
+   }
+
+   async getUser(userId: string) {
+      const query = `
+         query GET_SUBSCRIBER($id: ID!) {
+            subscriber(where: { id: $id }) {
+               id,
+               sessionToken
+            }
+         }
+      `;
+
+      const variables = { id: userId };
+      const headers = {
+         'Content-Type': 'application/json',
+         'Authorization': process.env.AUTH_TOKEN as string,
+      };
+
+      try {
+         const { data: user } = await axios.post(
+            this.baseURL as string,
+            {
+               query,
+               variables
+            },
+            { headers }
+         )
+
+         return {
+            id: user.data.subscriber.id,
+            token: user.data.subscriber.sessionToken,
+         };
+
+      } catch (error: any) {
+         console.log(error)
+
+         return {
+            id: '',
+            token: ''
+         }
+      }
    }
 
    async createUser(data: UserApiParams['createUser']) {
@@ -30,7 +77,7 @@ export class UserApi extends RESTDataSource {
       const mutation = `
          mutation MyMutation($name:String!, $email: String!, $pass: String!) {
             createSubscriber(data: {name: $name, email: $email, password: $pass}) {
-               id
+               name
             }
          }
       `;
@@ -47,7 +94,7 @@ export class UserApi extends RESTDataSource {
       };
 
       try {
-         const { data } = await axios.post(
+         const { data: user } = await axios.post(
             this.baseURL as string,
             {
                query: mutation,
@@ -59,7 +106,7 @@ export class UserApi extends RESTDataSource {
          )
 
          return {
-            userName: data.userName,
+            userName: user.data.createSubscriber.name,
             authenticated: false
          }
 
