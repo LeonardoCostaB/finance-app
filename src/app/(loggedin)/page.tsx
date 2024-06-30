@@ -1,6 +1,5 @@
 'use client'
 
-import Image from "next/image";
 import { NewNoteCard } from "@/components/new-note-card";
 import { NoteCard } from "@/components/note-card";
 import { useEffect, useState } from "react";

@@ -8,10 +8,15 @@ import { LoginApi } from '@/graphql/login/data-source';
 import { UserApi } from '@/graphql/createUser/data-source';
 import { userIsLoggedIn } from '@/utils/verify-user';
 
-const apolloServer = new ApolloServer({ typeDefs, resolvers });
+interface CustomContext {
+   dataSources: { loginApi: LoginApi; userApi: UserApi };
+   isLoggedIn: string;
+}
 
-const handler = startServerAndCreateNextHandler<NextRequest>(apolloServer, {
-   context: async (req, res) => ({
+const apolloServer = new ApolloServer<CustomContext>({ typeDefs, resolvers, });
+
+const handler = startServerAndCreateNextHandler<NextRequest, CustomContext>(apolloServer, {
+   context: async (req) => ({
       req,
       res: new NextResponse(),
       dataSources: {
@@ -19,7 +24,7 @@ const handler = startServerAndCreateNextHandler<NextRequest>(apolloServer, {
          userApi: new UserApi(),
       },
       isLoggedIn: await userIsLoggedIn(),
-   }),
+   })
 });
 
  export async function GET(request: NextRequest) {
