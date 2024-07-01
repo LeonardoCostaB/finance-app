@@ -3,14 +3,14 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Link from 'next/link';
+import { toast } from 'sonner';
 import { gql, useMutation } from '@apollo/client';
-
-import { Input } from './input';
-import { Loader2Icon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+
+import Link from 'next/link';
+import { Input } from './input';
 import { PasswordInput } from './password-input';
+import { Loader2Icon } from 'lucide-react';
 
 const LOGIN = gql`
    mutation Login($email: String!, $password: String!) {
@@ -28,7 +28,7 @@ const userLoginFormSchema = z.object({
 type UserLoginFormData = z.infer<typeof userLoginFormSchema>;
 
 export function LoginForm() {
-   const [ login, { loading, data } ] = useMutation(LOGIN)
+   const [ login, { loading } ] = useMutation(LOGIN)
    const router = useRouter()
 
    const {
@@ -45,15 +45,17 @@ export function LoginForm() {
          variables: {
             email,
             password
+         },
+         onError: (error) => {
+            toast.error(error.message);
+         },
+         onCompleted: (data) => {
+            if (data?.login.token) {
+               router.push('/');
+            }
          }
       })
    }
-
-   useEffect(() => {
-      if (data?.login.token) {
-         router.push('/');
-      }
-   }, [data])
 
    return (
       <>

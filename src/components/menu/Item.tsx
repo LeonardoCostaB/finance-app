@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { MouseEventHandler, ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
+import { Loader2Icon } from 'lucide-react';
 
 interface ItemProps {
    url?: string;
@@ -11,6 +12,7 @@ interface ItemProps {
    icon: ReactNode;
    onClickFunction?: MouseEventHandler<HTMLButtonElement> | undefined;
    className?: string;
+   loading?: boolean;
 }
 
 export function Item({
@@ -19,6 +21,7 @@ export function Item({
    icon,
    className = '',
    onClickFunction,
+   loading,
 }: ItemProps) {
    const pathName = usePathname();
 
@@ -44,10 +47,17 @@ export function Item({
             <button
                className={`flex h-20 w-20 flex-col items-center justify-center text-xs font-light text-gray-600 transition-all dark:text-gray-200 ${className}`}
                onClick={onClickFunction}
+               disabled={loading}
             >
-               {icon}
+               {loading ? (
+                  <Loader2Icon size={24} className="animate-spin" />
+               ) : (
+                  <>
+                     {icon}
 
-               {text}
+                     {text}
+                  </>
+               )}
             </button>
          )}
       </li>

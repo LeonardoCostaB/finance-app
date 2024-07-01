@@ -1,5 +1,6 @@
 import axios from "axios";
 import bcrypt from 'bcryptjs';
+import { GraphQLError } from "graphql";
 
 import { RESTDataSource } from "apollo-datasource-rest";
 import { createJwtToken } from "./utils/login-repositories";
@@ -132,18 +133,25 @@ export class LoginApi extends RESTDataSource {
       const verifyUser = await this.verifyUser(email);
 
       if (!verifyUser) {
-         throw new Error("Usuário não existe ou sua solicitação ainda não foi aprovada...");
+         throw new GraphQLError(
+            "Usuário não existe ou sua solicitação ainda não foi aprovada...",
+            {
+               extensions: {
+                  code: 'FORBIDDEN'
+               },
+            }
+         );
       }
 
       const hash = await bcrypt.compare(password, verifyUser.password);
 
       if (!hash) {
-         throw new Error("Email ou senha incorreta, tente novamente...")
+         throw new GraphQLError("Email ou senha incorreta, tente novamente...")
       }
 
       const token = await this.saveCookieToDb({ ...verifyUser, email });
 
-      if (typeof token !== 'string') throw new Error("Obtivemos um error ao válidar o usuário");
+      if (typeof token !== 'string') throw new GraphQLError("Obtivemos um error ao válidar o usuário");
 
       cookies().set({
          name: 'auth-token',

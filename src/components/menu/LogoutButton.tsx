@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useMutation } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import gql from 'graphql-tag';
@@ -15,18 +14,21 @@ const LOGOUT = gql`
  `
 
 export function LogoutButton() {
-   const [logout, { data }] = useMutation(LOGOUT);
+   const [logout, { loading }] = useMutation(LOGOUT);
    const router = useRouter();
 
    async function handleLogOut() {
-      logout({ variables: { userId: '' } });
+      logout(
+         {
+            variables: {
+               userId: ''
+            },
+            onCompleted: (data) => {
+               if (data?.logout) router.push('/login');
+            }
+         }
+      );
    }
-
-   useEffect(() => {
-      if (data?.logout) {
-         router.push('/login');
-      }
-   }, [data])
 
    return (
       <Item
@@ -34,6 +36,7 @@ export function LogoutButton() {
          text="Logout"
          icon={<LogOut size={20} />}
          onClickFunction={handleLogOut}
+         loading={loading}
       />
    );
 }

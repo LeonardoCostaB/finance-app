@@ -1,6 +1,7 @@
 import { RESTDataSource } from "apollo-datasource-rest";
 import axios from "axios";
 import bcrypt from 'bcryptjs';
+import { GraphQLError } from "graphql";
 
 /*
    Em sistemas de login é muito importante não ter cache
@@ -26,17 +27,16 @@ export class UserApi extends RESTDataSource {
       this.baseURL = process.env.BASE_URL as string;
    }
 
-   async getUser(userId: string) {
+   async getUser(email: string) {
       const query = `
-         query GET_SUBSCRIBER($id: ID!) {
-            subscriber(where: { id: $id }) {
-               id,
-               sessionToken
+         query GET_SUBSCRIBER($email: String!) {
+            subscriber(where: { email: $email }) {
+               id
             }
          }
       `;
 
-      const variables = { id: userId };
+      const variables = { email };
       const headers = {
          'Content-Type': 'application/json',
          'Authorization': process.env.AUTH_TOKEN as string,
@@ -53,21 +53,23 @@ export class UserApi extends RESTDataSource {
          )
 
          return {
-            id: user.data.subscriber.id,
-            token: user.data.subscriber.sessionToken,
+            id: user.data.subscriber?.id ?? '',
          };
 
       } catch (error: any) {
-         console.log(error)
+         console.log(error.response.data.errors)
 
          return {
             id: '',
-            token: ''
          }
       }
    }
 
    async createUser(data: UserApiParams['createUser']) {
+      const user = await this.getUser(data.email);
+
+      if (user.id) throw new GraphQLError('Esse usuário já possui cadastro, tente outro email...');
+
       let passHash: string = '';
 
       if (data.password) {
@@ -78,6 +80,10 @@ export class UserApi extends RESTDataSource {
          mutation MyMutation($name:String!, $email: String!, $pass: String!) {
             createSubscriber(data: {name: $name, email: $email, password: $pass}) {
                name
+            }
+
+            publishManySubscribers(to: PUBLISHED, where: { email: $email }) {
+               __typename
             }
          }
       `;

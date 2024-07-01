@@ -8,6 +8,9 @@ import { Input } from './input';
 import { PasswordInput } from './password-input';
 import gql from 'graphql-tag';
 import { useMutation } from '@apollo/client';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import Link from 'next/link';
 
 const CREATE_USER = gql`
    mutation createUser($name: String!, $email: String!, $password: String!) {
@@ -47,10 +50,26 @@ export function CreateUserForm() {
       resolver: zodResolver(createUserFormSchema),
    });
 
-   const [createSubscriber, { data, loading }] = useMutation(CREATE_USER);
+   const [createSubscriber, { loading }] = useMutation(CREATE_USER);
+   const [userName, setUserName] = useState('');
 
    async function handleCreateUser({ name, email, password }: CreateUserFormData) {
-      createSubscriber({ variables:{ name, email, password } });
+      createSubscriber(
+         {
+            variables: {
+               name,
+               email,
+               password
+            },
+            onError: (error) => {
+               toast.error(error.message)
+            },
+            onCompleted: (data) => {
+               setUserName(data.createUser.userName);
+               toast.success('Usuário registrado com sucesso')
+            },
+         }
+      );
    }
 
    const errorMessageShow =
@@ -58,94 +77,106 @@ export function CreateUserForm() {
       watch('password') !== watch('confirmPassword');
 
    return (
-      <form
-         onSubmit={handleSubmit(handleCreateUser)}
-         className="mx-auto my-0 flex w-full max-w-lg flex-col gap-7"
-      >
-         <Input
-            container={{
-               classNames: 'h-12'
-            }}
-            labelProps={{ text: 'Nome Completo:', labelClasses: 'top-3', filled: watch('name')?.length > 0 }}
-            inputProps={{
-               type: 'text',
-               register: { ...register('name') },
-               id: 'user-name'
-            }}
-            error={{
-               show: !!errors.email,
-               message: errors.email?.message,
-            }}
-         />
+      userName?.length > 0 ? (
+         <div className="mx-auto my-0 w-full max-w-lg text-center flex flex-col items-center gap-4">
+            <span>
+               Olá <strong className='text-green-500'>{userName}</strong> logo mais vamos analisar sua solicitação e mandaremos um email, verifique sua caixa de spam...
+            </span>
 
-         <Input
-            container={{
-               classNames: 'h-12'
-            }}
-            labelProps={{ text: 'Email:', labelClasses: 'top-3', filled: watch('email')?.length > 0 }}
-            inputProps={{
-               type: 'email',
-               register: { ...register('email') },
-               id: 'create-user-email'
-            }}
-            error={{
-               show: !!errors.email,
-               message: errors.email?.message,
-            }}
-         />
-
-         <PasswordInput
-            container={{
-               classNames: 'h-12'
-            }}
-            labelProps={{ text: 'Senha:', labelClasses: 'top-3', filled: watch('password')?.length > 0 }}
-            inputProps={{
-               type: 'password',
-               register: { ...register('password') },
-               id: 'create-user-pass'
-            }}
-            error={{
-               show: !!errors.password,
-               message: errors.password?.message,
-            }}
-            tutorial
-         />
-
-         <PasswordInput
-            container={{
-               classNames: 'h-12'
-            }}
-            labelProps={{ text: 'Confirmar senha:', labelClasses: 'top-3', filled: watch('confirmPassword')?.length > 0 }}
-            inputProps={{
-               type: 'password',
-               register: { ...register('confirmPassword') },
-               id: 'confirm-password'
-            }}
-            error={{
-               show: !!errors.confirmPassword || !!errorMessageShow,
-               message: errorMessageShow
-                  ? 'Senha não coincidem'
-                  : errors.confirmPassword?.message,
-            }}
-         />
-
-         <strong className="mx-auto flex max-w-lg items-center gap-2 rounded-lg bg-red-600 p-2 text-[10px] leading-relaxed">
-            <AlertCircle size={24} />
-            Lembre-se: Para poder utilizar a plataforma, o proprietário deverá
-            conceder permissão, este é apenas o primeiro passo.
-         </strong>
-
-         <button
-            type="submit"
-            className="w-full rounded-lg flex items-center justify-center bg-indigo-500 py-2 text-white transition-all duration-300 ease-out hover:bg-indigo-700"
-            disabled={loading}
+            <Link href={'/login'} className='underline underline-offset-2'>
+               Retornar para Login
+            </Link>
+         </div>
+      ) : (
+         <form
+            onSubmit={handleSubmit(handleCreateUser)}
+            className="mx-auto my-0 flex w-full max-w-lg flex-col gap-7"
          >
-            {loading ? (
-               <Loader2Icon size={24} className="animate-spin" />
-            ) : (
-               'Entrar'
-            )}
-         </button>
-      </form>
+            <Input
+               container={{
+                  classNames: 'h-12'
+               }}
+               labelProps={{ text: 'Nome Completo:', labelClasses: 'top-3', filled: watch('name')?.length > 0 }}
+               inputProps={{
+                  type: 'text',
+                  register: { ...register('name') },
+                  id: 'user-name'
+               }}
+               error={{
+                  show: !!errors.email,
+                  message: errors.email?.message,
+               }}
+            />
+
+            <Input
+               container={{
+                  classNames: 'h-12'
+               }}
+               labelProps={{ text: 'Email:', labelClasses: 'top-3', filled: watch('email')?.length > 0 }}
+               inputProps={{
+                  type: 'email',
+                  register: { ...register('email') },
+                  id: 'create-user-email'
+               }}
+               error={{
+                  show: !!errors.email,
+                  message: errors.email?.message,
+               }}
+            />
+
+            <PasswordInput
+               container={{
+                  classNames: 'h-12'
+               }}
+               labelProps={{ text: 'Senha:', labelClasses: 'top-3', filled: watch('password')?.length > 0 }}
+               inputProps={{
+                  type: 'password',
+                  register: { ...register('password') },
+                  id: 'create-user-pass'
+               }}
+               error={{
+                  show: !!errors.password,
+                  message: errors.password?.message,
+               }}
+               tutorial
+            />
+
+            <PasswordInput
+               container={{
+                  classNames: 'h-12'
+               }}
+               labelProps={{ text: 'Confirmar senha:', labelClasses: 'top-3', filled: watch('confirmPassword')?.length > 0 }}
+               inputProps={{
+                  type: 'password',
+                  register: { ...register('confirmPassword') },
+                  id: 'confirm-password'
+               }}
+               error={{
+                  show: !!errors.confirmPassword || !!errorMessageShow,
+                  message: errorMessageShow
+                     ? 'Senha não coincidem'
+                     : errors.confirmPassword?.message,
+               }}
+            />
+
+            <strong className="mx-auto flex max-w-lg items-center gap-2 rounded-lg bg-red-600 p-2 text-[10px] leading-relaxed">
+               <AlertCircle size={24} />
+               Lembre-se: Para poder utilizar a plataforma, o proprietário deverá
+               conceder permissão, este é apenas o primeiro passo.
+            </strong>
+
+            <button
+               type="submit"
+               className="w-full rounded-lg flex items-center justify-center bg-indigo-500 py-2 text-white transition-all duration-300 ease-out hover:bg-indigo-700"
+               disabled={loading}
+            >
+               {loading ? (
+                  <Loader2Icon size={24} className="animate-spin" />
+               ) : (
+                  'Entrar'
+               )}
+            </button>
+         </form>
+      )
    );
 }
