@@ -1,4 +1,4 @@
-import { UserApi } from "./data-source"
+import { CreateUserApi } from "./data-source"
 
 type User = {
    data: {
@@ -9,16 +9,16 @@ type User = {
 }
 
 interface UserResolvers {
-   createUser: (_: any, { data }: User, { dataSources }: { dataSources: { userApi: UserApi } }) => any;
+   createUser: (_: any, { data }: User, { dataSources }: { dataSources: { createUserApi: CreateUserApi } }) => any;
 }
-   
+
 const createUser: UserResolvers['createUser'] = async (_, { data }, { dataSources }) => {
    const { email, userName, password } = data;
 
-   return dataSources.userApi.createUser({ email, userName, password });
+   return dataSources.createUserApi.createUser({ email, userName, password });
 };
 
-export const userResolvers = {
+export const createUserResolvers = {
    Mutation: {
       createUser,
    },

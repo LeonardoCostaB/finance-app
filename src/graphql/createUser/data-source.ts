@@ -21,13 +21,54 @@ type UserApiParams = {
    }
 }
 
-export class UserApi extends RESTDataSource {
+export class CreateUserApi extends RESTDataSource {
    constructor() {
       super();
       this.baseURL = process.env.BASE_URL as string;
    }
 
-   async getUser(email: string) {
+   async getUserById(id: string) {
+      const query = `
+         query GET_SUBSCRIBER($id: ID!) {
+            subscriber(where: { id: $id }) {
+               id,
+               sessionToken,
+            }
+         }
+      `;
+
+      const variables = { id };
+      const headers = {
+         'Content-Type': 'application/json',
+         'Authorization': process.env.AUTH_TOKEN as string,
+      };
+
+      try {
+         const { data: user } = await axios.post(
+            this.baseURL as string,
+            {
+               query,
+               variables
+            },
+            { headers }
+         )
+
+         return {
+            id: user.data.subscriber?.id ?? '',
+            token: user.data.subscriber?.sessionToken ?? '',
+         };
+
+      } catch (error: any) {
+         console.log(error.response.data.errors)
+
+         return {
+            id: '',
+            token: ''
+         }
+      }
+   }
+
+   async verifyIfUserExist(email: string) {
       const query = `
          query GET_SUBSCRIBER($email: String!) {
             subscriber(where: { email: $email }) {
@@ -66,7 +107,7 @@ export class UserApi extends RESTDataSource {
    }
 
    async createUser(data: UserApiParams['createUser']) {
-      const user = await this.getUser(data.email);
+      const user = await this.verifyIfUserExist(data.email);
 
       if (user.id) throw new GraphQLError('Esse usuário já possui cadastro, tente outro email...');
 

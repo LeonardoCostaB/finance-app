@@ -5,11 +5,16 @@ import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { typeDefs, resolvers } from '../../../graphql/schema';
 
 import { LoginApi } from '@/graphql/login/data-source';
-import { UserApi } from '@/graphql/createUser/data-source';
+import { CreateUserApi } from '@/graphql/createUser/data-source';
 import { userIsLoggedIn } from '@/utils/verify-user';
+import { UserApi } from '@/graphql/user/data-source';
 
 interface CustomContext {
-   dataSources: { loginApi: LoginApi; userApi: UserApi };
+   dataSources: {
+      loginApi: LoginApi;
+      createUserApi: CreateUserApi;
+      userApi: UserApi;
+   };
    isLoggedIn: string;
 }
 
@@ -21,6 +26,7 @@ const handler = startServerAndCreateNextHandler<NextRequest, CustomContext>(apol
       res: new NextResponse(),
       dataSources: {
          loginApi: new LoginApi(),
+         createUserApi: new CreateUserApi(),
          userApi: new UserApi(),
       },
       isLoggedIn: await userIsLoggedIn(),

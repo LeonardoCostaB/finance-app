@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const userTypeDefs = gql`
+export const createUserTypeDefs = gql`
    extend type Mutation {
       createUser(data: CreateUserInput!): User!
    }

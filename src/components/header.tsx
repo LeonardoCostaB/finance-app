@@ -1,9 +1,7 @@
-import { PiggyBank } from "lucide-react";
+import { useLoggedIn } from "@/hooks/use-loggedIn";
+import { PiggyBank, User } from "lucide-react";
+import { useEffect } from "react";
 import Image from "next/image";
-import  jwt  from "jsonwebtoken";
-
-import Cookies from "js-cookie";import { useEffect } from "react";
-3
 
 interface HeaderProps {
    search?: {
@@ -12,6 +10,12 @@ interface HeaderProps {
 }
 
 export function Header({ search }: HeaderProps) {
+   const { getUser, user } = useLoggedIn();
+
+   useEffect(() => {
+      getUser()
+   }, [])
+
    return (
       <header className="w-full flex items-center justify-end p-8 gap-2 relative">
          {search && (
@@ -26,24 +30,32 @@ export function Header({ search }: HeaderProps) {
          )}
 
          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-xs ring-2 ring-lime-400 rounded-md p-2 mr-4">
-               <PiggyBank size={25} />
+            {user?.economy && (
+               <div className="flex items-center gap-2 text-xs ring-2 ring-lime-400 rounded-md p-2 mr-4">
+                  <PiggyBank size={25} />
 
-               <strong>R$ 1.200,00</strong>
-            </div>
+                  <strong>
+                     {(user.economy)?.toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
+                  </strong>
+               </div>
+            )}
 
-            <span>Leonardo Costa</span>
+            <span>{user?.name}</span>
 
             <button
                type="button"
-               className="h-10 w-10 rounded-full overflow-hidden"
+               className="h-10 w-10 rounded-full overflow-hidden bg-slate-700"
             >
-               <Image
-                  src="https://instagram.fgig14-2.fna.fbcdn.net/v/t51.2885-19/404033193_370405728770896_7937169088078739060_n.jpg?stp=dst-jpg_s150x150&_nc_ht=instagram.fgig14-2.fna.fbcdn.net&_nc_cat=104&_nc_ohc=5wE0NoP7WMcQ7kNvgHjAqc8&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AYAibAkzrGyxYAGtVY1F5POugn-DiKsHUm3podxnz6ZTqw&oe=6679212B&_nc_sid=8b3546"
-                  alt="Foto de leonardo Costa"
-                  width={40}
-                  height={40}
+               {user?.avatar.url ? (
+                  <Image
+                     src={user?.avatar.url as string}
+                     alt={`Foto de ${user?.name}`}
+                     width={40}
+                     height={40}
                   />
+               ) : (
+                  <User size={40} className="p-1" />
+               )}
             </button>
          </div>
       </header>

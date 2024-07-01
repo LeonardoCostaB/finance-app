@@ -6,7 +6,7 @@ const nextConfig = {
       remotePatterns: [
         {
           protocol: 'https',
-          hostname: 'instagram.fgig14-2.fna.fbcdn.net',
+          hostname: 'media.graphassets.com',
           port: '',
         },
         {
