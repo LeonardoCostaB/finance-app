@@ -13,7 +13,7 @@
     "@apollo/server": "^4.10.4",
     "@as-integrations/next": "^3.0.0",
     "@hookform/resolvers": "^3.6.0",
-    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-dialog": "^1.1.1",
     "apollo-datasource-rest": "^3.7.0",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",

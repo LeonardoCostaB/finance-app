@@ -45,6 +45,11 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
    function getUser() {
       getUserQuery({
          variables: { email: '' },
+         onError: (error) => {
+            if (error.message === 'Unauthenticated') {
+               router.push('/unauthenticated')
+            }
+         },
          onCompleted: (data) => {
             setUser(data.user);
          },

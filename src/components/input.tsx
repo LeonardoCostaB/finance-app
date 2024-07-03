@@ -53,14 +53,23 @@ export function Input({
             {text} {required && <span className="text-red-500">*</span>}
          </label>
 
-         <input
-            type={type}
-            id={id}
-            min={typeNumber?.min}
-            maxLength={typeNumber?.max}
-            {...register}
-            className={`h-full w-full rounded-lg bg-gray-800 px-4 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${classNames ?? ''} ${error?.show ? 'ring-2 ring-red-500' : ''}`}
-         />
+         {type === 'textarea' ? (
+            <textarea
+               id={id}
+               {...register}
+               className={`w-full rounded-lg bg-gray-800 px-4 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${classNames ?? ''} ${error?.show ? 'ring-2 ring-red-500' : ''}`}
+            />
+         ) : (
+            <input
+               type={type}
+               id={id}
+               min={typeNumber?.min}
+               maxLength={typeNumber?.max}
+               {...register}
+               className={`h-full w-full rounded-lg bg-gray-800 px-4 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${classNames ?? ''} ${error?.show ? 'ring-2 ring-red-500' : ''}`}
+            />
+         )}
+
 
          {error?.message && (
             <span className="absolute -bottom-5 left-3 text-xs text-red-500">{error.message}</span>
