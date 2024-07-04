@@ -46,7 +46,7 @@ export function Header({ search }: HeaderProps) {
                type="button"
                className="h-10 w-10 rounded-full overflow-hidden bg-slate-700"
             >
-               {user?.avatar.url ? (
+               {user?.avatar?.url ? (
                   <Image
                      src={user?.avatar.url as string}
                      alt={`Foto de ${user?.name}`}
