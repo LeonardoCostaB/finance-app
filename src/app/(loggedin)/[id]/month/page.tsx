@@ -4,10 +4,13 @@ import { Note } from "../../page";
 import { FormattedPrice } from "@/components/formatted-price";
 import { Header } from "@/components/header";
 import { MonthlyExpenses } from "@/components/monthly-expenses";
+import { useLoggedIn } from "@/hooks/use-loggedIn";
 import clsx from "clsx";
 import { useEffect, useState } from "react"
 
 export default function Month({ params }: { params: { id: string } }) {
+   const { user } = useLoggedIn();
+
    const [month, setMonth] = useState<Note | undefined>({} as Note);
    const [toggleLayout, setToggleLayout] = useState<'profit' | 'spent'>('profit');
 
@@ -28,7 +31,7 @@ export default function Month({ params }: { params: { id: string } }) {
          <Header />
 
          <main className="flex flex-col items-center max-w-7xl mx-auto mb-20">
-            <h1 className="text-4xl">{month.month}</h1>
+            <h1 className="text-4xl">{user?.months[0].title}</h1>
 
             <div className="flex justify-center mt-10 w-1/2">
                <button
@@ -109,38 +112,20 @@ export default function Month({ params }: { params: { id: string } }) {
                   </div>
                </section>
             ) : (
-               <MonthlyExpenses extract={{
-                  title: 'Moveis',
-                  expenses: [
-                     {
-                        id: 'cama',
-                        name: 'cama',
-                        value: 2000,
-                        date: {
-                           published: '2022-01-01',
-                           paidOut: '2022-01-31',
-                        }
-                     },
-                     {
-                        id: 'guarda-roupa',
-                        name: 'Guarda Roupa',
-                        value: 2000,
-                        date: {
-                           published: '2022-01-01',
-                           paidOut: '2022-01-31',
-                        }
-                     },
-                     {
-                        id: 'televisao',
-                        name: 'Televisao',
-                        value: 2500,
-                        date: {
-                           published: '2022-01-01',
-                           paidOut: '2022-01-31',
-                        }
-                     }
-                  ]
-               }} />
+               user?.months && (
+                  user.months.map((month) => (
+                     <MonthlyExpenses
+                        key={month.title}
+                        monthId={params.id}
+                        expense={{
+                           title: month.expenses[0].title,
+                           extract: month.expenses
+                              .map(expense => expense.extract)
+                              .reduce((acc, curr) => acc.concat(curr) , [])
+                        }}
+                     />
+                  ))
+               )
             )}
 
          </main>

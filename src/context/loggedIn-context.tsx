@@ -18,6 +18,24 @@ const GET_USER_BY_EMAIL = gql`
             id
             url
          }
+         months {
+            id
+            title
+            expenses {
+               title
+               extract {
+                  id
+                  name
+                  value
+                  date {
+                     published
+                     paidOut
+                  }
+                  link
+                  notes
+               }
+            }
+         }
       }
    }
 `;
@@ -49,6 +67,7 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
             if (error.message === 'Unauthenticated') {
                router.push('/unauthenticated')
             }
+            console.log(error)
          },
          onCompleted: (data) => {
             setUser(data.user);

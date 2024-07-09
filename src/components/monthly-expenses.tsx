@@ -1,25 +1,21 @@
 import { FormattedPrice } from "./formatted-price";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Input } from "./input";
-import { Handshake, Info, Trash2 } from "lucide-react";
+import { Check, Handshake, Info, Loader2Icon, Trash2 } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import { InformationModal } from "./information-modal";
+import Link from "next/link";
+import { useMutation } from "@apollo/client";
+import { CREATE_EXPENSE_ITEM, DELETE_EXPENSE_ITEM, PAY_EXPENSE_ITEM } from "@/graphql/front-end/querys";
+import { toast } from "sonner";
+import { SubmitButton } from "./submit-button";
 
 interface MonthlyExpensesProps {
-   extract: {
-      title: string;
-      expenses: Array<{
-         id: string;
-         name: string;
-         value: number;
-         date: {
-            published: string;
-            paidOut?: string;
-         };
-      }>;
-   }
+   monthId: string
+   expense: Expenses;
 }
 
 const createNewExpenseFormSchema = z.object({
@@ -31,7 +27,7 @@ const createNewExpenseFormSchema = z.object({
 
 type CreateNewExpenseFormData = z.infer<typeof createNewExpenseFormSchema>;
 
-export function MonthlyExpenses({ extract }: MonthlyExpensesProps) {
+export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
    const {
       register,
       handleSubmit,
@@ -46,36 +42,85 @@ export function MonthlyExpenses({ extract }: MonthlyExpensesProps) {
       },
    });
 
-   const [expenses, setExpenses] = useState<MonthlyExpensesProps['extract']['expenses']>([])
+   const [createExpenseItem, { loading }] = useMutation(CREATE_EXPENSE_ITEM);
+   const [deleteExpenseItem, { loading: deleteLoading }] = useMutation(DELETE_EXPENSE_ITEM);
+   const [payExpenseItem, { loading: payLoading }] = useMutation(PAY_EXPENSE_ITEM);;
+
+   const [expenses, setExpenses] = useState<MonthlyExpensesProps['expense']['extract']>([])
    const [shouldShowModal, setShouldShowModal] = useState(false);
 
    function handleOnSubmit(data: CreateNewExpenseFormData) {
-      console.log(data);
+      createExpenseItem({
+         variables: {
+            data: {
+               title: expense.title,
+               name: data.name,
+               value: data.value,
+               link: data.link,
+               notes: data.notes
+             }
+         },
+         onCompleted: (data) => {
+            setExpenses([...data.addExpenseItem.expenses[0].extract]);
 
-      setExpenses([
-         ...expenses,
-         {
-            id: data.name,
-            name: data.name,
-            value: data.value,
-            date: {
-               published: new Date().toISOString(),
+            reset();
+            setShouldShowModal(false);
+            toast.success('Despesa criada com sucesso!');
+         },
+         onError: (error) => {
+            toast.error(error.message);
+         },
+      })
+   }
+
+   function handleOnDeleteExpenseItem(expenseItemId: string) {
+      deleteExpenseItem({
+         variables: {
+            data: {
+               monthId: "clyc8umdi153k07m0uglojucv",
+               expenseTitle: expense.title,
+               expenseItemId
+             }
+         },
+         onCompleted: (data) => {
+            if (data.deleteExpenseItem) {
+               setExpenses(prev => prev.filter(prev => prev.id !== expenseItemId));
             }
-         }
-      ]);
+         },
+         onError: (error) => {
+            toast.error(error.message);
+         },
+      });
+   }
 
-      reset();
-      setShouldShowModal(false);
+   function handleOnPayExpense(expenseItemId: string) {
+      payExpenseItem({
+         variables: {
+            data: {
+               monthId: "clyc8umdi153k07m0uglojucv",
+               expenseTitle: expense.title,
+               expenseItemId
+             }
+         },
+         onCompleted: (data) => {
+            if (data.payExpense.expenses) {
+               setExpenses([...data.payExpense.expenses[0].extract]);
+            }
+         },
+         onError: (error) => {
+            toast.error(error.message);
+         },
+      });
    }
 
    useEffect(() => {
-      setExpenses(extract.expenses);
+      setExpenses(expense.extract);
    }, [])
 
    return (
       <div className="w-1/2 p-4 mt-6 bg-slate-800 rounded-lg box-border">
          <div className="flex items-center justify-between mb-5 px-1">
-            <h3 className="text-xl">{extract.title}</h3>
+            <h3 className="text-xl">{expense.title}</h3>
 
             <FormattedPrice
                price={expenses.reduce((a, b) => a + b.value, 0)}
@@ -95,20 +140,100 @@ export function MonthlyExpenses({ extract }: MonthlyExpensesProps) {
                   <div className="flex items-center gap-2">
                      <FormattedPrice price={expense.value} style="normal" classNames="text-sm" />
 
+                     <InformationModal
+                        button={{
+                           icon: <Info size={16} className="text-blue-400" />,
+                           title: 'Informações'
+                        }}
+                        modal={{
+                           title: expense.name,
+                        }}
+                     >
+                        <div>
+                           <div>
+                              <span>Data de Publicação:</span>
+                              <span>
+                                 {new Date(expense.date.published).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                              </span>
+                           </div>
 
-                     <button type="button" title="Informações">
-                        <Info size={16} className="text-blue-400" />
-                     </button>
+                           {expense.date.paidOut && (
+                              <div>
+                                 <span>Data de Pagamento:</span>
+                                 <span>
+                                    {new Date(expense.date.paidOut).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                 </span>
+                              </div>
+                           )}
 
-                     <button type="button" title="Realizei o pagamento">
-                        <Handshake size={16} className="text-green-400" />
-                     </button>
+                           {expense.link && (
+                              <div>
+                                 <span>Link:</span>
+                                 <Link href={expense.link} target="_blank">{expense.link}</Link>
+                              </div>
+                           )}
 
-                     <button type="button" title="Deletar despesa">
-                        <Trash2 size={16} className="text-red-400" />
-                     </button>
+                           {expense.notes && (
+                              <div>
+                                 <span>Notas:</span>
+                                 <span>{expense.notes}</span>
+                              </div>
+                           )}
+                        </div>
+                     </InformationModal>
+
+                     {expense.date?.paidOut ? (
+                        <span className="inline-block p-1" title="Pago">
+                           <Check size={16} className="text-green-400" />
+                        </span>
+                     ) : (
+                        <InformationModal
+                           button={{
+                              icon: <Handshake size={16} className="text-green-400" />,
+                              title: 'Marcar como pago'
+                           }}
+                           modal={{
+                              title: 'Deseja marca como pago ?'
+                           }}
+                        >
+                           <div>
+                              <p>
+                                 Essa cobrança deixará de contar em sua despesa mensal
+                              </p>
+
+                              <SubmitButton
+                                 type="button"
+                                 loading={payLoading}
+                                 bgColor={{ color: 'bg-green-400', hover: 'bg-green-600' }}
+                                 onClick={() => handleOnPayExpense(expense.id)}
+                              />
+                           </div>
+                        </InformationModal>
+                     )}
+
+                     <InformationModal
+                        button={{
+                           icon: <Trash2 size={16} className="text-red-400" />,
+                           title: 'Deletar despesa'
+                        }}
+                        modal={{
+                           title: 'Deletar despesa'
+                        }}
+                     >
+                        <div>
+                           <p>
+                              Ao deletar essa despesa ela será perdida para sempre
+                           </p>
+
+                           <SubmitButton
+                              type="button"
+                              loading={deleteLoading}
+                              bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
+                              onClick={() => handleOnDeleteExpenseItem(expense.name)}
+                           />
+                        </div>
+                     </InformationModal>
                   </div>
-
                </li>
             ))}
          </ul>
@@ -211,8 +336,16 @@ export function MonthlyExpenses({ extract }: MonthlyExpensesProps) {
                            </div>
                         </div>
 
-                        <button type="submit">
-                           Salvar
+                        <button
+                           type="submit"
+                           className="w-full rounded-lg flex items-center justify-center bg-indigo-500 py-2 text-white transition-all duration-300 ease-out hover:bg-indigo-700"
+                           disabled={loading}
+                        >
+                           {loading ? (
+                              <Loader2Icon size={24} className="animate-spin" />
+                           ) : (
+                              'Entrar'
+                           )}
                         </button>
                      </form>
                   </Dialog.Content>
