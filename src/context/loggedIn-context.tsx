@@ -7,7 +7,7 @@ import { ApolloProvider, gql, useLazyQuery } from '@apollo/client';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 
-const GET_USER_BY_EMAIL = gql`
+export const GET_USER_BY_EMAIL = gql`
    query getUserByEmail($email: String!) {
       user(data: { email: $email }) {
          id
@@ -21,6 +21,7 @@ const GET_USER_BY_EMAIL = gql`
          months {
             id
             title
+            createdAt
             expenses {
                title
                extract {
@@ -35,6 +36,19 @@ const GET_USER_BY_EMAIL = gql`
                   notes
                }
             }
+            earnings {
+               title
+               extract {
+                  id
+                  name
+                  value
+                  date {
+                     published
+                  }
+                  link
+                  notes
+               }
+            }
          }
       }
    }
@@ -42,6 +56,7 @@ const GET_USER_BY_EMAIL = gql`
 
 interface LoggedInContextProps {
    getUser: () => void;
+   updateUser: (user: User) => void;
    user: User | null;
 }
 
@@ -51,6 +66,7 @@ interface LoggedInProviderProps {
 
 const LoggedInContext = createContext<LoggedInContextProps>({
    getUser: () => {},
+   updateUser: () => {},
    user: null,
 });
 
@@ -58,7 +74,7 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
    const  [getUserQuery]  = useLazyQuery(GET_USER_BY_EMAIL);
    const router = useRouter();
 
-   const [user, setUser] = useState(null);
+   const [user, setUser] = useState<User | null>(null);
 
    function getUser() {
       getUserQuery({
@@ -75,6 +91,10 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
       })
    }
 
+   function updateUser(user: User) {
+      setUser(user);
+   }
+
    useEffect(() => {
       if (!Cookies.get('isLoggedIn')) {
          router.push('/unauthenticated');
@@ -85,6 +105,7 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
       <ApolloProvider client={apolloClient}>
          <LoggedInContext.Provider value={{
             getUser,
+            updateUser,
             user,
          }}>
             {children}

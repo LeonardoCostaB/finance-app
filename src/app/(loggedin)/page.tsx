@@ -4,6 +4,7 @@ import { NewNoteCard } from "@/components/new-note-card";
 import { NoteCard } from "@/components/note-card";
 import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
+import { useLoggedIn } from "@/hooks/use-loggedIn";
 
 export interface Note {
    id: string;
@@ -15,54 +16,26 @@ export interface Note {
 }
 
 export default function Home() {
+   const { user } = useLoggedIn()
+
    const [search, setSearch] = useState('');
-   const [notes, setNotes] = useState<Note[]>([]);
+   const [months, setMonths] = useState<Months[] | undefined>([]);
 
-   function onNoteCreated(content: string) {
-      const newNote: Note = {
-         id: crypto.randomUUID(),
-         month: new Date().toLocaleString('pt-BR', { month: 'long' }),
-         date: new Date(),
-         balance: +Math.random().toFixed(2),
-         content,
-      }
+   function onNoteCreated(content: string) {}
 
-      const notesArray = [newNote, ...notes]
-
-      setNotes(notesArray);
-
-      localStorage.setItem('notes', JSON.stringify(notesArray))
-   }
-
-   function onNoteDeleted(id: string) {
-      const notesArray = notes.filter(note => note.id!== id);
-
-      setNotes(notesArray);
-
-      localStorage.setItem('notes', JSON.stringify(notesArray));
-   }
+   function onNoteDeleted(id: string) {}
 
    function handleSearch(search: string) {
       setSearch(search);
    }
 
-   const filteredNotes = search !== '' ?
-      notes.filter(note => note.month.toLowerCase().includes(search.toLowerCase())) :
-      notes;
+   // const filteredNotes = search !== '' ?
+   //    notes.filter(note => note.month.toLowerCase().includes(search.toLowerCase())) :
+   //    notes;
 
    useEffect(() => {
-      const notesOnLocalStorage = localStorage.getItem('notes');
-
-      if (notesOnLocalStorage) {
-         const notesArray = JSON.parse(notesOnLocalStorage) as Note[]
-
-         const orderByDate = notesArray.sort((a, b) => {
-            return new Date(a.date).getTime() - new Date(b.date).getTime()
-         })
-
-         setNotes(orderByDate);
-      }
-   }, [])
+      setMonths(user?.months);
+   }, [user])
 
    return (
       <>
@@ -70,19 +43,23 @@ export default function Home() {
 
          <div className="mx-auto max-w-6xl my-12 space-y-6 px-5">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[250px]">
-               {filteredNotes.map(note => (
-                  <NoteCard
-                  key={note.id}
-                  note={{
-                     id: note.id,
-                     balance: note.balance,
-                     month: note.month,
-                     date: note.date,
-                     content: note.content
-                  }}
-                  onNoteDeleted={onNoteDeleted}
-                  />
-               ))}
+               {months && months.length > 0 ? (
+                  months.map(month => (
+                     <NoteCard
+                        key={month.id}
+                        note={{
+                           id: month.id,
+                           balance: 0,
+                           content: 'teste',
+                           date: month.createdAt,
+                           month: month.title,
+                        }}
+                        onNoteDeleted={() => false}
+                     />
+                  ))
+               ) : (
+                   <>Carregando</>
+               )}
 
                <NewNoteCard onNoteCreated={onNoteCreated} />
             </div>

@@ -1,3 +1,17 @@
+interface Earnings {
+   title: string;
+   extract: Array<{
+      id: string;
+      name: string;
+      value: number;
+      date: {
+         published: string;
+      };
+      link?: string;
+      notes?: string;
+   }>
+}
+
 interface Expenses {
    title: string;
    extract: Array<{
@@ -16,8 +30,12 @@ interface Expenses {
 interface Months {
    id: string;
    title: string;
+   createdAt: string;
+   user?: {
+      id
+   }
    expenses: Array<Expenses>;
-   earnings: any;
+   earnings: Array<Earnings>;
 }
 
 interface User {

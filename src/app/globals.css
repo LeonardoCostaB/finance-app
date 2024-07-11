@@ -2,19 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-#table::-webkit-scrollbar {
-   width: 1px;
+#month-sub-items::-webkit-scrollbar {
+   width: 2px;
    height: 10px;
 }
 
-#table::-webkit-scrollbar-track {
+#month-sub-items::-webkit-scrollbar-track {
    background-color: transparent;
 }
 
-#table::-webkit-scrollbar-thumb {
-   @apply bg-slate-800;
+#month-sub-items:hover::-webkit-scrollbar-thumb {
    border-radius: 20px;
-   border: 1px solid transparent;
+   border: 1px solid;
+   @apply border-slate-500;
+
+   @apply bg-slate-800;
 }
 
 .input-wrapper:has(input:focus) label,

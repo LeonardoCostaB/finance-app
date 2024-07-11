@@ -1,17 +1,21 @@
-import { FormattedPrice } from "./formatted-price";
+import { useEffect, useState } from "react";
+import { useMutation } from "@apollo/client";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Input } from "./input";
-import { Check, Handshake, Info, Loader2Icon, Trash2 } from "lucide-react";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
-import { InformationModal } from "./information-modal";
-import Link from "next/link";
-import { useMutation } from "@apollo/client";
-import { CREATE_EXPENSE_ITEM, DELETE_EXPENSE_ITEM, PAY_EXPENSE_ITEM } from "@/graphql/front-end/querys";
 import { toast } from "sonner";
+import { z } from "zod";
+
+import Link from "next/link";
+import { Input } from "./input";
+import { FormattedPrice } from "./formatted-price";
+import { Check, Handshake, Info, Loader2Icon, Trash2 } from "lucide-react";
+import { InformationModal } from "./information-modal";
 import { SubmitButton } from "./submit-button";
+
+import { useLoggedIn } from "@/hooks/use-loggedIn";
+import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
+import { CREATE_EXPENSE_ITEM, DELETE_EXPENSE_ITEM, PAY_EXPENSE_ITEM } from "@/graphql/front-end/querys";
 
 interface MonthlyExpensesProps {
    monthId: string
@@ -19,7 +23,10 @@ interface MonthlyExpensesProps {
 }
 
 const createNewExpenseFormSchema = z.object({
-   name: z.string().min(3, 'Mínimo 3 caracteres'),
+   name: z
+      .string()
+      .min(3, 'Mínimo 3 caracteres')
+      .transform(name => name[0].toUpperCase() + name.substring(1)),
    value: z.number().min(1, 'Mínimo R$ 1'),
    link: z.union([z.literal(''), z.string()]),
    notes: z.union([z.literal(''), z.string().min(5, 'Mínimo de 5 caracteres')]),
@@ -28,6 +35,8 @@ const createNewExpenseFormSchema = z.object({
 type CreateNewExpenseFormData = z.infer<typeof createNewExpenseFormSchema>;
 
 export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
+   const { user, updateUser } = useLoggedIn();
+
    const {
       register,
       handleSubmit,
@@ -49,20 +58,53 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
    const [expenses, setExpenses] = useState<MonthlyExpensesProps['expense']['extract']>([])
    const [shouldShowModal, setShouldShowModal] = useState(false);
 
-   function handleOnSubmit(data: CreateNewExpenseFormData) {
-      createExpenseItem({
+   async function handleOnSubmit(data: CreateNewExpenseFormData) {
+      await createExpenseItem({
          variables: {
+            monthId,
             data: {
                title: expense.title,
                name: data.name,
                value: data.value,
                link: data.link,
                notes: data.notes
-             }
+            }
          },
-         onCompleted: (data) => {
-            setExpenses([...data.addExpenseItem.expenses[0].extract]);
+         update: (cache, { data }) => {
+            if (user) {
+               const newExpensesItems = [
+                  ...data.addExpenseItem.expenses as Months['expenses'],
+               ]
 
+               const updatedData = {
+                  ...user,
+                  months: [
+                     ...user.months.filter((month) => month.id !== monthId),
+                     ...user.months
+                        .filter((month) => month.id === monthId)
+                        .map(month => ({
+                           ...month,
+                           expenses: newExpensesItems,
+                        })),
+                  ]
+               };
+
+               cache.writeQuery({
+                  query: GET_USER_BY_EMAIL,
+                  data: updatedData,
+                  variables: { email: '' },
+               });
+
+               updateUser(updatedData);
+
+               setExpenses(
+                  updatedData.months
+                  .filter(month => month.id === monthId)[0].expenses
+                  .filter(exp => exp.title === expense.title)[0].extract
+               )
+            }
+         },
+         onCompleted: () => {
             reset();
             setShouldShowModal(false);
             toast.success('Despesa criada com sucesso!');
@@ -77,13 +119,35 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
       deleteExpenseItem({
          variables: {
             data: {
-               monthId: "clyc8umdi153k07m0uglojucv",
+               monthId,
                expenseTitle: expense.title,
                expenseItemId
              }
          },
-         onCompleted: (data) => {
-            if (data.deleteExpenseItem) {
+         update: (cache) => {
+            const existingData: { user: User } | null  = cache.readQuery({
+               query: GET_USER_BY_EMAIL,
+               variables: { email: '' },
+            })
+
+            if (existingData) {
+               const updatedData = {
+                  ...existingData.user,
+                  months: [
+                     ...existingData.user.months.filter((month) => month.id !== monthId),
+                     ...existingData.user.months
+                        .filter((month) => month.id === monthId)[0].expenses
+                        .filter(ex => ex.title === expense.title)[0].extract
+                        .filter(extract => extract.id !== expenseItemId)
+                  ]
+               }
+
+               cache.writeQuery({
+                  query: GET_USER_BY_EMAIL,
+                  data: updatedData,
+                  variables: { email: '' },
+               });
+
                setExpenses(prev => prev.filter(prev => prev.id !== expenseItemId));
             }
          },
@@ -97,17 +161,42 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
       payExpenseItem({
          variables: {
             data: {
-               monthId: "clyc8umdi153k07m0uglojucv",
+               monthId,
                expenseTitle: expense.title,
                expenseItemId
              }
          },
-         onCompleted: (data) => {
-            if (data.payExpense.expenses) {
+         update: (cache, { data }) => {
+            const existingData: { user: User } | null  = cache.readQuery({
+               query: GET_USER_BY_EMAIL,
+               variables: { email: '' },
+            })
+
+            if (existingData) {
+               const updatedData = {
+                  ...existingData.user,
+                  months: [
+                     ...existingData.user.months.filter((month) => month.id !== monthId),
+                     ...existingData.user.months
+                        .filter((month) => month.id === monthId)
+                        .map(month => ({
+                           ...month,
+                           expenses: data.payExpense.expenses,
+                        })),
+                  ]
+               }
+
+               cache.writeQuery({
+                  query: GET_USER_BY_EMAIL,
+                  data: updatedData,
+                  variables: { email: '' },
+               });
+
                setExpenses([...data.payExpense.expenses[0].extract]);
             }
          },
          onError: (error) => {
+            console.log(error)
             toast.error(error.message);
          },
       });
@@ -120,7 +209,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
    return (
       <div className="w-1/2 p-4 mt-6 bg-slate-800 rounded-lg box-border">
          <div className="flex items-center justify-between mb-5 px-1">
-            <h3 className="text-xl">{expense.title}</h3>
+            <h3 className="text-xl capitalize">{expense.title}</h3>
 
             <FormattedPrice
                price={expenses.reduce((a, b) => a + b.value, 0)}
@@ -129,7 +218,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
             />
          </div>
 
-         <ul className="flex flex-col items-center justify-center">
+         <ul id="month-sub-items" className="flex flex-col items-center max-h-[400px] overflow-y-auto">
             {expenses.map((expense) => (
                <li
                   key={expense.id}
@@ -241,7 +330,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
          <div className="w-full flex justify-end mt-6">
             <Dialog.Root open={shouldShowModal} onOpenChange={(open) => setShouldShowModal(open)}>
                <Dialog.Trigger type="button" className="border p-2 rounded-lg">
-                  Adicionar mais +
+                  {expenses.length > 0 ? 'Adicionar mais +' : 'Adicione uma despesa'}
                </Dialog.Trigger>
 
                <Dialog.Portal>

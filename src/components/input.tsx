@@ -63,6 +63,7 @@ export function Input({
             <input
                type={type}
                id={id}
+               name={id}
                min={typeNumber?.min}
                maxLength={typeNumber?.max}
                {...register}

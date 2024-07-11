@@ -7,6 +7,8 @@ import { userTypeDefs } from "./user/type-defs";
 import { loginResolvers } from "./login/resolvers";
 import { createUserResolvers } from "./createUser/resolvers";
 import { userResolvers } from "./user/resolvers";
+import { monthResolvers } from "./server/month/resolvers";
+import { monthTypeDefs } from "./server/month/type-defs";
 
 const rootTypeDefs = gql`
    type Query {
@@ -37,10 +39,12 @@ export const typeDefs = [
    loginTypeDefs,
    createUserTypeDefs,
    userTypeDefs,
+   monthTypeDefs,
 ];
 export const resolvers = [
    rootResolvers,
    loginResolvers,
    createUserResolvers,
    userResolvers,
+   monthResolvers,
 ];

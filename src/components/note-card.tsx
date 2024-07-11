@@ -10,7 +10,7 @@ interface NoteCardProps {
       id: string;
       month: string;
       lastUpdate?: Date;
-      date: Date;
+      date: string;
       balance: number
       content: string;
    }
