@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { gql, useMutation } from '@apollo/client';
-import { useRouter } from 'next/navigation';
 
 import Link from 'next/link';
 import { Input } from './input';
@@ -29,7 +28,6 @@ type UserLoginFormData = z.infer<typeof userLoginFormSchema>;
 
 export function LoginForm() {
    const [ login, { loading } ] = useMutation(LOGIN)
-   const router = useRouter()
 
    const {
       register,
@@ -51,7 +49,7 @@ export function LoginForm() {
          },
          onCompleted: (data) => {
             if (data?.login.token) {
-               router.push('/');
+               window.location.reload();
             }
          }
       })
