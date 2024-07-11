@@ -2,6 +2,8 @@ import { gql } from "@apollo/client";
 
 export const monthTypeDefs = gql`
    extend type Mutation {
+      createMonth(data: MonthInput): Months
+
       createEarningOrExpense(data: CreateEarningOrExpenseInput): CreateEarningOrExpenseRes
       createEarningItem(monthId: String!, data: ExpenseItemInput): CreateEarningItemResponse
       deleteEarningItem(data: PayEarningInput): Boolean!
@@ -80,10 +82,16 @@ export const monthTypeDefs = gql`
    }
 
    # Month
+   input MonthInput {
+      month: String!
+      year: String!
+   }
+
    type Months {
       id: ID!
       title: String!
       createdAt: String!
+      date: String
       expenses: [Expenses]
       earnings: [Expenses]
    }

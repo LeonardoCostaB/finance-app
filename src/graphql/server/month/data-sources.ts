@@ -2,6 +2,7 @@ import axios from "axios";
 import { RESTDataSource } from "apollo-datasource-rest";
 import { AddExpenseItem } from "./resolvers";
 import { normalizeId } from "@/utils/normalize-id";
+import { GraphQLError } from "graphql";
 
 export class MonthApi extends RESTDataSource {
    private headers: { ['Content-Type']: string; Authorization: string }
@@ -54,6 +55,69 @@ export class MonthApi extends RESTDataSource {
 
       } catch (error) {
          console.log(error);
+      }
+   }
+
+   async createMonth(data: { month: string, year: string }, userMonths?: Months[]) {
+      const months = userMonths?.map(month => ({
+         month: new Date(month.date).getMonth().toString(),
+         year: new Date(month.date).getFullYear().toString(),
+      }))
+
+      const verifyIfMonthExists = months?.filter(month => month.month === data.month && month.year === data.year);
+
+      if (verifyIfMonthExists && verifyIfMonthExists?.length > 0) throw new GraphQLError('Você já cadastrou esse mês');
+
+      const date = new Date(`${data.year}-${String(+data.month+1)}-01`,)
+
+
+      const query = `
+         mutation CREATE_MONTH(
+            $ref: String!,
+            $title: String!,
+            $date: String!,
+            $id: ID!
+         ) {
+            createMonth(data: {
+               ref: $ref,
+               title: $title,
+               date: $date,
+               user: {connect: {id: $id}},
+               expenses: [],
+               earnings: [],
+            }) {
+               id
+               title
+               createdAt
+               date
+               expenses
+               earnings
+            }
+
+            publishMonth(where: {ref: $ref}) {
+               id
+            }
+         }
+      `
+
+      const variables = {
+         ref: `${date.toLocaleDateString('pt-BR', { month: 'long' })}-${this.userId}`,
+         title: date.toLocaleDateString('pt-BR', { month: 'long' }),
+         date,
+         id: this.userId,
+      }
+
+      try {
+         const { data: cms } = await axios.post<{ data: { createMonth: Months }}>(
+            this.baseURL as string,
+            { query, variables },
+            { headers: this.headers }
+         )
+
+         return cms.data.createMonth
+
+      } catch (e: any) {
+         console.log(e.response.data)
       }
    }
 
@@ -142,6 +206,8 @@ export class MonthApi extends RESTDataSource {
 
       } catch (error) {
          console.log(error)
+
+         throw new GraphQLError('Tivemos um erro, tente novamente mais tarde')
       }
    }
 

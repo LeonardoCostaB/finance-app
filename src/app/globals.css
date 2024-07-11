@@ -28,3 +28,35 @@ label.filled {
 
    @apply text-xs;
 }
+
+.select-wrapper:has(input[type="text"]:focus) #options-select {
+   @apply visible;
+   @apply max-h-[222px];
+   @apply opacity-100;
+}
+
+.select-wrapper:has(input[type="text"]:focus) .arrow-input {
+   @apply rotate-180;
+}
+
+#option:has(input:checked),
+#option:hover {
+   @apply bg-neutral-200;
+}
+
+#option:has(input:focus) {
+   @apply ring-1;
+   @apply ring-blue-300;
+}
+
+#option input[type="radio"] {
+   position: absolute;
+   inset: 0;
+
+   cursor: pointer;
+}
+
+#option:has(input:checked) svg {
+   @apply block;
+}
+

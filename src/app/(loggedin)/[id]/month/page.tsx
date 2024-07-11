@@ -105,7 +105,9 @@ export default function Month({ params }: { params: { id: string } }) {
 
    useEffect(() => {
       setMonth(user?.months.filter(month => month.id === params.id))
-   }, [user])
+   }, [params.id, user])
+
+   console.log(month)
 
    return month && user && user.months ? (
       <>
@@ -113,7 +115,7 @@ export default function Month({ params }: { params: { id: string } }) {
 
          <main className="flex flex-col items-center max-w-7xl mx-auto mb-20">
             <div className="relative flex items-center justify-center w-1/2">
-               <h1 className="text-4xl">{user?.months[0].title}</h1>
+               <h1 className="text-4xl">{month[0]?.title}</h1>
 
                <div className="absolute right-0">
                   <div className="relative">

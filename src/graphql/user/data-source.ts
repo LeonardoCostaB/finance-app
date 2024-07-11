@@ -37,6 +37,7 @@ export class UserApi extends RESTDataSource {
                months {
                   id
                   title
+                  date
                   createdAt
                   expenses
                   earnings

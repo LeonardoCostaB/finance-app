@@ -1,5 +1,22 @@
 import gql from "graphql-tag";
 
+export const CREATE_MONTH = gql`
+   mutation CreateMonth($data: MonthInput) {
+      createMonth(data: $data) {
+         id
+         title
+         createdAt
+         date
+         earnings {
+            title
+         }
+         expenses {
+            title
+         }
+      }
+   }
+`
+
 export const CREATE_EARNING_OR_EXPENSE = gql`
    mutation createEarningOrExpense($data: CreateEarningOrExpenseInput) {
       createEarningOrExpense (data: $data) {

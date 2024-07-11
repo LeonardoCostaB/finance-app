@@ -1,6 +1,7 @@
 import { GraphQLError } from "graphql";
 import { LoginApi } from "../../login/data-source";
 import { MonthApi } from "./data-sources";
+import { UserApi } from "@/graphql/user/data-source";
 
 export type AddExpenseItem = {
    data: {
@@ -15,6 +16,12 @@ export type AddExpenseItem = {
 }
 
 interface MonthResolvers {
+   createMonth: (
+      _: any,
+      { data }: { data: { month: string, year: string } },
+      context: { isLoggedIn: string, dataSources: { monthApi: MonthApi, loginApi: LoginApi, userApi: UserApi } }
+   ) => any
+
    createEarningOrExpense: (
       _: any,
       { data }: { data: { monthId: string, title: string, type: 'earnings' | 'expenses' } },
@@ -50,6 +57,23 @@ interface MonthResolvers {
       { data }: { data: { monthId: string, expenseItemId: string, expenseTitle: string } },
       context: { isLoggedIn: string, dataSources: { monthApi: MonthApi, loginApi: LoginApi } }
    ) => any
+}
+
+const createMonth: MonthResolvers['createMonth'] = async (_, { data }, { isLoggedIn, dataSources }) => {
+   if (!isLoggedIn) {
+      await dataSources.loginApi.logout(isLoggedIn);
+      throw new GraphQLError('Unauthenticated')
+   }
+
+   const user = await dataSources.userApi.getUserById(isLoggedIn);
+
+   if (user?.id !== isLoggedIn) {
+      throw new GraphQLError('Você não tem permisão pra acessar esse item');
+   }
+
+   const createMonth = await dataSources.monthApi.createMonth(data, user?.months);
+
+   return createMonth;
 }
 
 const createEarningOrExpense: MonthResolvers['createEarningOrExpense'] = async (_, { data }, { isLoggedIn, dataSources }) => {
@@ -141,6 +165,8 @@ const payExpense: MonthResolvers['payExpense'] = async (_, { data: { monthId, ex
 
 export const monthResolvers = {
    Mutation: {
+      createMonth,
+
       createEarningOrExpense,
       createEarningItem,
       deleteEarningItem,

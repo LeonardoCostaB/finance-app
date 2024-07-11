@@ -1,36 +1,30 @@
+interface MonthExtract {
+   id: string;
+   name: string;
+   value: number;
+   date: {
+      published: string;
+      paidOut?: string;
+   };
+   link?: string;
+   notes?: string;
+}
+
 interface Earnings {
    title: string;
-   extract: Array<{
-      id: string;
-      name: string;
-      value: number;
-      date: {
-         published: string;
-      };
-      link?: string;
-      notes?: string;
-   }>
+   extract: Array<MonthExtract>
 }
 
 interface Expenses {
    title: string;
-   extract: Array<{
-      id: string;
-      name: string;
-      value: number;
-      date: {
-         published: string;
-         paidOut?: string;
-      };
-      link?: string;
-      notes?: string;
-   }>;
+   extract: Array<MonthExtract>;
 }
 
 interface Months {
    id: string;
    title: string;
    createdAt: string;
+   date: string;
    user?: {
       id
    }

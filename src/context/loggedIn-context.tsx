@@ -22,6 +22,7 @@ export const GET_USER_BY_EMAIL = gql`
             id
             title
             createdAt
+            date
             expenses {
                title
                extract {

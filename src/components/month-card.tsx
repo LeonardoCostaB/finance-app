@@ -2,22 +2,25 @@
 
 import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { TrendingUp, X } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 
-interface NoteCardProps {
+interface MonthCardProps {
    note: {
       id: string;
       month: string;
       lastUpdate?: Date;
       date: string;
+      createdAt: string;
       balance: number
-      content: string;
+      extract: {
+         earnings: string[];
+         expenses: string[];
+      };
    }
-   onNoteDeleted: (id: string) => void;
 }
 
-export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
+export function MonthCard({ note }: MonthCardProps) {
    const date = new Date(note.date)
 
    return (
@@ -30,9 +33,9 @@ export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
                {note.lastUpdate ? 'Ultima atualização' : 'Criado'}{' '}
 
                <strong
-                     title={format(note.date, 'dd/MM/yyyy')}
+                     title={format(note.createdAt, 'dd/MM/yyyy')}
                   >
-                     {formatDistanceToNow(note.date, { locale: ptBR, addSuffix: true })}
+                     {formatDistanceToNow(note.createdAt, { locale: ptBR, addSuffix: true })}
                   </strong>
                </span>
             </div>
@@ -47,8 +50,13 @@ export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
                Ganhos:
 
                <ul className="list-disc ml-8 text-gray-300 text-sm">
-                  <li>Salario</li>
-                  <li>Salario</li>
+                  {note.extract.earnings.length > 0 ? (
+                     note.extract.earnings.map(earning => (
+                        <li key={earning}>{earning}</li>
+                     ))
+                  ) : (
+                     <li>Nenhum ganho foi cadastrado</li>
+                  )}
                </ul>
             </div>
 
@@ -56,8 +64,13 @@ export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
                Gastos:
 
                <ul className="list-disc ml-8 text-gray-300 text-sm">
-                  <li>Cartões</li>
-                  <li>Site</li>
+                  {note.extract.expenses.length > 0 ? (
+                     note.extract.expenses.map(expense => (
+                        <li key={expense}>{expense}</li>
+                     ))
+                  ) : (
+                     <li>Nenhum gasto foi cadastrado</li>
+                  )}
                </ul>
             </div>
          </div>
