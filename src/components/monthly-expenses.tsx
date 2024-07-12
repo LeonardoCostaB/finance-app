@@ -91,7 +91,9 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
 
                cache.writeQuery({
                   query: GET_USER_BY_EMAIL,
-                  data: updatedData,
+                  data: {
+                     user: updatedData
+                  },
                   variables: { email: '' },
                });
 
@@ -121,7 +123,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
             data: {
                monthId,
                expenseTitle: expense.title,
-               expenseItemId
+               expenseItemId,
              }
          },
          update: (cache) => {
@@ -144,7 +146,9 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
 
                cache.writeQuery({
                   query: GET_USER_BY_EMAIL,
-                  data: updatedData,
+                  data: {
+                     user: updatedData
+                  },
                   variables: { email: '' },
                });
 
@@ -188,7 +192,9 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
 
                cache.writeQuery({
                   query: GET_USER_BY_EMAIL,
-                  data: updatedData,
+                  data: {
+                     user: updatedData
+                  },
                   variables: { email: '' },
                });
 
@@ -318,7 +324,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                               type="button"
                               loading={deleteLoading}
                               bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
-                              onClick={() => handleOnDeleteExpenseItem(expense.name)}
+                              onClick={() => handleOnDeleteExpenseItem(expense.id)}
                            />
                         </div>
                      </InformationModal>

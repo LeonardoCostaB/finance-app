@@ -2,8 +2,7 @@
 
 import { createContext, ReactNode, useEffect, useState } from 'react';
 
-import { apolloClient } from '@/graphql/apollo-client';
-import { ApolloProvider, gql, useLazyQuery } from '@apollo/client';
+import { gql, useLazyQuery } from '@apollo/client';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 
@@ -103,7 +102,6 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
    }, [])
 
    return (
-      <ApolloProvider client={apolloClient}>
          <LoggedInContext.Provider value={{
             getUser,
             updateUser,
@@ -111,7 +109,6 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
          }}>
             {children}
          </LoggedInContext.Provider>
-      </ApolloProvider>
    );
 }
 

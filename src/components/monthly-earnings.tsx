@@ -94,7 +94,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
 
                cache.writeQuery({
                   query: GET_USER_BY_EMAIL,
-                  data: updatedData,
+                  data: { user: updatedData },
                   variables: { email: '' },
                });
 
@@ -144,7 +144,9 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
 
                cache.writeQuery({
                   query: GET_USER_BY_EMAIL,
-                  data: updatedData,
+                  data: {
+                     user: updatedData
+                  },
                   variables: { email: '' },
                });
 
@@ -238,7 +240,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                                  type="button"
                                  loading={deleteLoading}
                                  bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
-                                 onClick={() => handleOnDeleteEarningItem(earning.name)}
+                                 onClick={() => handleOnDeleteEarningItem(earning.id)}
                               />
                            </div>
                         </InformationModal>

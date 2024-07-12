@@ -11,10 +11,12 @@ import { useMutation } from "@apollo/client";
 import { CREATE_MONTH } from "@/graphql/front-end/querys";
 import { SubmitButton } from "./submit-button";
 import { useRouter } from "next/navigation";
+import { useLoggedIn } from "@/hooks/use-loggedIn";
+import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
 
 interface NewMonthCardProps {
    nextMonth?: string;
-   onNoteCreated: (content: string) => void;
+   onMonthCreated: (month: Months) => void;
 }
 
 const createMonthFormSchema = z.object({
@@ -24,7 +26,8 @@ const createMonthFormSchema = z.object({
 
 type CreateMonthFormData = z.infer<typeof createMonthFormSchema>;
 
-export function NewMonthCard({ nextMonth, onNoteCreated }: NewMonthCardProps) {
+export function NewMonthCard({ nextMonth, onMonthCreated }: NewMonthCardProps) {
+   const { user, updateUser } = useLoggedIn();
    const [createMonth, { loading }] = useMutation(CREATE_MONTH)
 
    const router = useRouter();
@@ -44,6 +47,35 @@ export function NewMonthCard({ nextMonth, onNoteCreated }: NewMonthCardProps) {
             data: {
                month: data.month,
                year: data.year,
+            }
+         },
+         update: (cache, { data }) => {
+            const existingData: { user: User } | null = cache.readQuery({
+               query: GET_USER_BY_EMAIL,
+               variables: { email: '' },
+            });
+
+            if (existingData) {
+               const updatedData = {
+                  ...existingData.user,
+                  months: [
+                     ...existingData.user.months,
+                     {
+                        ...data.createMonth as Months
+                     },
+                  ],
+               }
+
+               cache.writeQuery({
+                  query: GET_USER_BY_EMAIL,
+                  data: {
+                     user: updatedData,
+                  },
+                  variables: { email: '' },
+               });
+
+               updateUser(updatedData)
+               onMonthCreated(data.createMonth);
             }
          },
          onCompleted: (data) => {

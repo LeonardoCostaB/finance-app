@@ -68,8 +68,7 @@ export class MonthApi extends RESTDataSource {
 
       if (verifyIfMonthExists && verifyIfMonthExists?.length > 0) throw new GraphQLError('Você já cadastrou esse mês');
 
-      const date = new Date(`${data.year}-${String(+data.month+1)}-01`,)
-
+      const date = new Date(`${data.year}-${String(+data.month+1)}-10`,)
 
       const query = `
          mutation CREATE_MONTH(
@@ -188,7 +187,7 @@ export class MonthApi extends RESTDataSource {
             earnings: [
                ...month.earnings,
                {
-                  title,
+                  title: title.toLowerCase(),
                   extract: [],
                }
             ],
@@ -295,14 +294,14 @@ export class MonthApi extends RESTDataSource {
 
       this.verifyUserAuthenticity(this.userId, month.user?.id)
 
-      const earnings = month.earnings?.filter(month => month.title === earningTitle);
+      const earnings = month.earnings?.filter(month => month.title.toLowerCase() === earningTitle.toLowerCase());
 
-      if (!earnings) {
-         throw new Error('Expense not found');
+      if (!earnings || earnings.length <= 0) {
+         throw new Error('item não encontrado');
       }
 
       const earningIndex = month.earnings.findIndex(i => i.title === earningTitle);
-      const removeEarningItem = earnings[0].extract.filter(extract => extract.id !== earningItemId);3
+      const removeEarningItem = earnings[0].extract.filter(extract => extract.id !== earningItemId);
 
       month.earnings[earningIndex].extract = removeEarningItem;
 
@@ -360,12 +359,13 @@ export class MonthApi extends RESTDataSource {
 
       this.verifyUserAuthenticity(this.userId, month.user?.id)
 
-      if (!expenses) {
+      if (!expenses || expenses.length <= 0) {
          throw new Error('Expense not found');
       }
 
       const expenseIndex = month.expenses.findIndex(i => i.title === expenseTitle);
       const removeExpenseItem = expenses[0].extract.filter(extract => extract.id !== expenseItemId);
+
 
       month.expenses[expenseIndex].extract = removeExpenseItem;
 

@@ -21,7 +21,9 @@ export default function Home() {
    const [search, setSearch] = useState('');
    const [months, setMonths] = useState<Months[] | undefined>([]);
 
-   function onNoteCreated(content: string) {}
+   function onMonthCreated(month: Months) {
+      setMonths([...months ?? [], month]);
+   }
 
    function handleSearch(search: string) {
       setSearch(search);
@@ -32,7 +34,11 @@ export default function Home() {
    //    notes;
 
    useEffect(() => {
-      setMonths(user?.months);
+      if (user && user.months.length > 0) {
+         setMonths(user.months);
+      } else {
+         setMonths(undefined);
+      }
    }, [user])
 
    return (
@@ -41,6 +47,8 @@ export default function Home() {
 
          <div className="mx-auto max-w-6xl my-12 space-y-6 px-5">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[250px]">
+               <NewMonthCard nextMonth={months?.map(month => month.createdAt)[0]} onMonthCreated={onMonthCreated} />
+
                {months && months.length > 0 ? (
                   months.map(month => (
                      <MonthCard
@@ -58,11 +66,7 @@ export default function Home() {
                         }}
                      />
                   ))
-               ) : (
-                   <>Carregando</>
-               )}
-
-               <NewMonthCard nextMonth={months?.map(month => month.createdAt)[0]} onNoteCreated={onNoteCreated} />
+               ) : months === undefined ? <></> : <>Carregando...</>}
             </div>
          </div>
       </>

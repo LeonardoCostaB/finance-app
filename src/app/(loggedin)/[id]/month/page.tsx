@@ -63,7 +63,9 @@ export default function Month({ params }: { params: { id: string } }) {
 
                cache.writeQuery({
                   query: GET_USER_BY_EMAIL,
-                  data: updatedData,
+                  data: {
+                     user: updatedData,
+                  },
                   variables: { email: '' },
                });
 
@@ -88,7 +90,9 @@ export default function Month({ params }: { params: { id: string } }) {
 
                   cache.writeQuery({
                      query: GET_USER_BY_EMAIL,
-                     data: updatedData,
+                     data: {
+                        user: updatedData,
+                     },
                      variables: { email: '' },
                   });
 
@@ -107,9 +111,7 @@ export default function Month({ params }: { params: { id: string } }) {
       setMonth(user?.months.filter(month => month.id === params.id))
    }, [params.id, user])
 
-   console.log(month)
-
-   return month && user && user.months ? (
+   return month && month.length > 0 ? (
       <>
          <Header />
 
