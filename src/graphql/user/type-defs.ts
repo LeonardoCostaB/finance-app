@@ -17,7 +17,8 @@ export const userTypeDefs = gql`
    type User {
       id: String!
       name: String!
-      economy: Int
+      economy: Economy
+      monthlySalary: Int
       email: String!
       avatar: Avatar
       months: [Months]

@@ -1,6 +1,5 @@
 import axios from "axios";
 import { RESTDataSource } from "apollo-datasource-rest";
-import { AddExpenseItem } from "./resolvers";
 
 interface UserApiResponse {
    getUser: {
@@ -29,7 +28,11 @@ export class UserApi extends RESTDataSource {
                id
                name
                email
-               economy
+               monthlySalary
+               economy {
+                  id
+                  extract
+               }
                avatar {
                   id
                   url

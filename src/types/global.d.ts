@@ -36,7 +36,14 @@ interface User {
    id: string;
    email: string;
    name: string;
-   economy: number;
+   economy: {
+      id: string;
+      extract: Array<{
+         date: string;
+         value: number;
+      }>
+   };
+   monthlySalary: number;
    avatar: {
       id: string;
       url: string;

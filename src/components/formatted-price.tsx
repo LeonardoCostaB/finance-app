@@ -1,12 +1,12 @@
 import clsx from "clsx";
 
 interface FormattedPriceProps {
-   price: number
+   price?: number
    style: 'spent' | 'profit' | 'average' | 'normal'
    classNames?: string
 }
 
-export function FormattedPrice({ price, style, classNames }: FormattedPriceProps) {
+export function FormattedPrice({ price = 0, style, classNames }: FormattedPriceProps) {
    return <span className={clsx(`text-base font-medium ${classNames}`, {
       'text-red-400': style ==='spent',
       'text-green-400': style === 'profit',

@@ -9,6 +9,7 @@ import { CreateUserApi } from '@/graphql/createUser/data-source';
 import { userIsLoggedIn } from '@/utils/verify-user';
 import { UserApi } from '@/graphql/user/data-source';
 import { MonthApi } from '@/graphql/server/month/data-sources';
+import { EconomyApi } from '@/graphql/server/economy/data-sources';
 
 interface CustomContext {
    dataSources: {
@@ -31,6 +32,7 @@ const handler = startServerAndCreateNextHandler<NextRequest, CustomContext>(apol
          createUserApi: new CreateUserApi(),
          userApi: new UserApi(),
          monthApi: new MonthApi(await userIsLoggedIn()),
+         economyApi: new EconomyApi(),
       },
       isLoggedIn: await userIsLoggedIn(),
    })

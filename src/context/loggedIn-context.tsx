@@ -12,7 +12,14 @@ export const GET_USER_BY_EMAIL = gql`
          id
          name
          email
-         economy
+         economy {
+            id
+            extract {
+               date
+               value
+            }
+         }
+         monthlySalary
          avatar {
             id
             url

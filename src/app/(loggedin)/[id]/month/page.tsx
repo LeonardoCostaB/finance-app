@@ -1,24 +1,40 @@
 'use client'
 
+import { FormEvent, useEffect, useState } from "react"
+import { toast } from "sonner";
+import { useMutation } from "@apollo/client";
+import clsx from "clsx";
+
+import { useLoggedIn } from "@/hooks/use-loggedIn";
+import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
+import { CREATE_EARNING_OR_EXPENSE } from "@/graphql/front-end/querys";
+
+import { CircleEllipsis, CircleFadingPlus, PiggyBank } from "lucide-react";
+import { FormattedPrice } from "@/components/formatted-price";
 import { Header } from "@/components/header";
 import { Input } from "@/components/input";
 import { MonthlyEarnings } from "@/components/monthly-earnings";
 import { MonthlyExpenses } from "@/components/monthly-expenses";
 import { SubmitButton } from "@/components/submit-button";
-import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
-import { CREATE_EARNING_OR_EXPENSE } from "@/graphql/front-end/querys";
-import { useLoggedIn } from "@/hooks/use-loggedIn";
-import { useMutation } from "@apollo/client";
-import clsx from "clsx";
-import { CircleFadingPlus } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react"
-import { toast } from "sonner";
+import { MoreOptions } from "@/components/more-options";
+import { savingsMonth } from "@/utils/savings-month";
+import { calculateMonthySummary } from "@/utils/calculate-monthy-sumary";
+import { MonthlyBillsPaid } from "@/utils/monthly-bills-paid";
 
 export default function Month({ params }: { params: { id: string } }) {
    const { user, updateUser } = useLoggedIn();
    const [createEarningOrExpense, { loading }] = useMutation(CREATE_EARNING_OR_EXPENSE);
 
    const [month, setMonth] = useState<User['months'] | undefined>([]);
+   const [monthlySummary, setMonthlySummary] = useState<{
+      expense?: number;
+      earning?: number;
+      balance?: number;
+      paidBills?: number;
+   }>({
+      expense: 0,
+      earning: 0,
+   })
 
    const [toggleLayout, setToggleLayout] = useState<'profit' | 'spent'>('profit');
    const [shouldShowModal, setShouldShowModal] = useState(false);
@@ -109,133 +125,190 @@ export default function Month({ params }: { params: { id: string } }) {
 
    useEffect(() => {
       setMonth(user?.months.filter(month => month.id === params.id))
+
+      setMonthlySummary({
+         expense: calculateMonthySummary({
+            type: 'expenses',
+            month: user?.months.filter(month => month.id === params.id),
+         }),
+         earning: calculateMonthySummary({
+            type: 'earnings',
+            month: user?.months.filter(month => month.id === params.id),
+         }) + (user?.monthlySalary ?? 0),
+         paidBills: MonthlyBillsPaid(user?.months.flatMap(month => month.expenses))
+      })
    }, [params.id, user])
 
    return month && month.length > 0 ? (
       <>
          <Header />
 
-         <main className="flex flex-col items-center max-w-7xl mx-auto mb-20">
-            <div className="relative flex items-center justify-center w-1/2">
-               <h1 className="text-4xl">{month[0]?.title}</h1>
+         <main className="flex relative max-w-6xl items-stretch justify-center gap-8 mx-auto mb-20">
+            <div className="flex flex-col items-center w-full">
+               <div className="flex items-center justify-center w-full">
+                  <h1 className="text-4xl">{month[0]?.title}</h1>
 
-               <div className="absolute right-0">
-                  <div className="relative">
-                     <button type="button" onClick={() => setShouldShowModal(!shouldShowModal)}>
-                        <CircleFadingPlus size={24} />
-                     </button>
+                  <div className="absolute flex items-center gap-4 right-0">
+                     <div className="relative flex">
+                        <button type="button" onClick={() => setShouldShowModal(!shouldShowModal)}>
+                           <CircleFadingPlus size={24} />
+                        </button>
 
-                     <div className={clsx(
-                        'absolute px-2 py-4 rounded-lg left-1/2 -translate-x-1/2 bg-slate-700 transition-all ease-linear',
-                        {
-                           'max-h-0 opacity-0 invisible': !shouldShowModal,
-                           'max-h-80 opacity-1 visible': shouldShowModal,
-                        }
-                     )}>
-                        <h2 className="text-center mb-4">
-                           Criar um novo bloco de {toggleLayout === 'profit' ? 'ganho' : 'despesa'}
-                        </h2>
+                        <div className={clsx(
+                           'absolute px-2 py-4 rounded-lg top-8 left-1/2 -translate-x-1/2 bg-slate-700 transition-all ease-linear',
+                           {
+                              'max-h-0 opacity-0 invisible': !shouldShowModal,
+                              'max-h-80 opacity-1 visible': shouldShowModal,
+                           }
+                        )}>
+                           <h2 className="text-center mb-4">
+                              Criar um novo bloco de {toggleLayout === 'profit' ? 'ganho' : 'despesa'}
+                           </h2>
 
-                        <form className="flex w-[300px] flex-col gap-4" onSubmit={handleOnCreateBlock}>
-                           <Input
-                              labelProps={{
-                                 text: 'Titulo',
-                                 filled: true,
-                                 labelClasses: 'bg-slate-700'
-                              }}
-                              inputProps={{
-                                 type: 'text',
-                                 id: 'block-title',
-                                 classNames: 'bg-slate-700'
-                              }}
-                           />
+                           <form className="flex w-[300px] flex-col gap-4" onSubmit={handleOnCreateBlock}>
+                              <Input
+                                 labelProps={{
+                                    text: 'Titulo',
+                                    filled: true,
+                                    labelClasses: 'bg-slate-700'
+                                 }}
+                                 inputProps={{
+                                    type: 'text',
+                                    id: 'block-title',
+                                    classNames: 'bg-slate-700'
+                                 }}
+                              />
 
-                           <SubmitButton
-                              type="submit"
-                              text="Criar"
-                              loading={loading}
-                              bgColor={{
-                                 color: 'bg-indigo-500',
-                                 hover: 'bg-indigo-700'
-                              }}
-                           />
-                        </form>
+                              <SubmitButton
+                                 type="submit"
+                                 text="Criar"
+                                 loading={loading}
+                                 bgColor={{
+                                    color: 'bg-indigo-500',
+                                    hover: 'bg-indigo-700'
+                                 }}
+                              />
+                           </form>
+                        </div>
                      </div>
+
+                     <MoreOptions />
                   </div>
                </div>
+
+               <div className="flex justify-center mt-10 w-full bg-slate-800 p-4 rounded-xl">
+                  <button
+                     type="button"
+                     className={clsx(
+                        "text-xl flex-1 flex flex-col items-center gap-4 transition-all",
+                        {
+                           'text-green-500': toggleLayout === 'profit',
+                           'text-slate-500': toggleLayout ==='spent',
+                        }
+                     )}
+                     onClick={() => setToggleLayout('profit')}
+                  >
+                     Ganhos
+
+                     <span className={clsx(
+                        "block w-full h-1 bg-green-500 transition-all ease-linear",
+                        {
+                           'bg-green-500': toggleLayout === 'profit',
+                           'bg-slate-500': toggleLayout ==='spent',
+                        }
+                     )} />
+                  </button>
+
+                  <button
+                     type="button"
+                     className={clsx(
+                        "text-xl flex-1 flex flex-col items-center gap-4 transition-all",
+                        {
+                           'text-red-400': toggleLayout === 'spent',
+                           'text-slate-500': toggleLayout ==='profit',
+                        }
+                     )}
+                     onClick={() => setToggleLayout('spent')}
+                  >
+                     Despesas
+
+                     <span className={clsx(
+                        "block w-full h-1 transition-all ease-linear",
+                        {
+                           'bg-red-400': toggleLayout === 'spent',
+                           'bg-slate-500': toggleLayout ==='profit',
+                        }
+                     )} />
+                  </button>
+               </div>
+
+               {toggleLayout === 'profit' && user && user.monthlySalary > 0 && (
+                  <span className="flex w-full items-center justify-between p-4 mt-6 text-xl bg-slate-800 rounded-lg box-border">
+                     Salario: <FormattedPrice price={user.monthlySalary} style="profit" />
+                  </span>
+               )}
+
+               {month.map((month) => (
+                  toggleLayout === 'profit' ? (
+                     month.earnings.map(earning => (
+                        <MonthlyEarnings
+                           key={earning.title}
+                           monthId={params.id}
+                           earnings={{
+                              title: earning.title,
+                              extract: earning.extract,
+                           }}
+                        />
+                     ))
+                  ) : (
+                     month.expenses.map(expense => (
+                        <MonthlyExpenses
+                           key={expense.title}
+                           monthId={params.id}
+                           expense={{
+                              title: expense.title,
+                              extract: expense.extract,
+                           }}
+                        />
+                     ))
+                  )
+               ))}
             </div>
 
-            <div className="flex justify-center mt-10 w-1/2">
-               <button
-                  type="button"
-                  className={clsx(
-                     "text-xl flex-1 flex flex-col items-center gap-4 transition-all",
-                     {
-                        'text-green-500': toggleLayout === 'profit',
-                        'text-slate-700': toggleLayout ==='spent',
-                     }
-                  )}
-                  onClick={() => setToggleLayout('profit')}
-               >
-                  Ganhos
+            <div className="max-w-[300px] h-max flex flex-col items-center gap-4 w-full mt-20 p-4 rounded-lg bg-slate-800">
+               <h3>Resumo Mensal</h3>
 
-                  <span className={clsx(
-                     "block w-full h-1 bg-green-500 transition-all ease-linear",
-                     {
-                        'bg-green-500': toggleLayout === 'profit',
-                        'bg-slate-700': toggleLayout ==='spent',
-                     }
-                  )} />
-               </button>
+               <div className="flex flex-col items-center gap-4 border-b w-full pb-4 border-b-slate-400">
+                  <span>
+                     Ganhos: <FormattedPrice price={monthlySummary.earning} style="profit" />
+                  </span>
 
-               <button
-                  type="button"
-                  className={clsx(
-                     "text-xl flex-1 flex flex-col items-center gap-4 transition-all",
-                     {
-                        'text-red-400': toggleLayout === 'spent',
-                        'text-slate-700': toggleLayout ==='profit',
-                     }
-                  )}
-                  onClick={() => setToggleLayout('spent')}
-               >
-                  Despesas
+                  <span>
+                     Despesas: <FormattedPrice price={monthlySummary.expense} style="spent" />
+                  </span>
 
-                  <span className={clsx(
-                     "block w-full h-1 transition-all ease-linear",
-                     {
-                        'bg-red-400': toggleLayout === 'spent',
-                        'bg-slate-700': toggleLayout ==='profit',
-                     }
-                  )} />
-               </button>
+                  <span>
+                     Balanço: <FormattedPrice price={(monthlySummary.earning ?? 0) - (monthlySummary.expense ?? 0)} style="average" />
+                  </span>
+               </div>
+
+               <div className="flex flex-col items-center gap-4">
+                  <span>
+                     Pagou: <FormattedPrice price={monthlySummary.paidBills} style="normal" classNames="text-sm" />/<FormattedPrice price={monthlySummary.expense} style="spent" classNames="text-sm" />
+                  </span>
+
+                  <span>
+                     Poupou: <FormattedPrice price={savingsMonth(month[0].date, user?.economy?.extract)?.value} style="normal" />
+                  </span>
+
+                  <span>
+                     Saldo Final: <FormattedPrice
+                        price={(monthlySummary.earning ?? 0) - (monthlySummary.expense ?? 0) - (savingsMonth(month[0].date, user?.economy?.extract)?.value ?? 0)}
+                        style="profit"
+                     />
+                  </span>
+               </div>
             </div>
-
-            {month.map((month) => (
-               toggleLayout === 'profit' ? (
-                  month.earnings.map(earning => (
-                     <MonthlyEarnings
-                        key={earning.title}
-                        monthId={params.id}
-                        earnings={{
-                           title: earning.title,
-                           extract: earning.extract,
-                        }}
-                     />
-                  ))
-               ) : (
-                  month.expenses.map(expense => (
-                     <MonthlyExpenses
-                        key={expense.title}
-                        monthId={params.id}
-                        expense={{
-                           title: expense.title,
-                           extract: expense.extract,
-                        }}
-                     />
-                  ))
-               )
-            ))}
          </main>
       </>
    ) : params.id === 'new' ? (

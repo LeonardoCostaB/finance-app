@@ -9,6 +9,8 @@ import { createUserResolvers } from "./createUser/resolvers";
 import { userResolvers } from "./user/resolvers";
 import { monthResolvers } from "./server/month/resolvers";
 import { monthTypeDefs } from "./server/month/type-defs";
+import { economyTypeDefs } from "./server/economy/type-defs";
+import { economyResolvers } from "./server/economy/resolvers";
 
 const rootTypeDefs = gql`
    type Query {
@@ -40,6 +42,7 @@ export const typeDefs = [
    createUserTypeDefs,
    userTypeDefs,
    monthTypeDefs,
+   economyTypeDefs,
 ];
 export const resolvers = [
    rootResolvers,
@@ -47,4 +50,5 @@ export const resolvers = [
    createUserResolvers,
    userResolvers,
    monthResolvers,
+   economyResolvers,
 ];

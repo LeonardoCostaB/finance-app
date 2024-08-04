@@ -30,12 +30,12 @@ export function Header({ search }: HeaderProps) {
          )}
 
          <div className="flex items-center gap-4">
-            {user?.economy && (
+            {user?.economy?.extract && (
                <div className="flex items-center gap-2 text-xs ring-2 ring-lime-400 rounded-md p-2 mr-4">
                   <PiggyBank size={25} />
 
                   <strong>
-                     {(user.economy)?.toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
+                     {user.economy.extract.reduce((a, b) => a + b.value, 0).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
                   </strong>
                </div>
             )}

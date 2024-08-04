@@ -164,7 +164,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
    }, [])
 
    return earnings.title.length > 0 ? (
-      <div className="w-1/2 p-4 mt-6 bg-slate-800 rounded-lg box-border">
+      <div className="w-full p-4 mt-6 bg-slate-800 rounded-lg box-border">
          <div className="flex items-center justify-between mb-5 px-1">
             <h3 className="text-xl capitalize">{earnings.title}</h3>
 
@@ -250,16 +250,16 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
             </ul>
          )}
 
-         <div className="w-full flex justify-end mt-6">
+         <div className="w-full flex justify-end gap-2 mt-6">
             <Dialog.Root open={shouldShowModal} onOpenChange={(open) => setShouldShowModal(open)}>
                <Dialog.Trigger type="button" className="border p-2 rounded-lg">
                   {earningsData.length > 0 ? 'Adicionar mais +' : 'Adicione um ganho 🚀'}
                </Dialog.Trigger>
 
                <Dialog.Portal>
-                  <Dialog.Overlay className="absolute inset-0 bg-black/30" />
+                  <Dialog.Overlay className="fixed inset-0 bg-black/30" />
 
-                  <Dialog.Content className="max-w-md w-full p-4 ml-11 rounded-xl bg-slate-700 absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
+                  <Dialog.Content className="max-w-md w-full p-4 ml-11 rounded-xl bg-slate-700 fixed top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
                      <Dialog.Title className="inline-block w-full mb-4 text-xl text-center">
                         Adicionar ganho
                      </Dialog.Title>
@@ -360,6 +360,26 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                   </Dialog.Content>
                </Dialog.Portal>
             </Dialog.Root>
+
+            <InformationModal
+               button={{
+                  icon: <Trash2 size={20} />,
+                  buttonClasses: 'w-[42px] flex p-0 items-center justify-center border border-white rounded-lg transition-all hover:bg-red-400 hover:border-red-400'
+               }}
+               modal={{
+                  title: 'Deletar bloco'
+               }}
+            >
+               <p>Deseja deletar esse bloco?</p>
+
+               <div>
+                  <SubmitButton
+                     type="button"
+                     loading={false}
+                     bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
+                  />
+               </div>
+            </InformationModal>
          </div>
       </div>
    ) : (
