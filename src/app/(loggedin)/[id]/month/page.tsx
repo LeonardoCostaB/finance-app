@@ -135,7 +135,7 @@ export default function Month({ params }: { params: { id: string } }) {
             type: 'earnings',
             month: user?.months.filter(month => month.id === params.id),
          }) + (user?.monthlySalary ?? 0),
-         paidBills: MonthlyBillsPaid(user?.months.flatMap(month => month.expenses))
+         paidBills: MonthlyBillsPaid(user?.months.flatMap(month => month.expenses) ?? [])
       })
    }, [params.id, user])
 

@@ -141,7 +141,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                         .filter((month) => month.id === monthId)[0].expenses
                         .filter(ex => ex.title === expense.title)[0].extract
                         .filter(extract => extract.id !== expenseItemId)
-                  ] as Months[]
+                  ]
                }
 
                cache.writeQuery({
@@ -151,8 +151,6 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                   },
                   variables: { email: '' },
                });
-
-               updateUser(updatedData);
 
                setExpenses(prev => prev.filter(prev => prev.id !== expenseItemId));
             }
