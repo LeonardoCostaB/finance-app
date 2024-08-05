@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
-import { LoginApi } from "../../login/data-source";
+import { LoginApi } from "../login/data-source";
 import { MonthApi } from "./data-sources";
-import { UserApi } from "@/graphql/user/data-source";
+import { UserApi } from "../user/data-source";
 
 export type AddExpenseItem = {
    data: {

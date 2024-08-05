@@ -1,4 +1,4 @@
-import { LoginApi } from "@/graphql/login/data-source";
+import { LoginApi } from "@/graphql/server/login/data-source";
 import { GraphQLError } from "graphql";
 import { EconomyApi } from "./data-sources";
 

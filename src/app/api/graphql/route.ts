@@ -4,10 +4,10 @@ import { startServerAndCreateNextHandler } from '@as-integrations/next';
 
 import { typeDefs, resolvers } from '../../../graphql/schema';
 
-import { LoginApi } from '@/graphql/login/data-source';
-import { CreateUserApi } from '@/graphql/createUser/data-source';
+import { LoginApi } from '@/graphql/server/login/data-source';
+import { CreateUserApi } from '@/graphql/server/createUser/data-source';
 import { userIsLoggedIn } from '@/utils/verify-user';
-import { UserApi } from '@/graphql/user/data-source';
+import { UserApi } from '@/graphql/server/user/data-source';
 import { MonthApi } from '@/graphql/server/month/data-sources';
 import { EconomyApi } from '@/graphql/server/economy/data-sources';
 

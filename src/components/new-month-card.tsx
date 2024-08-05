@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@apollo/client";
-import { CREATE_MONTH } from "@/graphql/front-end/querys";
+import { CREATE_MONTH } from "@/graphql/client/mutations/month";
 import { SubmitButton } from "./submit-button";
 import { useRouter } from "next/navigation";
 import { useLoggedIn } from "@/hooks/use-loggedIn";

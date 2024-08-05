@@ -6,7 +6,7 @@ import { Input } from "./input";
 import { SubmitButton } from "./submit-button";
 import { useMutation } from "@apollo/client";
 import { useLoggedIn } from "@/hooks/use-loggedIn";
-import { SAVE_ECONOMY } from "@/graphql/front-end/mutations/user";
+import { SAVE_ECONOMY } from "@/graphql/client/mutations/user";
 import { toast } from "sonner";
 import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
 

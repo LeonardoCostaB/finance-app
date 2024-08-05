@@ -13,7 +13,7 @@ import { InformationModal } from "./information-modal";
 import { Info, Link, Trash2 } from "lucide-react";
 
 import { useLoggedIn } from "@/hooks/use-loggedIn";
-import { CREATE_EARNING_ITEM, DELETE_EARNING_ITEM } from "@/graphql/front-end/querys";
+import { CREATE_EARNING_ITEM, DELETE_EARNING_ITEM } from "@/graphql/client/mutations/month";
 import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
 
 interface MonthlyEarningsProps {

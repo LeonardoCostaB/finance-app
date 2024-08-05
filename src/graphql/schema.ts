@@ -1,12 +1,12 @@
 import gql from "graphql-tag";
 
-import { loginTypeDefs } from "./login/type-defs";
-import { createUserTypeDefs } from "./createUser/type-defs";
-import { userTypeDefs } from "./user/type-defs";
+import { loginTypeDefs } from "./server/login/type-defs";
+import { createUserTypeDefs } from "./server/createUser/type-defs";
+import { userTypeDefs } from "./server/user/type-defs";
 
-import { loginResolvers } from "./login/resolvers";
-import { createUserResolvers } from "./createUser/resolvers";
-import { userResolvers } from "./user/resolvers";
+import { loginResolvers } from "./server/login/resolvers";
+import { createUserResolvers } from "./server/createUser/resolvers";
+import { userResolvers } from "./server//user/resolvers";
 import { monthResolvers } from "./server/month/resolvers";
 import { monthTypeDefs } from "./server/month/type-defs";
 import { economyTypeDefs } from "./server/economy/type-defs";

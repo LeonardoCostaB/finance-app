@@ -2,7 +2,7 @@
 
 import { createContext, ReactNode } from 'react';
 
-import { apolloClient } from '@/graphql/apollo-client';
+import { apolloClient } from '@/graphql/client/apollo';
 import { ApolloProvider } from '@apollo/client';
 
 interface AppContextProps {}

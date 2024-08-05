@@ -1,4 +1,4 @@
-import { CreateUserApi } from "@/graphql/createUser/data-source";
+import { CreateUserApi } from "@/graphql/server/createUser/data-source";
 import  jwt  from "jsonwebtoken";
 import { cookies } from "next/headers";
 

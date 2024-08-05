@@ -15,7 +15,7 @@ import { SubmitButton } from "./submit-button";
 
 import { useLoggedIn } from "@/hooks/use-loggedIn";
 import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
-import { CREATE_EXPENSE_ITEM, DELETE_EXPENSE_ITEM, PAY_EXPENSE_ITEM } from "@/graphql/front-end/querys";
+import { CREATE_EXPENSE_ITEM, DELETE_EXPENSE_ITEM, PAY_EXPENSE_ITEM } from "@/graphql/client/mutations/month";
 
 interface MonthlyExpensesProps {
    monthId: string

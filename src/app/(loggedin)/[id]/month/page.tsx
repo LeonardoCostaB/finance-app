@@ -7,7 +7,7 @@ import clsx from "clsx";
 
 import { useLoggedIn } from "@/hooks/use-loggedIn";
 import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
-import { CREATE_EARNING_OR_EXPENSE } from "@/graphql/front-end/querys";
+import { CREATE_EARNING_OR_EXPENSE } from "@/graphql/client/mutations/month";
 
 import { CircleEllipsis, CircleFadingPlus, PiggyBank } from "lucide-react";
 import { FormattedPrice } from "@/components/formatted-price";
