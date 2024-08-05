@@ -10,6 +10,7 @@ interface InformationModalProps {
       title?: string;
       text?: string;
       buttonClasses?: string;
+      disabled?: boolean;
    }
    modal: {
       title: string;
@@ -25,13 +26,14 @@ export function InformationModal({ button, modal, children }: InformationModalPr
          <Dialog.Trigger
             type="button"
             className={clsx(
-               "p-1",
+               "p-1 disabled:opacity-50 disabled:cursor-no-drop",
                {
                   [`${button.buttonClasses}`]: button.buttonClasses,
                   'flex items-center gap-2': button.text,
                }
             )}
             title={button.title}
+            disabled={button.disabled}
          >
             {button.icon}
             {button.text}

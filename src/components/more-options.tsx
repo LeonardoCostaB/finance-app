@@ -10,7 +10,11 @@ import { SAVE_ECONOMY } from "@/graphql/front-end/mutations/user";
 import { toast } from "sonner";
 import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
 
-export function MoreOptions() {
+interface MoreOptionsProps {
+   month: string;
+}
+
+export function MoreOptions({ month }: MoreOptionsProps) {
    const { user, updateUser } = useLoggedIn();
 
    const [shouldShowOptions, setShouldShowModal] = useState(false);
@@ -130,11 +134,13 @@ export function MoreOptions() {
                   'visible opacity-1 duration-[1700ms]': shouldShowOptions,
                }
             )}>
-               <li className="py-2 px-2 transition-all hover:bg-slate-500 active:bg-slate-600">
+               <li>
                   <InformationModal
                      button={{
                         icon: <PiggyBank size={25} />,
-                        text: 'Poupança'
+                        text: 'Poupança',
+                        disabled: !(new Date().getMonth() === new Date(month).getMonth()),
+                        buttonClasses: 'py-3 px-2 w-full transition-all hover:bg-slate-500 active:bg-slate-600 disabled:hover:bg-transparent'
                      }}
                      modal={{
                         title: 'Adicionar Poupança'
@@ -169,12 +175,12 @@ export function MoreOptions() {
                   </InformationModal>
                </li>
 
-               <li className="py-2 px-2 transition-all hover:bg-slate-500 active:bg-slate-600">
+               <li className="transition-all hover:bg-slate-500 active:bg-slate-600">
                   <InformationModal
                      button={{
                         icon: <Trash2 size={25} />,
                         text: 'Deletar mês',
-                        buttonClasses: 'flex w-full items-center justify-start gap-2 text-sm whitespace-nowrap'
+                        buttonClasses: 'flex w-full py-3 px-2 items-center justify-start gap-2 text-sm whitespace-nowrap'
                      }}
                      modal={{
                         title: 'Deletar mês',

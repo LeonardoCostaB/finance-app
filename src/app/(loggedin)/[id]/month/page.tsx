@@ -30,10 +30,11 @@ export default function Month({ params }: { params: { id: string } }) {
       expense?: number;
       earning?: number;
       balance?: number;
-      paidBills?: number;
+      paidBills: number;
    }>({
       expense: 0,
       earning: 0,
+      paidBills: 0
    })
 
    const [toggleLayout, setToggleLayout] = useState<'profit' | 'spent'>('profit');
@@ -192,7 +193,7 @@ export default function Month({ params }: { params: { id: string } }) {
                         </div>
                      </div>
 
-                     <MoreOptions />
+                     <MoreOptions month={month[0].date} />
                   </div>
                </div>
 
@@ -293,17 +294,19 @@ export default function Month({ params }: { params: { id: string } }) {
                </div>
 
                <div className="flex flex-col items-center gap-4">
-                  <span>
-                     Pagou: <FormattedPrice price={monthlySummary.paidBills} style="normal" classNames="text-sm" />/<FormattedPrice price={monthlySummary.expense} style="spent" classNames="text-sm" />
-                  </span>
+                  {monthlySummary.paidBills > 0 && (
+                     <span>
+                        Pagou: <FormattedPrice price={monthlySummary.paidBills} style="normal" classNames="text-sm" />/<FormattedPrice price={monthlySummary.expense} style="spent" classNames="text-sm" />
+                     </span>
+                  )}
 
                   <span>
-                     Poupou: <FormattedPrice price={savingsMonth(month[0].date, user?.economy?.extract)?.value} style="normal" />
+                     Poupou: <FormattedPrice price={savingsMonth(month[0].date, user?.economy?.extract)} style="normal" />
                   </span>
 
                   <span>
                      Saldo Final: <FormattedPrice
-                        price={(monthlySummary.earning ?? 0) - (monthlySummary.expense ?? 0) - (savingsMonth(month[0].date, user?.economy?.extract)?.value ?? 0)}
+                        price={(monthlySummary.earning ?? 0) - (monthlySummary.expense ?? 0) - (savingsMonth(month[0].date, user?.economy?.extract))}
                         style="profit"
                      />
                   </span>
