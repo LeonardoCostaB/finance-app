@@ -50,28 +50,22 @@ export default function Home() {
                <NewMonthCard nextMonth={months?.map(month => month.createdAt)[0]} onMonthCreated={onMonthCreated} />
 
                {months && months.length > 0 ? (
-                  [...months]
-                     .sort((a, b) => {
-                        const dateA = new Date(a.date).getTime();
-                        const dateB = new Date(b.date).getTime();
-                        return dateB - dateA;
-                     })
-                     .map(month => (
-                        <MonthCard
-                           key={month.id}
-                           note={{
-                              id: month.id,
-                              balance: 0,
-                              extract: {
-                                 earnings: month.earnings.slice(0, 2).map(earning => earning.title),
-                                 expenses: month.expenses.slice(0, 2).map(expense => expense.title),
-                              },
-                              createdAt: month.createdAt,
-                              date: month.date,
-                              month: month.title,
-                           }}
-                        />
-                     ))
+                  months.map(month => (
+                     <MonthCard
+                        key={month.id}
+                        note={{
+                           id: month.id,
+                           balance: 0,
+                           extract: {
+                              earnings: month.earnings.slice(0, 2).map(earning => earning.title),
+                              expenses: month.expenses.slice(0, 2).map(expense => expense.title),
+                           },
+                           createdAt: month.createdAt,
+                           date: month.date,
+                           month: month.title,
+                        }}
+                     />
+                  ))
                ) : months === undefined ? <></> : <>Carregando...</>}
             </div>
          </div>

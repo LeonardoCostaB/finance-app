@@ -60,7 +60,14 @@ export class UserApi extends RESTDataSource {
             { headers: this.headers }
          )
 
-         return user.data.subscriber;
+         return {
+            ...user.data.subscriber,
+            months: user.data.subscriber.months.sort((a, b) => {
+               const dateA = new Date(a.date).getTime();
+               const dateB = new Date(b.date).getTime();
+               return dateB - dateA;
+            })
+         };
 
       } catch (error: any) {
          console.log(error)

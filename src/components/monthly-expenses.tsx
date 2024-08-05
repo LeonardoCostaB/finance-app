@@ -138,9 +138,22 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                   months: [
                      ...existingData.user.months.filter((month) => month.id !== monthId),
                      ...existingData.user.months
-                        .filter((month) => month.id === monthId)[0].expenses
-                        .filter(ex => ex.title === expense.title)[0].extract
-                        .filter(extract => extract.id !== expenseItemId)
+                        .filter((month) => month.id === monthId)
+                        .map(month => {
+                           const expenses = month.expenses.flatMap((ex) => {
+                              const extract = ex.extract.filter(extract => extract.id !== expenseItemId)
+
+                              return {
+                                 ...ex,
+                                 extract,
+                              }
+                           })
+
+                           return {
+                              ...month,
+                              expenses,
+                           }
+                        })
                   ]
                }
 
@@ -151,6 +164,8 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                   },
                   variables: { email: '' },
                });
+
+               updateUser(updatedData);
 
                setExpenses(prev => prev.filter(prev => prev.id !== expenseItemId));
             }

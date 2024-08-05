@@ -136,9 +136,22 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                   months: [
                      ...existingData.user.months.filter((month) => month.id !== monthId),
                      ...existingData.user.months
-                        .filter((month) => month.id === monthId)[0].earnings
-                        .filter(earning => earning.title === earnings.title)[0].extract
-                        .filter(extract => extract.id !== earningItemId)
+                        .filter((month) => month.id === monthId)
+                        .map(month => {
+                           const expenses = month.earnings.flatMap((earning) => {
+                              const extract = earning.extract.filter(extract => extract.id !== earningItemId)
+
+                              return {
+                                 ...earning,
+                                 extract,
+                              }
+                           })
+
+                           return {
+                              ...month,
+                              expenses,
+                           }
+                        })
                   ]
                }
 
@@ -150,6 +163,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                   variables: { email: '' },
                });
 
+               updateUser(updatedData);
                setEarningsData(prev => prev.filter(prev => prev.id !== earningItemId));
             }
          },
