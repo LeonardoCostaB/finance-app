@@ -15,7 +15,7 @@ import { SubmitButton } from "./submit-button";
 
 import { useLoggedIn } from "@/hooks/use-loggedIn";
 import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
-import { CREATE_EXPENSE_ITEM, DELETE_EXPENSE_ITEM, PAY_EXPENSE_ITEM } from "@/graphql/client/mutations/month";
+import { CREATE_EXPENSE_ITEM, DELETE_EXPENSE, DELETE_EXPENSE_ITEM, PAY_EXPENSE_ITEM } from "@/graphql/client/mutations/month";
 
 interface MonthlyExpensesProps {
    monthId: string
@@ -53,7 +53,8 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
 
    const [createExpenseItem, { loading }] = useMutation(CREATE_EXPENSE_ITEM);
    const [deleteExpenseItem, { loading: deleteLoading }] = useMutation(DELETE_EXPENSE_ITEM);
-   const [payExpenseItem, { loading: payLoading }] = useMutation(PAY_EXPENSE_ITEM);;
+   const [payExpenseItem, { loading: payLoading }] = useMutation(PAY_EXPENSE_ITEM);
+   const [deleteExpense, { loading: deleteExpenseLoading }] = useMutation(DELETE_EXPENSE)
 
    const [expenses, setExpenses] = useState<MonthlyExpensesProps['expense']['extract']>([])
    const [shouldShowModal, setShouldShowModal] = useState(false);
@@ -110,6 +111,54 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
             reset();
             setShouldShowModal(false);
             toast.success('Despesa criada com sucesso!');
+         },
+         onError: (error) => {
+            toast.error(error.message);
+         },
+      })
+   }
+
+   async function handleOnDeleteBlock() {
+      deleteExpense({
+         variables: {
+            data: {
+               monthId,
+               title: expense.title,
+            }
+         },
+         update: (cache) => {
+            const existingData: { user: User } | null = cache.readQuery({
+               query: GET_USER_BY_EMAIL,
+               variables: { email: '' },
+            })
+
+            if (existingData) {
+               const updatedData = {
+                  ...existingData.user,
+                  months: [
+                     ...existingData.user.months.filter((month) => month.id!== monthId),
+                     ...existingData.user.months
+                        .filter((month) => month.id === monthId)
+                        .map(month => ({
+                          ...month,
+                           expenses: month.expenses.filter(exp => exp.title !== expense.title),
+                        })),
+                  ]
+               };
+
+               cache.writeQuery({
+                  query: GET_USER_BY_EMAIL,
+                  data: {
+                     user: updatedData
+                  },
+                  variables: { email: '' },
+               });
+
+               updateUser(updatedData);
+            }
+         },
+         onCompleted: () => {
+            toast.success('Bloco de despesas excluído com sucesso!');
          },
          onError: (error) => {
             toast.error(error.message);
@@ -478,8 +527,10 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                <div>
                   <SubmitButton
                      type="button"
-                     loading={false}
+                     loading={deleteExpenseLoading}
                      bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
+                     onClick={handleOnDeleteBlock}
+                     text="Deletar"
                   />
                </div>
             </InformationModal>

@@ -13,7 +13,7 @@ import { InformationModal } from "./information-modal";
 import { Info, Link, Trash2 } from "lucide-react";
 
 import { useLoggedIn } from "@/hooks/use-loggedIn";
-import { CREATE_EARNING_ITEM, DELETE_EARNING_ITEM } from "@/graphql/client/mutations/month";
+import { CREATE_EARNING_ITEM, DELETE_EARNING, DELETE_EARNING_ITEM } from "@/graphql/client/mutations/month";
 import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
 
 interface MonthlyEarningsProps {
@@ -52,6 +52,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
 
    const [createEarningItem, { loading }] = useMutation(CREATE_EARNING_ITEM);
    const [deleteEarningItem, { loading: deleteLoading }] = useMutation(DELETE_EARNING_ITEM);
+   const [deleteEarning, { loading: deleteEarningLoading }] = useMutation(DELETE_EARNING);
 
    const [shouldShowModal, setShouldShowModal] = useState(false);
    const [earningsData, setEarningsData] = useState<Earnings['extract']>([]);
@@ -113,6 +114,54 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
       });
       reset();
       setShouldShowModal(false);
+   }
+
+   async function handleOnDeleteBlock() {
+      deleteEarning({
+         variables: {
+            data: {
+               monthId,
+               title: earnings.title,
+            }
+         },
+         update: (cache) => {
+            const existingData: { user: User } | null = cache.readQuery({
+               query: GET_USER_BY_EMAIL,
+               variables: { email: '' },
+            })
+
+            if (existingData) {
+               const updatedData = {
+                  ...existingData.user,
+                  months: [
+                     ...existingData.user.months.filter((month) => month.id!== monthId),
+                     ...existingData.user.months
+                        .filter((month) => month.id === monthId)
+                        .map(month => ({
+                          ...month,
+                           earnings: month.earnings.filter(earning => earning.title !== earnings.title),
+                        })),
+                  ]
+               };
+
+               cache.writeQuery({
+                  query: GET_USER_BY_EMAIL,
+                  data: {
+                     user: updatedData
+                  },
+                  variables: { email: '' },
+               });
+
+               updateUser(updatedData);
+            }
+         },
+         onCompleted: () => {
+            toast.success('Bloco de ganhos excluído com sucesso!');
+         },
+         onError: (error) => {
+            toast.error(error.message);
+         },
+      })
    }
 
    async function handleOnDeleteEarningItem(earningItemId: string) {
@@ -389,8 +438,10 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                <div>
                   <SubmitButton
                      type="button"
-                     loading={false}
+                     loading={deleteEarningLoading}
                      bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
+                     onClick={handleOnDeleteBlock}
+                     text="Deletar"
                   />
                </div>
             </InformationModal>

@@ -133,7 +133,7 @@ export class MonthApi extends RESTDataSource {
       let variables: any = {};
 
       if (type === 'expenses') {
-         const expenses = month?.expenses?.filter(expense => expense.title.toLowerCase() === title.toLowerCase());
+         const expenses = month?.expenses?.filter(expense => expense.title === normalizeId(title));
 
          if (expenses && expenses.length > 0) throw new Error('Você já tem uma despesa cadastrado com esse título');
 
@@ -157,13 +157,13 @@ export class MonthApi extends RESTDataSource {
             expenses: [
                ...month.expenses,
                {
-                  title,
+                  title: normalizeId(title),
                   extract: [],
                }
             ],
          }
       } else {
-         const earnings = month?.earnings?.filter(earning => earning.title.toLowerCase() === title.toLowerCase());
+         const earnings = month?.earnings?.filter(earning => earning.title === normalizeId(title));
 
          if (earnings && earnings?.length > 0) throw new Error('Você já tem um ganho cadastrado com esse título');
 
@@ -187,7 +187,7 @@ export class MonthApi extends RESTDataSource {
             earnings: [
                ...month.earnings,
                {
-                  title: title.toLowerCase(),
+                  title: normalizeId(title),
                   extract: [],
                }
             ],
@@ -206,6 +206,94 @@ export class MonthApi extends RESTDataSource {
       } catch (error) {
          console.log(error)
 
+         throw new GraphQLError('Tivemos um erro, tente novamente mais tarde')
+      }
+   }
+
+   async deleteEarning({ monthId, title }: { monthId: string, title: string }) {
+      const month = await this.getMonthById(monthId);
+
+      if (!month) {
+         throw new GraphQLError('Month not found');
+      }
+
+      this.verifyUserAuthenticity(this.userId, month.user?.id)
+
+      const earnings = month.earnings.filter(earning => earning.title !== normalizeId(title));
+
+      const query = `
+         mutation DELETE_EARNINGS($monthId: ID!, $earnings: [Json!]) {
+            updateMonth(data: {earnings: $earnings}, where: {id: $monthId}) {
+               id
+            }
+            publishMonth(where: {id: $monthId}) {
+               id
+            }
+         }
+      `
+
+      const variables = {
+         monthId,
+         earnings,
+      }
+
+      try {
+         const { data: cms } = await axios.post(
+            this.baseURL as string,
+            { query, variables },
+            { headers: this.headers }
+         )
+
+         return {
+            id: cms.data.updateMonth.id
+         }
+
+      } catch(error: any) {
+         console.log(error.response.data)
+         throw new GraphQLError('Tivemos um erro, tente novamente mais tarde')
+      }
+   }
+
+   async deleteExpenses({ monthId, title }: { monthId: string, title: string }) {
+      const month = await this.getMonthById(monthId);
+
+      if (!month) {
+         throw new GraphQLError('Month not found');
+      }
+
+      this.verifyUserAuthenticity(this.userId, month.user?.id)
+
+      const expenses = month.expenses.filter(expense => expense.title !== normalizeId(title));
+
+      const query = `
+         mutation DELETE_EARNINGS($monthId: ID!, $expenses: [Json!]) {
+            updateMonth(data: {expenses: $expenses}, where: {id: $monthId}) {
+               id
+            }
+            publishMonth(where: {id: $monthId}) {
+               id
+            }
+         }
+      `
+
+      const variables = {
+         monthId,
+         expenses,
+      }
+
+      try {
+         const { data: cms } = await axios.post(
+            this.baseURL as string,
+            { query, variables },
+            { headers: this.headers }
+         )
+
+         return {
+            id: cms.data.updateMonth.id
+         };
+
+      } catch(error) {
+         console.log
          throw new GraphQLError('Tivemos um erro, tente novamente mais tarde')
       }
    }

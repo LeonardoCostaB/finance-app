@@ -28,6 +28,18 @@ interface MonthResolvers {
       context: { isLoggedIn: string, dataSources: { monthApi: MonthApi, loginApi: LoginApi } }
    ) => any
 
+   deleteEarning: (
+      _: any,
+      { data }: { data: { monthId: string, title: string } },
+      context: { isLoggedIn: string, dataSources: { monthApi: MonthApi, loginApi: LoginApi } }
+   ) => any
+
+   deleteExpense: (
+      _: any,
+      { data }: { data: { monthId: string, title: string } },
+      context: { isLoggedIn: string, dataSources: { monthApi: MonthApi, loginApi: LoginApi } }
+   ) => any
+
    createEarningItem: (
       _: any,
       { data }: { monthId: string, data: AddExpenseItem['data'] },
@@ -89,6 +101,34 @@ const createEarningOrExpense: MonthResolvers['createEarningOrExpense'] = async (
    });
 
    return createEarnings;
+}
+
+const deleteEarning: MonthResolvers['deleteEarning'] = async (_, { data }, { isLoggedIn, dataSources }) => {
+   if (!isLoggedIn) {
+      await dataSources.loginApi.logout(isLoggedIn);
+      throw new GraphQLError('Unauthenticated')
+   }
+
+   const deleteEarning = await dataSources.monthApi.deleteEarning({
+      monthId: data.monthId,
+      title: data.title
+   });
+
+   return deleteEarning;
+}
+
+const deleteExpense: MonthResolvers['deleteExpense'] = async (_, { data }, { isLoggedIn, dataSources }) => {
+   if (!isLoggedIn) {
+      await dataSources.loginApi.logout(isLoggedIn);
+      throw new GraphQLError('Unauthenticated')
+   }
+
+   const deleteExpense = await dataSources.monthApi.deleteExpenses({
+      monthId: data.monthId,
+      title: data.title
+   });
+
+   return deleteExpense;
 }
 
 const createEarningItem: MonthResolvers['createEarningItem'] = async (_, { monthId, data }, { isLoggedIn, dataSources }) => {
@@ -168,6 +208,9 @@ export const monthResolvers = {
       createMonth,
 
       createEarningOrExpense,
+      deleteEarning,
+      deleteExpense,
+
       createEarningItem,
       deleteEarningItem,
 

@@ -50,6 +50,22 @@ export const CREATE_EARNING_OR_EXPENSE = gql`
    }
 `
 
+export const DELETE_EARNING = gql`
+   mutation DeleteEarning($data: DeleteBlockInput) {
+      deleteEarning(data: $data) {
+         id
+      }
+   }
+`
+
+export const DELETE_EXPENSE = gql`
+   mutation DeleteExpense($data: DeleteBlockInput) {
+      deleteExpense(data: $data) {
+         id
+      }
+   }
+`
+
 export const CREATE_EARNING_ITEM = gql`
    mutation CreateEarningItem($monthId: String!, $data: ExpenseItemInput) {
       createEarningItem(monthId: $monthId, data: $data) {
