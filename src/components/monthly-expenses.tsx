@@ -264,7 +264,9 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
 
                updateUser(updatedData);
 
-               setExpenses([...data.payExpense.expenses[0].extract]);
+               setExpenses([
+                  ...data.payExpense.expenses.find((ex: Expenses) => ex.title === expense.title)?.extract
+               ]);
             }
          },
          onError: (error) => {

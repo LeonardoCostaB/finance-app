@@ -97,6 +97,7 @@ export function MoreOptions({ month }: MoreOptionsProps) {
             type="button"
             className="flex flex-col items-center justify-center w-10 h-10 gap-1 bg-slate-700 rounded-full relative z-10"
             onClick={() => setShouldShowModal(!shouldShowOptions)}
+            onMouseEnter={shouldShowOptions ? () => setShouldShowModal(true) : () => {}}
          >
             <span className="bg-slate-500 rounded-full p-1">
                {shouldShowOptions ? (
@@ -120,13 +121,16 @@ export function MoreOptions({ month }: MoreOptionsProps) {
             </span>
          </button>
 
-         <div className={clsx(
-            "absolute right-0 top-0 z-0 bg-slate-700 rounded-xl transition-all",
-            {
-               'max-h-8 w-8 invisible duration-500': !shouldShowOptions,
-               'w-[150px] max-h-56  visible overflow-hidden duration-500': shouldShowOptions
-            }
-         )}>
+         <div
+            className={clsx(
+               "absolute right-0 top-0 z-0 bg-slate-700 rounded-xl transition-all",
+               {
+                  'max-h-8 w-8 invisible duration-500': !shouldShowOptions,
+                  'w-[150px] max-h-56  visible overflow-hidden duration-500': shouldShowOptions
+               }
+            )}
+            onMouseLeave={() => setShouldShowModal(false)}
+         >
             <ul className={clsx(
                "h-full w-full mt-10 transition-all",
                {
@@ -140,7 +144,8 @@ export function MoreOptions({ month }: MoreOptionsProps) {
                         icon: <PiggyBank size={25} />,
                         text: 'Poupança',
                         disabled: !(new Date().getMonth() === new Date(month).getMonth()),
-                        buttonClasses: 'py-3 px-2 w-full transition-all hover:bg-slate-500 active:bg-slate-600 disabled:hover:bg-transparent'
+                        buttonClasses: 'py-3 px-2 w-full transition-all hover:bg-slate-500 active:bg-slate-600 disabled:hover:bg-transparent',
+                        onclick: () => setShouldShowModal(false)
                      }}
                      modal={{
                         title: 'Adicionar Poupança'
@@ -180,7 +185,8 @@ export function MoreOptions({ month }: MoreOptionsProps) {
                      button={{
                         icon: <Trash2 size={25} />,
                         text: 'Deletar mês',
-                        buttonClasses: 'flex w-full py-3 px-2 items-center justify-start gap-2 text-sm whitespace-nowrap'
+                        buttonClasses: 'flex w-full py-3 px-2 items-center justify-start gap-2 text-sm whitespace-nowrap',
+                        onclick: () => setShouldShowModal(false)
                      }}
                      modal={{
                         title: 'Deletar mês',

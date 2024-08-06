@@ -55,6 +55,10 @@ export default function Month({ params }: { params: { id: string } }) {
                type: toggleLayout === 'profit' ? 'earnings' : 'expenses',
             }
          },
+         onCompleted: () => {
+            toast.success('Bloco creado com sucesso');
+            setShouldShowModal(false);
+         },
          update: (cache, { data }) => {
             const existingData: { user: User } | null = cache.readQuery({
                query: GET_USER_BY_EMAIL,
@@ -155,13 +159,16 @@ export default function Month({ params }: { params: { id: string } }) {
                            <CircleFadingPlus size={24} />
                         </button>
 
-                        <div className={clsx(
-                           'absolute px-2 py-4 rounded-lg top-8 left-1/2 -translate-x-1/2 bg-slate-700 transition-all ease-linear',
-                           {
-                              'max-h-0 opacity-0 invisible': !shouldShowModal,
-                              'max-h-80 opacity-1 visible': shouldShowModal,
-                           }
-                        )}>
+                        <div
+                           className={clsx(
+                              'absolute px-2 py-4 rounded-lg top-8 left-1/2 -translate-x-1/2 bg-slate-700 transition-all ease-linear',
+                              {
+                                 'max-h-0 opacity-0 invisible': !shouldShowModal,
+                                 'max-h-80 opacity-1 visible': shouldShowModal,
+                              }
+                           )}
+                           onMouseLeave={() => setShouldShowModal(false)}
+                        >
                            <h2 className="text-center mb-4">
                               Criar um novo bloco de {toggleLayout === 'profit' ? 'ganho' : 'despesa'}
                            </h2>

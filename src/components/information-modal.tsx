@@ -11,6 +11,7 @@ interface InformationModalProps {
       text?: string;
       buttonClasses?: string;
       disabled?: boolean;
+      onclick?: () => void;
    }
    modal: {
       title: string;
@@ -34,6 +35,7 @@ export function InformationModal({ button, modal, children }: InformationModalPr
             )}
             title={button.title}
             disabled={button.disabled}
+            onClick={button?.onclick}
          >
             {button.icon}
             {button.text}
