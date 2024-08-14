@@ -24,6 +24,19 @@ export const GET_USER_BY_EMAIL = gql`
             id
             url
          }
+         commonPayment {
+            id
+            name
+            value
+            date {
+               published
+            }
+         }
+         benefits {
+            id
+            name
+            value
+         }
          months {
             id
             title
@@ -95,6 +108,7 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
          onCompleted: (data) => {
             setUser(data.user);
          },
+         notifyOnNetworkStatusChange: true,
       })
    }
 

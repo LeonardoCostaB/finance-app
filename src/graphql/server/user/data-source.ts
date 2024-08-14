@@ -29,6 +29,8 @@ export class UserApi extends RESTDataSource {
                name
                email
                monthlySalary
+               commonPayment
+               benefits
                economy {
                   id
                   extract
@@ -60,14 +62,7 @@ export class UserApi extends RESTDataSource {
             { headers: this.headers }
          )
 
-         return {
-            ...user.data.subscriber,
-            months: user.data.subscriber.months.sort((a, b) => {
-               const dateA = new Date(a.date).getTime();
-               const dateB = new Date(b.date).getTime();
-               return dateB - dateA;
-            })
-         };
+         return user.data.subscriber;
 
       } catch (error: any) {
          console.log(error)

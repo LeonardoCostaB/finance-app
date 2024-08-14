@@ -322,7 +322,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                <Dialog.Portal>
                   <Dialog.Overlay className="fixed inset-0 bg-black/30" />
 
-                  <Dialog.Content className="max-w-md w-full p-4 ml-11 rounded-xl bg-slate-700 fixed top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
+                  <Dialog.Content className="max-w-md w-full p-4 rounded-xl bg-slate-700 fixed top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 lg:ml-11 max-lg:w-[95%]">
                      <Dialog.Title className="inline-block w-full mb-4 text-xl text-center">
                         Adicionar ganho
                      </Dialog.Title>

@@ -32,8 +32,21 @@ interface Months {
    earnings: Array<Earnings>;
 }
 
+interface CommonPaymentsAndBenefits {
+   id: string;
+   name: string;
+   value: number;
+   date: {
+      published: string;
+   }
+}
+
 interface User {
    id: string;
+   avatar: {
+      id: string;
+      url: string;
+   };
    email: string;
    name: string;
    economy: {
@@ -43,10 +56,8 @@ interface User {
          value: number;
       }>
    };
+   commonPayment: Array<CommonPaymentsAndBenefits>;
+   benefits: Array<CommonPaymentsAndBenefits>;
    monthlySalary: number;
-   avatar: {
-      id: string;
-      url: string;
-   };
    months: Array<Months>
 }

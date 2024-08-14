@@ -4,7 +4,7 @@ import { LogoutButton } from './LogoutButton';
 
 export function Menu() {
    return (
-      <aside className="flex flex-col h-screen sticky top-0 bottom-0">
+      <aside className="flex flex-col h-screen sticky top-0 bottom-0 max-lg:hidden">
          <div className="h-10 w-10 flex items-center justify-center rounded-full mx-auto my-8 bg-white">
             <LineChart size={20} className="text-black" />
          </div>

@@ -140,7 +140,7 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
       <div className={"relative"}>
          <button
             type="button"
-            className="flex flex-col items-center justify-center w-10 h-10 gap-1 bg-slate-700 rounded-full relative z-10"
+            className="flex flex-col items-center justify-center w-10 h-10 gap-1 bg-slate-700 rounded-full relative z-10 max-lg:z-30"
             onClick={() => setShouldShowModal(!shouldShowOptions)}
             onMouseEnter={shouldShowOptions ? () => setShouldShowModal(true) : () => {}}
          >
@@ -168,7 +168,7 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
 
          <div
             className={clsx(
-               "absolute right-0 top-0 z-0 bg-slate-700 rounded-xl transition-all",
+               "absolute right-0 top-0 z-0 bg-slate-700 rounded-xl transition-all max-lg:z-20",
                {
                   'max-h-8 w-8 invisible duration-500': !shouldShowOptions,
                   'w-[150px] max-h-56  visible overflow-hidden duration-500': shouldShowOptions
@@ -189,7 +189,7 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
                         icon: <PiggyBank size={25} />,
                         text: 'Poupança',
                         disabled: !(new Date().getMonth() === new Date(monthDate).getMonth()),
-                        buttonClasses: 'py-3 px-2 w-full transition-all hover:bg-slate-500 active:bg-slate-600 disabled:hover:bg-transparent',
+                        buttonClasses: `py-3 px-2 w-full transition-all ${shouldShowOptions ? '' : 'max-lg:text-[0px]'} hover:bg-slate-500 active:bg-slate-600 disabled:hover:bg-transparent`,
                         onclick: () => setShouldShowModal(false)
                      }}
                      modal={{
@@ -230,7 +230,7 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
                      button={{
                         icon: <Trash2 size={25} />,
                         text: 'Deletar mês',
-                        buttonClasses: 'flex w-full py-3 px-2 items-center justify-start gap-2 text-sm whitespace-nowrap',
+                        buttonClasses: `flex w-full py-3 px-2 items-center justify-start gap-2 text-sm whitespace-nowrap ${shouldShowOptions ? '' : 'max-lg:text-[0px]'}`,
                         onclick: () => setShouldShowModal(false)
                      }}
                      modal={{

@@ -60,3 +60,18 @@ label.filled {
    @apply block;
 }
 
+.add-new-block-mobile {
+   padding: 16px 16px 32px;
+
+   border-radius: 0;
+
+   position: fixed;
+   top: auto;
+   right: 0;
+   bottom: 0vh;
+   left: 0;
+}
+
+.add-new-block-mobile form {
+   width: 100%;
+}
