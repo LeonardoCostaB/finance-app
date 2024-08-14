@@ -14,9 +14,10 @@ import { useRouter } from "next/navigation"
 
 interface MoreOptionsProps {
    month: string;
+   monthDate: string;
 }
 
-export function MoreOptions({ month }: MoreOptionsProps) {
+export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
    const { user, updateUser } = useLoggedIn();
    const { push } = useRouter();
 
@@ -187,7 +188,7 @@ export function MoreOptions({ month }: MoreOptionsProps) {
                      button={{
                         icon: <PiggyBank size={25} />,
                         text: 'Poupança',
-                        disabled: !(new Date().getMonth() === new Date(month).getMonth()),
+                        disabled: !(new Date().getMonth() === new Date(monthDate).getMonth()),
                         buttonClasses: 'py-3 px-2 w-full transition-all hover:bg-slate-500 active:bg-slate-600 disabled:hover:bg-transparent',
                         onclick: () => setShouldShowModal(false)
                      }}

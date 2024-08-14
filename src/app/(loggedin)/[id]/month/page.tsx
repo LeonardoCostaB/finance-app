@@ -200,7 +200,7 @@ export default function Month({ params }: { params: { id: string } }) {
                         </div>
                      </div>
 
-                     <MoreOptions month={month[0].id} />
+                     <MoreOptions month={month[0].id} monthDate={month[0].date} />
                   </div>
                </div>
 
