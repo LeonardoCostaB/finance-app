@@ -418,6 +418,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                               color: 'bg-indigo-500',
                               hover: 'bg-indigo-700'
                            }}
+                           text="Adicionar"
                         />
                      </form>
                   </Dialog.Content>

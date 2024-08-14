@@ -507,7 +507,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                            {loading ? (
                               <Loader2Icon size={24} className="animate-spin" />
                            ) : (
-                              'Entrar'
+                              'Adicionar'
                            )}
                         </button>
                      </form>
