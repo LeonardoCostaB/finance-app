@@ -271,7 +271,7 @@ export default function Month({ params }: { params: { id: string } }) {
 
                <MonthlySummary
                   month={month}
-                  userEconomy={user?.economy.extract}
+                  userEconomy={user?.economy?.extract}
                   monthlySalary={user?.monthlySalary}
                />
             </div>
