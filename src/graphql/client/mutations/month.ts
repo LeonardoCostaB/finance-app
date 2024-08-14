@@ -17,6 +17,14 @@ export const CREATE_MONTH = gql`
    }
 `
 
+export const DELETE_MONTH = gql`
+   mutation DeleteMonth($monthId: ID!) {
+      deleteMonth(monthId: $monthId) {
+         id
+      }
+   }
+`
+
 export const CREATE_EARNING_OR_EXPENSE = gql`
    mutation createEarningOrExpense($data: CreateEarningOrExpenseInput) {
       createEarningOrExpense (data: $data) {

@@ -121,6 +121,49 @@ export class MonthApi extends RESTDataSource {
       }
    }
 
+   async deleteMonth(monthId: string) {
+      const month = await this.getMonthById(monthId);
+
+      if (!month) {
+         throw new Error('Month not found');
+      }
+
+      this.verifyUserAuthenticity(this.userId, month.user?.id)
+
+      const query = `
+         mutation deleteMonth($monthId: ID!, $userId: ID!) {
+            deleteMonth(where: { id: $monthId }) {
+               id
+            }
+
+            publishSubscriber(where: {id: $userId}, to: PUBLISHED) {
+               id
+            }
+         }
+      `
+
+      const variables = {
+         monthId,
+         userId: this.userId
+      }
+
+      try {
+         const { data: cms } = await axios.post(
+            this.baseURL as string,
+            { query, variables },
+            { headers: this.headers }
+         )
+
+         return {
+            id: cms.data.deleteMonth.id,
+         }
+
+      } catch (e: any) {
+         console.log(e.response.data.errors)
+         throw new GraphQLError('Tivemos um erro ao deletar ao mês, tente novamente')
+      }
+   }
+
    async createEarningOrExpense({ monthId, title, type }: { monthId: string, title: string, type: 'earnings' | 'expenses' }) {
       const month = await this.getMonthById(monthId);
 

@@ -9,6 +9,8 @@ import { useLoggedIn } from "@/hooks/use-loggedIn";
 import { SAVE_ECONOMY } from "@/graphql/client/mutations/user";
 import { toast } from "sonner";
 import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
+import { DELETE_MONTH } from "@/graphql/client/mutations/month";
+import { useRouter } from "next/navigation"
 
 interface MoreOptionsProps {
    month: string;
@@ -16,9 +18,51 @@ interface MoreOptionsProps {
 
 export function MoreOptions({ month }: MoreOptionsProps) {
    const { user, updateUser } = useLoggedIn();
+   const { push } = useRouter();
 
    const [shouldShowOptions, setShouldShowModal] = useState(false);
    const [saveEconomy, { loading: loadingSaveEconomy }]  = useMutation(SAVE_ECONOMY);
+   const [deleteMonth, { loading: loadingDeleteMonth }]  = useMutation(DELETE_MONTH);
+
+   function handleDeleteMonth(monthId: string) {
+      deleteMonth({
+         variables: {
+            monthId,
+         },
+         onError: () => {
+            toast.error("Falha ao deletar o mês, tente novamente");
+         },
+         onCompleted: () => {
+            toast.success("O mês foi deletado com sucesso!");
+            push('/')
+         },
+         update: (cache) => {
+            const existingData: { user: User } | null = cache.readQuery({
+               query: GET_USER_BY_EMAIL,
+               variables: { email: '' },
+            });
+
+            if (existingData) {
+               const updatedData = {
+                  ...existingData.user,
+                  months: [
+                     ...existingData.user.months.filter((m) => m.id !== monthId),
+                  ]
+               }
+
+               cache.writeQuery({
+                  query: GET_USER_BY_EMAIL,
+                  data: {
+                     user: updatedData,
+                  },
+                  variables: { email: '' },
+               });
+
+               updateUser(updatedData)
+            }
+         }
+      })
+   }
 
    function handleUpdateEconomy(e: FormEvent) {
       e.preventDefault();
@@ -204,12 +248,13 @@ export function MoreOptions({ month }: MoreOptionsProps) {
 
                            <SubmitButton
                               type="button"
-                              loading={false}
+                              loading={loadingDeleteMonth}
                               bgColor={{
                                  color: 'bg-red-400',
                                  hover: 'bg-red-600'
                               }}
                               text="Deletar"
+                              onClick={() => handleDeleteMonth(month)}
                            />
                         </div>
                      </div>

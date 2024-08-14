@@ -3,6 +3,7 @@ import { gql } from "@apollo/client";
 export const monthTypeDefs = gql`
    extend type Mutation {
       createMonth(data: MonthInput): Months
+      deleteMonth(monthId: ID!): DeleteMonth
 
       createEarningOrExpense(data: CreateEarningOrExpenseInput): CreateEarningOrExpenseRes
       deleteEarning(data: DeleteBlockInput): DeleteBlock!
@@ -93,10 +94,20 @@ export const monthTypeDefs = gql`
       expenses: [Expenses]!
    }
 
+   # Earning
+   type Earnings {
+      title: String!
+      extract: [Extract]
+   }
+
    # Month
    input MonthInput {
       month: String!
       year: String!
+   }
+
+   type DeleteMonth {
+      id: ID!
    }
 
    type Months {
@@ -105,6 +116,6 @@ export const monthTypeDefs = gql`
       createdAt: String!
       date: String
       expenses: [Expenses]
-      earnings: [Expenses]
+      earnings: [Earnings]
    }
 `;

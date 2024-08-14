@@ -22,6 +22,12 @@ interface MonthResolvers {
       context: { isLoggedIn: string, dataSources: { monthApi: MonthApi, loginApi: LoginApi, userApi: UserApi } }
    ) => any
 
+   deleteMonth: (
+      _: any,
+      { monthId }: { monthId: string },
+      context: { isLoggedIn: string, dataSources: { monthApi: MonthApi, loginApi: LoginApi, userApi: UserApi } }
+   ) => any
+
    createEarningOrExpense: (
       _: any,
       { data }: { data: { monthId: string, title: string, type: 'earnings' | 'expenses' } },
@@ -86,6 +92,17 @@ const createMonth: MonthResolvers['createMonth'] = async (_, { data }, { isLogge
    const createMonth = await dataSources.monthApi.createMonth(data, user?.months);
 
    return createMonth;
+}
+
+const deleteMonth: MonthResolvers['deleteMonth'] = async (_, { monthId }, { isLoggedIn, dataSources }) => {
+   if (!isLoggedIn) {
+      await dataSources.loginApi.logout(isLoggedIn);
+      throw new GraphQLError('Unauthenticated')
+   }
+
+   const deleteMonth = dataSources.monthApi.deleteMonth(monthId);
+
+   return deleteMonth;
 }
 
 const createEarningOrExpense: MonthResolvers['createEarningOrExpense'] = async (_, { data }, { isLoggedIn, dataSources }) => {
@@ -206,6 +223,7 @@ const payExpense: MonthResolvers['payExpense'] = async (_, { data: { monthId, ex
 export const monthResolvers = {
    Mutation: {
       createMonth,
+      deleteMonth,
 
       createEarningOrExpense,
       deleteEarning,
