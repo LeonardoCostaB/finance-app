@@ -33,7 +33,7 @@ export function MonthlySummary({ month, monthlySalary, userEconomy }: { month: M
    }, [])
 
    return (
-      <div className={`relative max-w-[300px] h-max flex flex-col items-center gap-4 w-full mt-10 p-4 rounded-lg bg-slate-800 transition-all max-lg:max-w-full max-lg:overflow-hidden ${shouldShowSummary ? 'max-h-96' : 'max-lg:max-h-14'}`}>
+      <div className={`max-w-[300px] h-max flex flex-col items-center gap-4 w-full mt-10 p-4 rounded-lg bg-slate-800 transition-all max-lg:relative max-lg:max-w-full max-lg:overflow-hidden ${shouldShowSummary ? 'max-h-96' : 'max-lg:max-h-14'}`}>
          <button
             type="button"
             className={`absolute right-4 transition-all ${shouldShowSummary ? 'rotate-180' : 'rotate-0'} lg:hidden`}

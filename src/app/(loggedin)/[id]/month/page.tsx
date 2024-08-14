@@ -138,7 +138,7 @@ export default function Month({ params }: { params: { id: string } }) {
 
                      <div
                         className={clsx(
-                           'add-new-block-mobile absolute px-2 py-4 rounded-lg top-8 left-[calc(100%-250px)] bg-slate-700 ease-linear transition-all max-lg:duration-300 min-[1420px]:left-1/2 min-[1420px]:-translate-x-1/2',
+                           'absolute px-2 py-4 rounded-lg top-8 left-[calc(100%-250px)] bg-slate-700 ease-linear transition-all max-lg:add-new-block-mobile max-lg:duration-300 min-[1420px]:left-1/2 min-[1420px]:-translate-x-1/2',
                            {
                               'max-h-0 opacity-0 invisible': !shouldShowModal,
                               'max-h-80 opacity-1 visible': shouldShowModal,
