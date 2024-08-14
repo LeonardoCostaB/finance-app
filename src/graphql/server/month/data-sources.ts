@@ -201,6 +201,7 @@ export class MonthApi extends RESTDataSource {
             expenses: [
                ...month.expenses,
                {
+                  id: `${normalizeId(title)}-${randomUUID()}`,
                   title: normalizeId(title),
                   extract: [],
                }
@@ -231,6 +232,7 @@ export class MonthApi extends RESTDataSource {
             earnings: [
                ...month.earnings,
                {
+                  id: `${normalizeId(title)}-${randomUUID()}`,
                   title: normalizeId(title),
                   extract: [],
                }
