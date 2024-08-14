@@ -1,3 +1,3 @@
 export function normalizeId(id: string): string {
-   return id.toLowerCase().replace(/[^a-z0-9]/g, '-');
+   return id.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");;
 }

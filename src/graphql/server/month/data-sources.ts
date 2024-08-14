@@ -3,6 +3,7 @@ import { RESTDataSource } from "apollo-datasource-rest";
 import { AddExpenseItem } from "./resolvers";
 import { normalizeId } from "@/utils/normalize-id";
 import { GraphQLError } from "graphql";
+import { randomUUID } from "crypto";
 
 export class MonthApi extends RESTDataSource {
    private headers: { ['Content-Type']: string; Authorization: string }
@@ -316,12 +317,12 @@ export class MonthApi extends RESTDataSource {
       const earningItemExist = earnings
          .map(earning => earning.extract)
          .reduce((acc, item) => acc.concat(item), [])
-         .some(extract => extract.id === normalizeId(data.name));
+         .some(extract => normalizeId(extract.name) === normalizeId(data.name));
 
       if (earningItemExist) throw new Error('Você já tem um item cadastrado com esse nome');
 
       const extract = {
-         id: normalizeId(data.name),
+         id: `${normalizeId(data.name)}-${randomUUID()}`,
          name: data.name,
          value: data.value,
          date: {
@@ -579,14 +580,14 @@ export class MonthApi extends RESTDataSource {
       }
 
       const expenseItemExist = expenses
-      .map(expense => expense.extract)
-      .reduce((acc, item) => acc.concat(item), [])
-      .some(extract => extract.id === normalizeId(data.name));
+         .map(expense => expense.extract)
+         .reduce((acc, item) => acc.concat(item), [])
+         .some(extract => normalizeId(extract.name) === normalizeId(data.name));
 
       if (expenseItemExist) throw new Error('Você já tem um item cadastrado com esse nome ');
 
       const extract = {
-         id: normalizeId(data.name),
+         id: `${normalizeId(data.name)}-${randomUUID()}`,
          name: data.name,
          value: data.value,
          date: {
