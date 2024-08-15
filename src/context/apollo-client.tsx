@@ -5,20 +5,16 @@ import { createContext, ReactNode } from 'react';
 import { apolloClient } from '@/graphql/client/apollo';
 import { ApolloProvider } from '@apollo/client';
 
-interface AppContextProps {}
-
 interface AppProviderProps {
    children: ReactNode;
 }
 
-const AppContext = createContext<AppContextProps>({});
+const AppContext = createContext({});
 
 function AppProvider({ children }: AppProviderProps) {
    return (
       <ApolloProvider client={apolloClient}>
-         <AppContext.Provider value={{}}>
-            {children}
-         </AppContext.Provider>
+         <AppContext.Provider value={{}}>{children}</AppContext.Provider>
       </ApolloProvider>
    );
 }

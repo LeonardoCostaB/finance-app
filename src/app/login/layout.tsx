@@ -1,27 +1,23 @@
-'use client'
+'use client';
 
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 
 import '../globals.css';
 
-export default function LoggedInLayout({
-   children,
-}: {
-   children: React.ReactNode;
-}) {
+export default function LoggedInLayout({ children }: { children: React.ReactNode }) {
    const router = useRouter();
 
    useEffect(() => {
       if (Cookies.get('isLoggedIn')) {
          router.push('/');
       }
-   }, [])
+   }, []);
 
    return (
-      <div className={`flex w-full`}>
-         <picture className='w-full'>
+      <div className={'flex w-full'}>
+         <picture className="w-full">
             <img
                src="https://picsum.photos/1200/1200?random=2"
                alt="Imagens aleatória para tela de login"

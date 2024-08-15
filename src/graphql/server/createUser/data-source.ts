@@ -1,7 +1,7 @@
-import { RESTDataSource } from "apollo-datasource-rest";
-import axios from "axios";
+import { RESTDataSource } from 'apollo-datasource-rest';
+import axios from 'axios';
 import bcrypt from 'bcryptjs';
-import { GraphQLError } from "graphql";
+import { GraphQLError } from 'graphql';
 
 /*
    Em sistemas de login é muito importante não ter cache
@@ -12,14 +12,14 @@ type UserApiParams = {
       userName: string;
       email: string;
       password: string;
-   }
+   };
    getUser: {
       data: {
          id: string;
          token: string;
-      }
-   }
-}
+      };
+   };
+};
 
 export class CreateUserApi extends RESTDataSource {
    constructor() {
@@ -40,7 +40,7 @@ export class CreateUserApi extends RESTDataSource {
       const variables = { id };
       const headers = {
          'Content-Type': 'application/json',
-         'Authorization': process.env.AUTH_TOKEN as string,
+         Authorization: process.env.AUTH_TOKEN as string,
       };
 
       try {
@@ -48,23 +48,22 @@ export class CreateUserApi extends RESTDataSource {
             this.baseURL as string,
             {
                query,
-               variables
+               variables,
             },
-            { headers }
-         )
+            { headers },
+         );
 
          return {
             id: user.data.subscriber?.id ?? '',
             token: user.data.subscriber?.sessionToken ?? '',
          };
-
       } catch (error: any) {
-         console.log(error.response.data.errors)
+         console.log(error.response.data.errors);
 
          return {
             id: '',
-            token: ''
-         }
+            token: '',
+         };
       }
    }
 
@@ -80,7 +79,7 @@ export class CreateUserApi extends RESTDataSource {
       const variables = { email };
       const headers = {
          'Content-Type': 'application/json',
-         'Authorization': process.env.AUTH_TOKEN as string,
+         Authorization: process.env.AUTH_TOKEN as string,
       };
 
       try {
@@ -88,21 +87,20 @@ export class CreateUserApi extends RESTDataSource {
             this.baseURL as string,
             {
                query,
-               variables
+               variables,
             },
-            { headers }
-         )
+            { headers },
+         );
 
          return {
             id: user.data.subscriber?.id ?? '',
          };
-
       } catch (error: any) {
-         console.log(error.response.data.errors)
+         console.log(error.response.data.errors);
 
          return {
             id: '',
-         }
+         };
       }
    }
 
@@ -132,12 +130,12 @@ export class CreateUserApi extends RESTDataSource {
       const variables = {
          name: data.userName,
          email: data.email,
-         pass: passHash
-      }
+         pass: passHash,
+      };
 
       const headers = {
          'Content-Type': 'application/json',
-         'Authorization': process.env.AUTH_TOKEN as string,
+         Authorization: process.env.AUTH_TOKEN as string,
       };
 
       try {
@@ -149,18 +147,17 @@ export class CreateUserApi extends RESTDataSource {
             },
             {
                headers,
-            }
-         )
+            },
+         );
 
          return {
             userName: user.data.createSubscriber.name,
-            authenticated: false
-         }
-
+            authenticated: false,
+         };
       } catch (error: any) {
          return {
             error: error.response.data.errors,
-         }
+         };
       }
    }
 }

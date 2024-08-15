@@ -17,7 +17,7 @@ const LOGIN = gql`
          token
       }
    }
- `
+`;
 
 const userLoginFormSchema = z.object({
    email: z.string().email('Email inválido').nonempty('Email é obrigatório'),
@@ -27,7 +27,7 @@ const userLoginFormSchema = z.object({
 type UserLoginFormData = z.infer<typeof userLoginFormSchema>;
 
 export function LoginForm() {
-   const [ login, { loading } ] = useMutation(LOGIN)
+   const [login, { loading }] = useMutation(LOGIN);
 
    const {
       register,
@@ -42,7 +42,7 @@ export function LoginForm() {
       login({
          variables: {
             email,
-            password
+            password,
          },
          onError: (error) => {
             toast.error(error.message);
@@ -51,8 +51,8 @@ export function LoginForm() {
             if (data?.login.token) {
                window.location.reload();
             }
-         }
-      })
+         },
+      });
    }
 
    return (
@@ -63,13 +63,17 @@ export function LoginForm() {
          >
             <Input
                container={{
-                  classNames: 'h-12'
+                  classNames: 'h-12',
                }}
-               labelProps={{ text: 'Email:', labelClasses: 'top-3', filled: watch('email')?.length > 0 }}
+               labelProps={{
+                  text: 'Email:',
+                  labelClasses: 'top-3',
+                  filled: watch('email')?.length > 0,
+               }}
                inputProps={{
                   type: 'email',
                   register: { ...register('email') },
-                  id: 'email'
+                  id: 'email',
                }}
                error={{
                   show: !!errors.email,
@@ -79,9 +83,13 @@ export function LoginForm() {
 
             <PasswordInput
                container={{
-                  classNames: 'h-12'
+                  classNames: 'h-12',
                }}
-               labelProps={{ text: 'Senha:', labelClasses: 'top-3', filled: watch('password')?.length > 0 }}
+               labelProps={{
+                  text: 'Senha:',
+                  labelClasses: 'top-3',
+                  filled: watch('password')?.length > 0,
+               }}
                inputProps={{
                   type: 'password',
                   id: 'password',
@@ -98,11 +106,7 @@ export function LoginForm() {
                className="flex h-10 w-full items-center justify-center rounded-lg bg-indigo-500 py-2 text-white transition-all duration-300 ease-out hover:bg-indigo-700 disabled:cursor-no-drop disabled:opacity-50"
                disabled={loading}
             >
-               {loading ? (
-                  <Loader2Icon size={24} className="animate-spin" />
-               ) : (
-                  'Entrar'
-               )}
+               {loading ? <Loader2Icon size={24} className="animate-spin" /> : 'Entrar'}
             </button>
          </form>
 

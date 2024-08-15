@@ -208,21 +208,9 @@ export default function Unauthenticated() {
                   gradientTransform="translate(287.974 253.674) rotate(90) scale(286.95 472.968)"
                >
                   <stop stopColor="#2D264A"></stop>
-                  <stop
-                     offset="0.484375"
-                     stopColor="#2D264A"
-                     stopOpacity="0.8"
-                  ></stop>
-                  <stop
-                     offset="0.703125"
-                     stopColor="#2D264A"
-                     stopOpacity="0.3"
-                  ></stop>
-                  <stop
-                     offset="0.989583"
-                     stopColor="#2D264A"
-                     stopOpacity="0"
-                  ></stop>
+                  <stop offset="0.484375" stopColor="#2D264A" stopOpacity="0.8"></stop>
+                  <stop offset="0.703125" stopColor="#2D264A" stopOpacity="0.3"></stop>
+                  <stop offset="0.989583" stopColor="#2D264A" stopOpacity="0"></stop>
                </radialGradient>
                <radialGradient
                   id="paint1_radial"
@@ -251,11 +239,10 @@ export default function Unauthenticated() {
 
          <div className="flex max-w-2xl flex-col items-center gap-7">
             <h1 className="text-center text-2xl">
-               Para acessar o admin, você precisa estar logado ou estar com
-               permissão de acesso <br />
+               Para acessar o admin, você precisa estar logado ou estar com permissão de acesso{' '}
+               <br />
                <small className="mt-3 block text-sm">
-                  Caso já tenha solicitado a permissão, por favor, aguarde a
-                  confirmação
+                  Caso já tenha solicitado a permissão, por favor, aguarde a confirmação
                </small>
             </h1>
 

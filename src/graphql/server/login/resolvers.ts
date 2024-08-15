@@ -1,20 +1,20 @@
-import { LoginApi } from "./data-source"
+import { LoginApi } from './data-source';
 
 type Login = {
    data: {
-      email: string,
-      password: string
-   }
-}
+      email: string;
+      password: string;
+   };
+};
 
 interface LoginResolvers {
-   login: (
-      _: any,
-      { data }: Login,
-      context: { dataSources: { loginApi: LoginApi } }
-   ) => any;
+   login: (_: any, { data }: Login, context: { dataSources: { loginApi: LoginApi } }) => any;
 
-   logout: (_: any, __: any, { isLoggedIn, dataSources }: { isLoggedIn: string, dataSources: { loginApi: LoginApi } }) => any;
+   logout: (
+      _: any,
+      __: any,
+      { isLoggedIn, dataSources }: { isLoggedIn: string; dataSources: { loginApi: LoginApi } },
+   ) => any;
 }
 
 const login: LoginResolvers['login'] = async (_, { data }, { dataSources }) => {
@@ -24,16 +24,16 @@ const login: LoginResolvers['login'] = async (_, { data }, { dataSources }) => {
 
    return {
       token,
-   }
+   };
 };
 
 const logout: LoginResolvers['logout'] = async (_, __, { isLoggedIn, dataSources }) => {
-   return dataSources.loginApi.logout(isLoggedIn);
+   return await dataSources.loginApi.logout(isLoggedIn);
 };
 
 export const loginResolvers = {
    Mutation: {
       login,
-      logout
+      logout,
    },
-}
+};

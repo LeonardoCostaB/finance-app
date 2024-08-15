@@ -1,5 +1,5 @@
-import { Menu } from "@/components/menu";
-import { LoggedInProvider } from "@/context/loggedIn-context";
+import { Menu } from '@/components/menu';
+import { LoggedInProvider } from '@/context/loggedIn-context';
 
 export default function RootLayout({
    children,
@@ -10,9 +10,7 @@ export default function RootLayout({
       <LoggedInProvider>
          <Menu />
 
-         <div className="flex-1">
-            {children}
-         </div>
+         <div className="flex-1">{children}</div>
       </LoggedInProvider>
    );
 }

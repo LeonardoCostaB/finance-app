@@ -1,6 +1,6 @@
-import { GraphQLError } from "graphql";
-import { UserApi } from "./data-source";
-import { LoginApi } from "../login/data-source";
+import { GraphQLError } from 'graphql';
+import { UserApi } from './data-source';
+import { LoginApi } from '../login/data-source';
 
 export type AddExpenseItem = {
    data: {
@@ -11,14 +11,14 @@ export type AddExpenseItem = {
       date: string;
       link?: string;
       notes?: string;
-   }
-}
+   };
+};
 
 interface UserResolvers {
    user: (
       _: any,
       __: any,
-      context: { isLoggedIn: string, dataSources: { userApi: UserApi, loginApi: LoginApi } }
+      context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
    ) => any;
 }
 
@@ -26,7 +26,7 @@ const user: UserResolvers['user'] = async (_, __, { isLoggedIn, dataSources }) =
    if (!isLoggedIn) {
       await dataSources.loginApi.logout(isLoggedIn);
 
-      throw new GraphQLError('Unauthenticated')
+      throw new GraphQLError('Unauthenticated');
    }
 
    const userData = await dataSources.userApi.getUserById(isLoggedIn);
@@ -38,4 +38,4 @@ export const userResolvers = {
    Query: {
       user,
    },
-}
+};

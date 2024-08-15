@@ -1,16 +1,16 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
-import { loginTypeDefs } from "./server/login/type-defs";
-import { createUserTypeDefs } from "./server/createUser/type-defs";
-import { userTypeDefs } from "./server/user/type-defs";
+import { loginTypeDefs } from './server/login/type-defs';
+import { createUserTypeDefs } from './server/createUser/type-defs';
+import { userTypeDefs } from './server/user/type-defs';
 
-import { loginResolvers } from "./server/login/resolvers";
-import { createUserResolvers } from "./server/createUser/resolvers";
-import { userResolvers } from "./server//user/resolvers";
-import { monthResolvers } from "./server/month/resolvers";
-import { monthTypeDefs } from "./server/month/type-defs";
-import { economyTypeDefs } from "./server/economy/type-defs";
-import { economyResolvers } from "./server/economy/resolvers";
+import { loginResolvers } from './server/login/resolvers';
+import { createUserResolvers } from './server/createUser/resolvers';
+import { userResolvers } from './server//user/resolvers';
+import { monthResolvers } from './server/month/resolvers';
+import { monthTypeDefs } from './server/month/type-defs';
+import { economyTypeDefs } from './server/economy/type-defs';
+import { economyResolvers } from './server/economy/resolvers';
 
 const rootTypeDefs = gql`
    type Query {
@@ -28,11 +28,11 @@ const rootTypeDefs = gql`
 
 const rootResolvers = {
    Query: {
-      _root: () => true
+      _root: () => true,
    },
 
    Mutation: {
-      _root: () => true
+      _root: () => true,
    },
 };
 

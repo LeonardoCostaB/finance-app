@@ -21,7 +21,7 @@ interface CustomContext {
    isLoggedIn: string;
 }
 
-const apolloServer = new ApolloServer<CustomContext>({ typeDefs, resolvers, });
+const apolloServer = new ApolloServer<CustomContext>({ typeDefs, resolvers });
 
 const handler = startServerAndCreateNextHandler<NextRequest, CustomContext>(apolloServer, {
    context: async (req) => ({
@@ -35,13 +35,13 @@ const handler = startServerAndCreateNextHandler<NextRequest, CustomContext>(apol
          economyApi: new EconomyApi(),
       },
       isLoggedIn: await userIsLoggedIn(),
-   })
+   }),
 });
 
- export async function GET(request: NextRequest) {
-   return handler(request);
- }
+export async function GET(request: NextRequest) {
+   return await handler(request);
+}
 
- export async function POST(request: NextRequest) {
-   return handler(request);
- }
+export async function POST(request: NextRequest) {
+   return await handler(request);
+}

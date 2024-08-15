@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -15,14 +15,7 @@ interface ItemProps {
    loading?: boolean;
 }
 
-export function Item({
-   url,
-   text,
-   icon,
-   className = '',
-   onClickFunction,
-   loading,
-}: ItemProps) {
+export function Item({ url, text, icon, className = '', onClickFunction, loading }: ItemProps) {
    const pathName = usePathname();
 
    return (
@@ -31,11 +24,10 @@ export function Item({
             <Link
                href={url}
                className={clsx(
-                  `flex h-20 w-20 flex-col items-center justify-center text-xs font-light text-gray-600 dark:hover:dark:text-white`,
+                  'flex h-20 w-20 flex-col items-center justify-center text-xs font-light text-gray-600 dark:hover:dark:text-white',
                   {
                      className: className !== '',
-                     'bg-gray-100 dark:bg-gray-800 dark:text-white':
-                        pathName === url,
+                     'bg-gray-100 dark:bg-gray-800 dark:text-white': pathName === url,
                   },
                )}
             >

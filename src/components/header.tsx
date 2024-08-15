@@ -1,29 +1,29 @@
-import { useLoggedIn } from "@/hooks/use-loggedIn";
-import { PiggyBank, User } from "lucide-react";
-import { useEffect } from "react";
-import Image from "next/image";
+import { useLoggedIn } from '@/hooks/use-loggedIn';
+import { PiggyBank, User } from 'lucide-react';
+import { useEffect } from 'react';
+import Image from 'next/image';
 
 interface HeaderProps {
    search?: {
       onSearch: (search: string) => void;
-   }
+   };
 }
 
 export function Header({ search }: HeaderProps) {
    const { getUser, user } = useLoggedIn();
 
    useEffect(() => {
-      getUser()
-   }, [])
+      getUser();
+   }, []);
 
    return (
-      <header className="w-full flex items-center justify-end p-8 gap-2 relative">
+      <header className="relative flex w-full items-center justify-end gap-2 p-8">
          {search && (
-            <form className="flex justify-center w-96 absolute left-1/2 -translate-x-1/2 max-xl:left-[40%]">
+            <form className="absolute left-1/2 flex w-96 -translate-x-1/2 justify-center max-xl:left-[40%]">
                <input
                   type="text"
                   placeholder="Encontrar mês"
-                  className="w-full bg-transparent text-base border border-gray-500 h-10 rounded-full font-semibold tracking-tight outline-none text-center placeholder:text-slate-500 focus:border-white"
+                  className="h-10 w-full rounded-full border border-gray-500 bg-transparent text-center text-base font-semibold tracking-tight outline-none placeholder:text-slate-500 focus:border-white"
                   onChange={(e) => search.onSearch(e.target.value)}
                />
             </form>
@@ -31,21 +31,20 @@ export function Header({ search }: HeaderProps) {
 
          <div className="flex items-center gap-4">
             {user?.economy?.extract && (
-               <div className="flex items-center gap-2 text-xs ring-2 ring-lime-400 rounded-md p-2 mr-4">
+               <div className="mr-4 flex items-center gap-2 rounded-md p-2 text-xs ring-2 ring-lime-400">
                   <PiggyBank size={25} />
 
                   <strong>
-                     {user.economy.extract.reduce((a, b) => a + b.value, 0).toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
+                     {user.economy.extract
+                        .reduce((a, b) => a + b.value, 0)
+                        .toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
                   </strong>
                </div>
             )}
 
             <span>{user?.name}</span>
 
-            <button
-               type="button"
-               className="h-10 w-10 rounded-full overflow-hidden bg-slate-700"
-            >
+            <button type="button" className="h-10 w-10 overflow-hidden rounded-full bg-slate-700">
                {user?.avatar?.url ? (
                   <Image
                      src={user?.avatar.url as string}
@@ -59,5 +58,5 @@ export function Header({ search }: HeaderProps) {
             </button>
          </div>
       </header>
-   )
+   );
 }

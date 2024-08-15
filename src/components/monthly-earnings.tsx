@@ -1,20 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { useForm } from "react-hook-form";
-import { useMutation } from "@apollo/client";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
+import { useForm } from 'react-hook-form';
+import { useMutation } from '@apollo/client';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 
-import { FormattedPrice } from "./formatted-price";
-import { Input } from "./input";
-import { SubmitButton } from "./submit-button";
-import { InformationModal } from "./information-modal";
-import { Info, Link, Trash2 } from "lucide-react";
+import { FormattedPrice } from './formatted-price';
+import { Input } from './input';
+import { SubmitButton } from './submit-button';
+import { InformationModal } from './information-modal';
+import { Info, Link, Trash2 } from 'lucide-react';
 
-import { useLoggedIn } from "@/hooks/use-loggedIn";
-import { CREATE_EARNING_ITEM, DELETE_EARNING, DELETE_EARNING_ITEM } from "@/graphql/client/mutations/month";
-import { GET_USER_BY_EMAIL } from "@/context/loggedIn-context";
+import { useLoggedIn } from '@/hooks/use-loggedIn';
+import {
+   CREATE_EARNING_ITEM,
+   DELETE_EARNING,
+   DELETE_EARNING_ITEM,
+} from '@/graphql/client/mutations/month';
+import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
 
 interface MonthlyEarningsProps {
    monthId: string;
@@ -25,7 +29,7 @@ const createNewEarningsFormSchema = z.object({
    earningName: z
       .string()
       .min(3, 'Mínimo 3 caracteres')
-      .transform(name => name[0].toUpperCase() + name.substring(1)),
+      .transform((name) => name[0].toUpperCase() + name.substring(1)),
    earningValue: z.number().min(1, 'Mínimo R$ 1'),
    earningLink: z.union([z.literal(''), z.string()]),
    earningNotes: z.union([z.literal(''), z.string().min(5, 'Mínimo de 5 caracteres')]),
@@ -77,8 +81,8 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
 
             if (existingData) {
                const newEarningsItems = [
-                  ...data.createEarningItem.earnings as Months['earnings'],
-               ]
+                  ...(data.createEarningItem.earnings as Months['earnings']),
+               ];
 
                const updatedData = {
                   ...existingData.user,
@@ -86,11 +90,11 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                      ...existingData.user.months.filter((month) => month.id !== monthId),
                      ...existingData.user.months
                         .filter((month) => month.id === monthId)
-                        .map(month => ({
+                        .map((month) => ({
                            ...month,
                            earnings: newEarningsItems,
                         })),
-                  ]
+                  ],
                };
 
                cache.writeQuery({
@@ -103,51 +107,53 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
 
                setEarningsData(
                   updatedData.months
-                  .filter(month => month.id === monthId)[0].earnings
-                  .filter(earning => earning.title === earnings.title)[0].extract
-               )
+                     .filter((month) => month.id === monthId)[0]
+                     .earnings.filter((earning) => earning.title === earnings.title)[0].extract,
+               );
             }
          },
          onError: (error) => {
             toast.error(error.message);
-         }
+         },
       });
       reset();
       setShouldShowModal(false);
    }
 
-   async function handleOnDeleteBlock() {
+   function handleOnDeleteBlock() {
       deleteEarning({
          variables: {
             data: {
                monthId,
                title: earnings.title,
-            }
+            },
          },
          update: (cache) => {
             const existingData: { user: User } | null = cache.readQuery({
                query: GET_USER_BY_EMAIL,
                variables: { email: '' },
-            })
+            });
 
             if (existingData) {
                const updatedData = {
                   ...existingData.user,
                   months: [
-                     ...existingData.user.months.filter((month) => month.id!== monthId),
+                     ...existingData.user.months.filter((month) => month.id !== monthId),
                      ...existingData.user.months
                         .filter((month) => month.id === monthId)
-                        .map(month => ({
-                          ...month,
-                           earnings: month.earnings.filter(earning => earning.title !== earnings.title),
+                        .map((month) => ({
+                           ...month,
+                           earnings: month.earnings.filter(
+                              (earning) => earning.title !== earnings.title,
+                           ),
                         })),
-                  ]
+                  ],
                };
 
                cache.writeQuery({
                   query: GET_USER_BY_EMAIL,
                   data: {
-                     user: updatedData
+                     user: updatedData,
                   },
                   variables: { email: '' },
                });
@@ -161,7 +167,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
          onError: (error) => {
             toast.error(error.message);
          },
-      })
+      });
    }
 
    async function handleOnDeleteEarningItem(earningItemId: string) {
@@ -171,13 +177,13 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                monthId: monthId,
                earningTitle: earnings.title,
                earningItemId,
-            }
+            },
          },
          update: (cache) => {
             const existingData: { user: User } | null = cache.readQuery({
                query: GET_USER_BY_EMAIL,
                variables: { email: '' },
-            })
+            });
 
             if (existingData) {
                const updatedData = {
@@ -186,34 +192,36 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                      ...existingData.user.months.filter((month) => month.id !== monthId),
                      ...existingData.user.months
                         .filter((month) => month.id === monthId)
-                        .map(month => {
+                        .map((month) => {
                            const expenses = month.earnings.flatMap((earning) => {
-                              const extract = earning.extract.filter(extract => extract.id !== earningItemId)
+                              const extract = earning.extract.filter(
+                                 (extract) => extract.id !== earningItemId,
+                              );
 
                               return {
                                  ...earning,
                                  extract,
-                              }
-                           })
+                              };
+                           });
 
                            return {
                               ...month,
                               expenses,
-                           }
-                        })
-                  ]
-               }
+                           };
+                        }),
+                  ],
+               };
 
                cache.writeQuery({
                   query: GET_USER_BY_EMAIL,
                   data: {
-                     user: updatedData
+                     user: updatedData,
                   },
                   variables: { email: '' },
                });
 
                updateUser(updatedData);
-               setEarningsData(prev => prev.filter(prev => prev.id !== earningItemId));
+               setEarningsData((prev) => prev.filter((prev) => prev.id !== earningItemId));
             }
          },
          onError: (error) => {
@@ -224,11 +232,11 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
 
    useEffect(() => {
       setEarningsData(earnings.extract);
-   }, [])
+   }, []);
 
    return earnings.title.length > 0 ? (
-      <div className="w-full p-4 mt-6 bg-slate-800 rounded-lg box-border">
-         <div className="flex items-center justify-between mb-5 px-1">
+      <div className="mt-6 box-border w-full rounded-lg bg-slate-800 p-4">
+         <div className="mb-5 flex items-center justify-between px-1">
             <h3 className="text-xl capitalize">{earnings.title}</h3>
 
             {earningsData.length > 0 && (
@@ -241,11 +249,11 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
          </div>
 
          {earningsData.length > 0 && (
-            <ul id="month-sub-items" className="flex flex-col items-center justify-center max-h-96">
+            <ul id="month-sub-items" className="flex max-h-96 flex-col items-center justify-center">
                {earningsData.map((earning) => (
                   <li
                      key={earning.id}
-                     className="py-4 px-1 border-b w-full flex items-center justify-between text-sm text-gray-400"
+                     className="flex w-full items-center justify-between border-b px-1 py-4 text-sm text-gray-400"
                   >
                      {earning.name}
 
@@ -255,7 +263,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                         <InformationModal
                            button={{
                               icon: <Info size={16} className="text-blue-400" />,
-                              title: 'Informações'
+                              title: 'Informações',
                            }}
                            modal={{
                               title: earning.name,
@@ -265,14 +273,20 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                               <div>
                                  <span>Data de Publicação:</span>
                                  <span>
-                                    {new Date(earning.date.published).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                    {new Date(earning.date.published).toLocaleDateString('pt-BR', {
+                                       day: '2-digit',
+                                       month: 'long',
+                                       year: 'numeric',
+                                    })}
                                  </span>
                               </div>
 
                               {earning.link && (
                                  <div>
                                     <span>Link:</span>
-                                    <Link href={earning.link} target="_blank">{earning.link}</Link>
+                                    <Link href={earning.link} target="_blank">
+                                       {earning.link}
+                                    </Link>
                                  </div>
                               )}
 
@@ -288,16 +302,14 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                         <InformationModal
                            button={{
                               icon: <Trash2 size={16} className="text-red-400" />,
-                              title: 'Deletar ganho'
+                              title: 'Deletar ganho',
                            }}
                            modal={{
-                              title: 'Deletar ganho'
+                              title: 'Deletar ganho',
                            }}
                         >
                            <div>
-                              <p>
-                                 Ao deletar essa ganho ele será perdido para sempre
-                              </p>
+                              <p>Ao deletar essa ganho ele será perdido para sempre</p>
 
                               <SubmitButton
                                  type="button"
@@ -313,17 +325,17 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
             </ul>
          )}
 
-         <div className="w-full flex justify-end gap-2 mt-6">
+         <div className="mt-6 flex w-full justify-end gap-2">
             <Dialog.Root open={shouldShowModal} onOpenChange={(open) => setShouldShowModal(open)}>
-               <Dialog.Trigger type="button" className="border p-2 rounded-lg">
+               <Dialog.Trigger type="button" className="rounded-lg border p-2">
                   {earningsData.length > 0 ? 'Adicionar mais +' : 'Adicione um ganho 🚀'}
                </Dialog.Trigger>
 
                <Dialog.Portal>
                   <Dialog.Overlay className="fixed inset-0 bg-black/30" />
 
-                  <Dialog.Content className="max-w-md w-full p-4 rounded-xl bg-slate-700 fixed top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 lg:ml-11 max-lg:w-[95%]">
-                     <Dialog.Title className="inline-block w-full mb-4 text-xl text-center">
+                  <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
+                     <Dialog.Title className="mb-4 inline-block w-full text-center text-xl">
                         Adicionar ganho
                      </Dialog.Title>
 
@@ -332,17 +344,17 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                            labelProps={{
                               text: 'Nome:',
                               filled: watch('earningName')?.length > 0,
-                              labelClasses: 'bg-slate-700'
+                              labelClasses: 'bg-slate-700',
                            }}
                            inputProps={{
                               id: 'earnings-name',
                               type: 'text',
                               required: true,
                               classNames: 'bg-slate-700',
-                              register: { ...register('earningName') }
+                              register: { ...register('earningName') },
                            }}
                            error={{
-                              show:!!errors.earningName,
+                              show: !!errors.earningName,
                               message: errors.earningName?.message,
                            }}
                         />
@@ -351,17 +363,17 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                            labelProps={{
                               text: 'Valor:',
                               filled: watch('earningValue')?.toString().length > 0,
-                              labelClasses: 'bg-slate-700'
+                              labelClasses: 'bg-slate-700',
                            }}
                            inputProps={{
                               id: 'earnings-value',
                               type: 'number',
                               required: true,
                               classNames: 'bg-slate-700',
-                              register: { ...register('earningValue', { valueAsNumber: true }) }
+                              register: { ...register('earningValue', { valueAsNumber: true }) },
                            }}
                            error={{
-                              show:!!errors.earningValue,
+                              show: !!errors.earningValue,
                               message: errors.earningValue?.message,
                            }}
                         />
@@ -374,37 +386,37 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                                  labelProps={{
                                     text: 'Link:',
                                     filled: watch('earningLink')?.length > 0,
-                                    labelClasses: 'bg-slate-700'
+                                    labelClasses: 'bg-slate-700',
                                  }}
                                  inputProps={{
                                     id: 'earnings-value',
                                     type: 'text',
                                     classNames: 'bg-slate-700',
-                                    register: { ...register('earningLink') }
+                                    register: { ...register('earningLink') },
                                  }}
                                  error={{
-                                    show:!!errors.earningLink,
+                                    show: !!errors.earningLink,
                                     message: errors.earningLink?.message,
                                  }}
                               />
 
                               <Input
                                  container={{
-                                    classNames: 'h-full'
+                                    classNames: 'h-full',
                                  }}
                                  labelProps={{
                                     text: 'Anotações:',
                                     filled: watch('earningNotes')?.length > 0,
-                                    labelClasses: 'bg-slate-700'
+                                    labelClasses: 'bg-slate-700',
                                  }}
                                  inputProps={{
                                     id: 'earnings-notes',
                                     type: 'textarea',
                                     classNames: 'bg-slate-700 pt-3 min-h-24 max-h-60',
-                                    register: { ...register('earningNotes') }
+                                    register: { ...register('earningNotes') },
                                  }}
                                  error={{
-                                    show:!!errors.earningNotes,
+                                    show: !!errors.earningNotes,
                                     message: errors.earningNotes?.message,
                                  }}
                               />
@@ -416,7 +428,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                            loading={loading}
                            bgColor={{
                               color: 'bg-indigo-500',
-                              hover: 'bg-indigo-700'
+                              hover: 'bg-indigo-700',
                            }}
                            text="Adicionar"
                         />
@@ -428,10 +440,11 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
             <InformationModal
                button={{
                   icon: <Trash2 size={20} />,
-                  buttonClasses: 'w-[42px] flex p-0 items-center justify-center border border-white rounded-lg transition-all hover:bg-red-400 hover:border-red-400'
+                  buttonClasses:
+                     'w-[42px] flex p-0 items-center justify-center border border-white rounded-lg transition-all hover:bg-red-400 hover:border-red-400',
                }}
                modal={{
-                  title: 'Deletar bloco'
+                  title: 'Deletar bloco',
                }}
             >
                <p>Deseja deletar esse bloco?</p>
@@ -450,5 +463,5 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
       </div>
    ) : (
       <div>Nenhum ganho foi cadastrado no momento</div>
-   )
+   );
 }

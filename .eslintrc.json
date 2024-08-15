@@ -1,3 +1,51 @@
 {
-  "extends": "next/core-web-vitals"
+   "env": {
+      "browser": true,
+      "es2021": true,
+      "node": true
+   },
+   "extends": [
+      "next/core-web-vitals",
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "plugin:@typescript-eslint/recommended",
+      "prettier"
+   ],
+   "parser": "@typescript-eslint/parser",
+   "parserOptions": {
+      "sourceType": "module"
+   },
+   "plugins": ["react", "@typescript-eslint", "eslint-plugin-prettier"],
+   "rules": {
+      "prettier/prettier": ["error", {
+         "printWidth": 100,
+         "tabWidth": 3,
+         "singleQuote": true,
+         "trailingComma": "all",
+         "arrowParens": "always",
+         "semi": true,
+         "endOfLine": "auto",
+         "bracketSpacing": true
+      }],
+      "linebreak-style": 0,
+      "quotes": ["error", "single"],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/jsx-uses-react": "off",
+      "react/jsx-filename-extension": [
+         1,
+         {
+            "extensions": [".js", ".jsx", ".ts", ".tsx"]
+         }
+      ],
+      "require-await": "error",
+      "comma-dangle": ["error", {
+         "arrays": "only-multiline",
+         "objects": "only-multiline",
+         "imports": "only-multiline",
+         "exports": "only-multiline",
+         "functions": "only-multiline"
+      }]
+   }
 }

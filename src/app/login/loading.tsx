@@ -7,9 +7,7 @@ export default function Loading() {
 
    useEffect(() => {
       const interval: any = setInterval(() => {
-         setProgress((prevProgress) =>
-            prevProgress >= 100 ? 0 : prevProgress + 10,
-         );
+         setProgress((prevProgress) => (prevProgress >= 100 ? 0 : prevProgress + 10));
       }, 600);
 
       return () => {

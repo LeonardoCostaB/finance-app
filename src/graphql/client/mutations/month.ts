@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const CREATE_MONTH = gql`
    mutation CreateMonth($data: MonthInput) {
@@ -15,7 +15,7 @@ export const CREATE_MONTH = gql`
          }
       }
    }
-`
+`;
 
 export const DELETE_MONTH = gql`
    mutation DeleteMonth($monthId: ID!) {
@@ -23,11 +23,11 @@ export const DELETE_MONTH = gql`
          id
       }
    }
-`
+`;
 
 export const CREATE_EARNING_OR_EXPENSE = gql`
    mutation createEarningOrExpense($data: CreateEarningOrExpenseInput) {
-      createEarningOrExpense (data: $data) {
+      createEarningOrExpense(data: $data) {
          earnings {
             title
             extract {
@@ -56,7 +56,7 @@ export const CREATE_EARNING_OR_EXPENSE = gql`
          }
       }
    }
-`
+`;
 
 export const DELETE_EARNING = gql`
    mutation DeleteEarning($data: DeleteBlockInput) {
@@ -64,7 +64,7 @@ export const DELETE_EARNING = gql`
          id
       }
    }
-`
+`;
 
 export const DELETE_EXPENSE = gql`
    mutation DeleteExpense($data: DeleteBlockInput) {
@@ -72,7 +72,7 @@ export const DELETE_EXPENSE = gql`
          id
       }
    }
-`
+`;
 
 export const CREATE_EARNING_ITEM = gql`
    mutation CreateEarningItem($monthId: String!, $data: ExpenseItemInput) {
@@ -93,13 +93,13 @@ export const CREATE_EARNING_ITEM = gql`
          }
       }
    }
-`
+`;
 
 export const DELETE_EARNING_ITEM = gql`
    mutation DeleteEarningItem($data: PayEarningInput) {
       deleteEarningItem(data: $data)
    }
-`
+`;
 
 export const CREATE_EXPENSE_ITEM = gql`
    mutation AddExpenseItem($monthId: String!, $data: ExpenseItemInput) {
@@ -121,13 +121,13 @@ export const CREATE_EXPENSE_ITEM = gql`
          }
       }
    }
-`
+`;
 
 export const PAY_EXPENSE_ITEM = gql`
    mutation PayExpense($data: PayExpenseInput) {
       payExpense(data: $data) {
          expenses {
-            title,
+            title
             extract {
                id
                name
@@ -142,10 +142,10 @@ export const PAY_EXPENSE_ITEM = gql`
          }
       }
    }
-`
+`;
 
 export const DELETE_EXPENSE_ITEM = gql`
    mutation DeleteExpenseItem($data: PayExpenseInput) {
       deleteExpenseItem(data: $data)
    }
-`
+`;

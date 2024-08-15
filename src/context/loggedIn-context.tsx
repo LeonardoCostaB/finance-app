@@ -91,7 +91,7 @@ const LoggedInContext = createContext<LoggedInContextProps>({
 });
 
 function LoggedInProvider({ children }: LoggedInProviderProps) {
-   const  [getUserQuery]  = useLazyQuery(GET_USER_BY_EMAIL);
+   const [getUserQuery] = useLazyQuery(GET_USER_BY_EMAIL);
    const router = useRouter();
 
    const [user, setUser] = useState<User | null>(null);
@@ -101,15 +101,15 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
          variables: { email: '' },
          onError: (error) => {
             if (error.message === 'Unauthenticated') {
-               router.push('/unauthenticated')
+               router.push('/unauthenticated');
             }
-            console.log(error)
+            console.log(error);
          },
          onCompleted: (data) => {
             setUser(data.user);
          },
          notifyOnNetworkStatusChange: true,
-      })
+      });
    }
 
    function updateUser(user: User) {
@@ -120,16 +120,18 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
       if (!Cookies.get('isLoggedIn')) {
          router.push('/unauthenticated');
       }
-   }, [])
+   }, []);
 
    return (
-         <LoggedInContext.Provider value={{
+      <LoggedInContext.Provider
+         value={{
             getUser,
             updateUser,
             user,
-         }}>
-            {children}
-         </LoggedInContext.Provider>
+         }}
+      >
+         {children}
+      </LoggedInContext.Provider>
    );
 }
 

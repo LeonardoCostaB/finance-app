@@ -1,22 +1,21 @@
-import { CreateUserApi } from "@/graphql/server/createUser/data-source";
-import  jwt  from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { CreateUserApi } from '@/graphql/server/createUser/data-source';
+import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
 async function verifyJwtToken(token: string) {
    try {
       const { id } = jwt.verify(token, process.env.JWL_SECRET_KEY as string) as jwtTokenId;
 
-      const userApi = new CreateUserApi()
-      userApi.initialize({} as any)
+      const userApi = new CreateUserApi();
+      userApi.initialize({} as any);
       const foundUser = await userApi.getUserById(id);
 
-      if (foundUser.token !== token) return "";
+      if (foundUser.token !== token) return '';
 
       return id;
-
    } catch (error) {
       console.log(error);
-      return "";
+      return '';
    }
 }
 
@@ -29,5 +28,5 @@ export async function userIsLoggedIn() {
       loggedUserId = await verifyJwtToken(headerCookie.value);
    }
 
-   return loggedUserId
+   return loggedUserId;
 }

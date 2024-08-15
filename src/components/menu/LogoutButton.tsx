@@ -11,23 +11,21 @@ const LOGOUT = gql`
    mutation Logout($userId: String) {
       logout(userId: $userId)
    }
- `
+`;
 
 export function LogoutButton() {
    const [logout, { loading }] = useMutation(LOGOUT);
    const router = useRouter();
 
-   async function handleLogOut() {
-      logout(
-         {
-            variables: {
-               userId: ''
-            },
-            onCompleted: (data) => {
-               if (data?.logout) router.push('/login');
-            }
-         }
-      );
+   function handleLogOut() {
+      logout({
+         variables: {
+            userId: '',
+         },
+         onCompleted: (data) => {
+            if (data?.logout) router.push('/login');
+         },
+      });
    }
 
    return (

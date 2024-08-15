@@ -12,7 +12,7 @@ interface MonthExtract {
 
 interface Earnings {
    title: string;
-   extract: Array<MonthExtract>
+   extract: Array<MonthExtract>;
 }
 
 interface Expenses {
@@ -26,8 +26,8 @@ interface Months {
    createdAt: string;
    date: string;
    user?: {
-      id
-   }
+      id;
+   };
    expenses: Array<Expenses>;
    earnings: Array<Earnings>;
 }
@@ -38,7 +38,7 @@ interface CommonPaymentsAndBenefits {
    value: number;
    date: {
       published: string;
-   }
+   };
 }
 
 interface User {
@@ -54,10 +54,10 @@ interface User {
       extract: Array<{
          date: string;
          value: number;
-      }>
+      }>;
    };
    commonPayment: Array<CommonPaymentsAndBenefits>;
    benefits: Array<CommonPaymentsAndBenefits>;
    monthlySalary: number;
-   months: Array<Months>
+   months: Array<Months>;
 }

@@ -32,25 +32,12 @@ interface InputProps {
 
 export function PasswordInput({
    container,
-   inputProps: {
-      id,
-      register,
-      disabled,
-      classNames,
-      required,
-   },
-   labelProps: {
-      text,
-      visible,
-      filled,
-      largeText,
-      labelClasses
-   },
+   inputProps: { id, register, disabled, classNames, required },
+   labelProps: { text, filled, largeText, labelClasses },
    error,
    tutorial = false,
 }: InputProps) {
-   const [toggleSeePassword, setToggleSeePassword] =
-      useState<string>('password');
+   const [toggleSeePassword, setToggleSeePassword] = useState<string>('password');
    const [tutorialForPass, setTutorialForPass] = useState<boolean>(false);
 
    return (
@@ -76,12 +63,12 @@ export function PasswordInput({
             className={`h-full w-full rounded-lg bg-gray-800 px-4 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${classNames ?? ''} ${error?.show ? 'ring-2 ring-red-500' : ''}`}
             {...register}
             onFocus={tutorial ? () => setTutorialForPass(true) : () => false}
-            onBlur={ tutorial ? () => setTutorialForPass(false): () => false}
+            onBlur={tutorial ? () => setTutorialForPass(false) : () => false}
             disabled={disabled}
          />
 
          {tutorialForPass && (
-            <div className="absolute left-[calc(-42%+-10px)] -top-6 w-fit rounded-md bg-white p-4 text-sm text-black shadow-md">
+            <div className="absolute -top-6 left-[calc(-42%+-10px)] w-fit rounded-md bg-white p-4 text-sm text-black shadow-md">
                Sua senha deve conter:
                <ul className="ml-8 list-disc text-xs text-black">
                   <li>No mínimo 8 caracteres</li>
@@ -92,23 +79,15 @@ export function PasswordInput({
             </div>
          )}
 
-
          <button
             type="button"
-            className={clsx('absolute top-1/2 -translate-y-1/2 right-2 text-sm text-white')}
+            className={clsx('absolute right-2 top-1/2 -translate-y-1/2 text-sm text-white')}
             onClick={() =>
-               setToggleSeePassword((prev) =>
-                  prev === 'password' ? 'text' : 'password',
-               )
+               setToggleSeePassword((prev) => (prev === 'password' ? 'text' : 'password'))
             }
          >
-            {toggleSeePassword === 'password' ? (
-               <Eye size={16} />
-            ) : (
-               <EyeOff size={16} />
-            )}
+            {toggleSeePassword === 'password' ? <Eye size={16} /> : <EyeOff size={16} />}
          </button>
-
 
          {error?.message && (
             <span className="absolute -bottom-5 left-3 text-xs text-red-500">{error.message}</span>

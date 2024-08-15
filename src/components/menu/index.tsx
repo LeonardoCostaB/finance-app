@@ -1,11 +1,11 @@
 import { Item } from './Item';
-import { Home, UserCircle2, Briefcase, LineChart, PiggyBank, LockKeyhole } from 'lucide-react';
+import { Home, UserCircle2, LineChart, PiggyBank, LockKeyhole } from 'lucide-react';
 import { LogoutButton } from './LogoutButton';
 
 export function Menu() {
    return (
-      <aside className="flex flex-col h-screen sticky top-0 bottom-0 max-lg:hidden">
-         <div className="h-10 w-10 flex items-center justify-center rounded-full mx-auto my-8 bg-white">
+      <aside className="sticky bottom-0 top-0 flex h-screen flex-col max-lg:hidden">
+         <div className="mx-auto my-8 flex h-10 w-10 items-center justify-center rounded-full bg-white">
             <LineChart size={20} className="text-black" />
          </div>
 
@@ -14,34 +14,19 @@ export function Menu() {
                <Item
                   url="/"
                   text="Home"
-                  icon={
-                     <Home
-                        size={20}
-                        className="text-black dark:text-gray-200"
-                     />
-                  }
+                  icon={<Home size={20} className="text-black dark:text-gray-200" />}
                />
 
                <Item
                   url="/my-account"
                   text="Minha Conta"
-                  icon={
-                     <UserCircle2
-                        size={20}
-                        className="text-black dark:text-gray-200"
-                     />
-                  }
+                  icon={<UserCircle2 size={20} className="text-black dark:text-gray-200" />}
                />
 
                <Item
                   url="/savings"
                   text="Poupança"
-                  icon={
-                     <PiggyBank
-                        size={20}
-                        className="text-black dark:text-gray-200"
-                     />
-                  }
+                  icon={<PiggyBank size={20} className="text-black dark:text-gray-200" />}
                />
             </ul>
 
@@ -50,12 +35,7 @@ export function Menu() {
                   url="/admin"
                   className=""
                   text="Admin"
-                  icon={
-                     <LockKeyhole
-                        size={20}
-                        className="text-black dark:text-gray-200"
-                     />
-                  }
+                  icon={<LockKeyhole size={20} className="text-black dark:text-gray-200" />}
                />
 
                <LogoutButton />

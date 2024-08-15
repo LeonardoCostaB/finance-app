@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
-import { NewMonthCard } from "@/components/new-month-card";
-import { MonthCard } from "@/components/month-card";
-import { useEffect, useState } from "react";
-import { Header } from "@/components/header";
-import { useLoggedIn } from "@/hooks/use-loggedIn";
+import { NewMonthCard } from '@/components/new-month-card';
+import { MonthCard } from '@/components/month-card';
+import { useEffect, useState } from 'react';
+import { Header } from '@/components/header';
+import { useLoggedIn } from '@/hooks/use-loggedIn';
 
 export interface Note {
    id: string;
@@ -16,18 +16,18 @@ export interface Note {
 }
 
 export default function Home() {
-   const { user } = useLoggedIn()
+   const { user } = useLoggedIn();
 
-   const [search, setSearch] = useState('');
+   // const [search, setSearch] = useState('');
    const [months, setMonths] = useState<Months[] | undefined>([]);
 
    function onMonthCreated(month: Months) {
-      setMonths([...months ?? [], month]);
+      setMonths([...(months ?? []), month]);
    }
 
-   function handleSearch(search: string) {
-      setSearch(search);
-   }
+   // function handleSearch(search: string) {
+   //    setSearch(search);
+   // }
 
    // const filteredNotes = search !== '' ?
    //    notes.filter(note => note.month.toLowerCase().includes(search.toLowerCase())) :
@@ -39,26 +39,29 @@ export default function Home() {
       } else {
          setMonths(undefined);
       }
-   }, [user])
+   }, [user]);
 
    return (
       <>
-         <Header search={{ onSearch: handleSearch }} />
+         <Header />
 
-         <div className="mx-auto max-w-6xl my-12 space-y-6 px-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[250px]">
-               <NewMonthCard nextMonth={months?.map(month => month.createdAt)[0]} onMonthCreated={onMonthCreated} />
+         <div className="mx-auto my-12 max-w-6xl space-y-6 px-5">
+            <div className="grid auto-rows-[250px] grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+               <NewMonthCard
+                  nextMonth={months?.map((month) => month.createdAt)[0]}
+                  onMonthCreated={onMonthCreated}
+               />
 
                {months && months.length > 0 ? (
-                  months.map(month => (
+                  months.map((month) => (
                      <MonthCard
                         key={month.id}
                         note={{
                            id: month.id,
                            balance: 0,
                            extract: {
-                              earnings: month.earnings.slice(0, 2).map(earning => earning.title),
-                              expenses: month.expenses.slice(0, 2).map(expense => expense.title),
+                              earnings: month.earnings.slice(0, 2).map((earning) => earning.title),
+                              expenses: month.expenses.slice(0, 2).map((expense) => expense.title),
                            },
                            createdAt: month.createdAt,
                            date: month.date,
@@ -66,7 +69,11 @@ export default function Home() {
                         }}
                      />
                   ))
-               ) : months === undefined ? <></> : <>Carregando...</>}
+               ) : months === undefined ? (
+                  <></>
+               ) : (
+                  <>Carregando...</>
+               )}
             </div>
          </div>
       </>

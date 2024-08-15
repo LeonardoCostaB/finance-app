@@ -94,7 +94,7 @@ export function SelectInput({ labelProps, selectProps, error }: SelectInputProps
                   id={selectProps.id}
                   type="text"
                   className={clsx(
-                     ' h-full w-full cursor-pointer rounded-lg  border border-gray-300 bg-transparent pl-4 pr-10 text-sm outline-none focus-visible:border-0 focus-visible:ring-2 focus-visible:ring-blue-500',
+                     'h-full w-full cursor-pointer rounded-lg border border-gray-300 bg-transparent pl-4 pr-10 text-sm outline-none focus-visible:border-0 focus-visible:ring-2 focus-visible:ring-blue-500',
                      {
                         'placeholder:text-black': !selectProps.disabled,
                         'ring-2 ring-red-500': !!error?.message,
@@ -130,13 +130,10 @@ export function SelectInput({ labelProps, selectProps, error }: SelectInputProps
          <ul
             ref={optionsContainerRef}
             id="options-select"
-            className={clsx(
-               'transition-al absolute z-10 mt-2 w-full overflow-auto bg-slate-600',
-               {
-                  'visible max-h-[222px] opacity-100': shouldShowOptions,
-                  'invisible max-h-0 opacity-0': !shouldShowOptions,
-               },
-            )}
+            className={clsx('transition-al absolute z-10 mt-2 w-full overflow-auto bg-slate-600', {
+               'visible max-h-[222px] opacity-100': shouldShowOptions,
+               'invisible max-h-0 opacity-0': !shouldShowOptions,
+            })}
          >
             {fields?.map((field) => {
                if (!optionsInputRef.current[field.code]) {
@@ -159,17 +156,15 @@ export function SelectInput({ labelProps, selectProps, error }: SelectInputProps
                         {...selectProps.register}
                         onChange={(e) =>
                            e.target.checked &&
-                           (
-                              setSelectValue(e.target.id),
-                              setShouldShowOptions(false),
-                              selectProps.onValue?.(String(field.code)),
-                              setSelectedValue(e.target.id),
-                              selectProps.register.onChange(e)
-                           )
+                           (setSelectValue(e.target.id),
+                           setShouldShowOptions(false),
+                           selectProps.onValue?.(String(field.code)),
+                           setSelectedValue(e.target.id),
+                           selectProps.register.onChange(e))
                         }
                         autoComplete="no"
                      />
-                     <label htmlFor={`${field.name}`} className="text-sm w-full p-2 h-full">
+                     <label htmlFor={`${field.name}`} className="h-full w-full p-2 text-sm">
                         {field.name}
                      </label>
 
