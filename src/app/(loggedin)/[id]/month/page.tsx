@@ -151,7 +151,7 @@ export default function Month({ params }: { params: { id: string } }) {
 
                            <div
                               className={clsx(
-                                 'add-new-block-mobile absolute left-1/2 top-9 z-40 -translate-x-1/2 rounded-lg bg-slate-700 px-2 py-4 transition-all ease-linear max-lg:duration-500',
+                                 'add-new-block-mobile absolute top-9 z-40 rounded-lg bg-slate-700 px-2 py-4 transition-all ease-linear max-lg:duration-500 lg:left-1/2 lg:-translate-x-1/2',
                                  {
                                     'invisible max-h-0 opacity-0': !shouldShowModal,
                                     'opacity-1 visible max-h-80': shouldShowModal,
