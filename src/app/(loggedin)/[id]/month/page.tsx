@@ -146,7 +146,7 @@ export default function Month({ params }: { params: { id: string } }) {
                            </button>
 
                            {shouldShowModal && (
-                              <div className="animate-overlayShow fixed inset-0 z-40 bg-black/30 lg:hidden" />
+                              <div className="fixed inset-0 z-40 animate-overlayShow bg-black/30 lg:hidden" />
                            )}
 
                            <div

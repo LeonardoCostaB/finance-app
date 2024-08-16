@@ -52,11 +52,11 @@ export function InformationModal({ button, modal, children }: InformationModalPr
          </Dialog.Trigger>
 
          <Dialog.Portal>
-            <Dialog.Overlay className="animate-overlayShow fixed inset-0 z-40 bg-black/30" />
+            <Dialog.Overlay className="fixed inset-0 z-40 animate-overlayShow bg-black/30" />
 
             <Dialog.Content
                className={clsx(
-                  'max-lg:animate-contentMobileShow lg:animate-contentShow fixed z-40 w-full max-w-md rounded-xl bg-slate-700 p-4 transition-all duration-500 lg:left-1/2 lg:top-1/2 lg:ml-11 lg:-translate-x-1/2 lg:-translate-y-1/2',
+                  'fixed z-40 w-full max-w-md rounded-xl bg-slate-700 p-4 transition-all duration-500 max-lg:animate-contentMobileShow lg:left-1/2 lg:top-1/2 lg:ml-11 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:animate-contentShow',
                   {
                      'add-new-block-mobile': modal.openAtTheBottom,
                      'invisible max-h-0 opacity-0': window.innerWidth <= 1024 && !animation,

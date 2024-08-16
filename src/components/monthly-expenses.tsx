@@ -427,9 +427,9 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                </Dialog.Trigger>
 
                <Dialog.Portal>
-                  <Dialog.Overlay className="animate-overlayShow fixed inset-0 bg-black/30" />
+                  <Dialog.Overlay className="fixed inset-0 animate-overlayShow bg-black/30" />
 
-                  <Dialog.Content className="animate-contentShow fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
+                  <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 animate-contentShow rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
                      <Dialog.Title className="mb-4 inline-block w-full text-center text-xl">
                         {expense.title}
                      </Dialog.Title>
