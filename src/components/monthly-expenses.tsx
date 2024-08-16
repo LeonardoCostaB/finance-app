@@ -319,6 +319,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                         }}
                         modal={{
                            title: expense.name,
+                           openAtTheBottom: true,
                         }}
                      >
                         <div>
@@ -376,6 +377,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                            }}
                            modal={{
                               title: 'Deseja marca como pago ?',
+                              openAtTheBottom: true,
                            }}
                         >
                            <div>
@@ -397,17 +399,19 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                            title: 'Deletar despesa',
                         }}
                         modal={{
-                           title: 'Deletar despesa',
+                           title: expense.name,
+                           openAtTheBottom: true,
                         }}
                      >
-                        <div>
-                           <p>Ao deletar essa despesa ela será perdida para sempre</p>
+                        <div className="flex flex-col items-center gap-4">
+                           <p>Essa despesa será excluída para sempre</p>
 
                            <SubmitButton
                               type="button"
                               loading={deleteLoading}
                               bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
                               onClick={() => handleOnDeleteExpenseItem(expense.id)}
+                              text="Deletar"
                            />
                         </div>
                      </InformationModal>
@@ -423,11 +427,11 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                </Dialog.Trigger>
 
                <Dialog.Portal>
-                  <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+                  <Dialog.Overlay className="animate-overlayShow fixed inset-0 bg-black/30" />
 
-                  <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
+                  <Dialog.Content className="animate-contentShow fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
                      <Dialog.Title className="mb-4 inline-block w-full text-center text-xl">
-                        Adicionar despesa
+                        {expense.title}
                      </Dialog.Title>
 
                      <form className="flex flex-col gap-7" onSubmit={handleSubmit(handleOnSubmit)}>
@@ -537,7 +541,8 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                      'w-[42px] flex p-0 items-center justify-center border border-white rounded-lg transition-all hover:bg-red-400 hover:border-red-400',
                }}
                modal={{
-                  title: 'Deletar bloco',
+                  title: expense.title,
+                  openAtTheBottom: true,
                }}
             >
                <p>Deseja deletar esse bloco?</p>

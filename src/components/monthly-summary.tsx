@@ -43,11 +43,11 @@ export function MonthlySummary({
 
    return (
       <div
-         className={`mt-10 flex h-max w-full max-w-[300px] flex-col items-center gap-4 rounded-lg bg-slate-800 p-4 transition-all max-lg:relative max-lg:max-w-full max-lg:overflow-hidden ${shouldShowSummary ? 'max-h-96' : 'max-lg:max-h-14'}`}
+         className={`mt-10 flex h-max w-full max-w-[300px] flex-col items-center gap-4 rounded-lg bg-slate-800 p-4 transition-all duration-500 max-lg:relative max-lg:max-w-full max-lg:overflow-hidden ${shouldShowSummary ? 'max-h-96' : 'max-lg:max-h-14'}`}
       >
          <button
             type="button"
-            className={`absolute right-4 transition-all ${shouldShowSummary ? 'rotate-180' : 'rotate-0'} lg:hidden`}
+            className={`absolute right-4 transition-all duration-500 ${shouldShowSummary ? 'rotate-180' : 'rotate-0'} lg:hidden`}
             onClick={() => setShouldShowSummary(!shouldShowSummary)}
          >
             <ChevronDown />

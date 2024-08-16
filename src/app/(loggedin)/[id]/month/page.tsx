@@ -128,7 +128,7 @@ export default function Month({ params }: { params: { id: string } }) {
       <>
          <Header />
 
-         <main className="relative mx-auto mb-20 flex max-w-6xl flex-col max-xl:px-6">
+         <main className="relative mx-auto mb-20 flex max-w-6xl flex-col max-xl:px-6 max-lg:px-4">
             {month && month.length > 0 ? (
                <>
                   <div className="flex w-[calc(100%-332px)] items-center justify-center max-lg:w-full">
@@ -145,9 +145,13 @@ export default function Month({ params }: { params: { id: string } }) {
                               <CircleFadingPlus size={24} />
                            </button>
 
+                           {shouldShowModal && (
+                              <div className="animate-overlayShow fixed inset-0 z-40 bg-black/30 lg:hidden" />
+                           )}
+
                            <div
                               className={clsx(
-                                 'max-lg:add-new-block-mobile absolute left-[calc(100%-250px)] top-8 rounded-lg bg-slate-700 px-2 py-4 transition-all ease-linear max-lg:duration-300 min-[1420px]:left-1/2 min-[1420px]:-translate-x-1/2',
+                                 'add-new-block-mobile absolute left-1/2 top-9 z-40 -translate-x-1/2 rounded-lg bg-slate-700 px-2 py-4 transition-all ease-linear max-lg:duration-500',
                                  {
                                     'invisible max-h-0 opacity-0': !shouldShowModal,
                                     'opacity-1 visible max-h-80': shouldShowModal,

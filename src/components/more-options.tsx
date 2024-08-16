@@ -193,6 +193,7 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
                      }}
                      modal={{
                         title: 'Adicionar Poupança',
+                        openAtTheBottom: true,
                      }}
                   >
                      <div>
@@ -234,6 +235,7 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
                      }}
                      modal={{
                         title: 'Deletar mês',
+                        openAtTheBottom: true,
                      }}
                   >
                      <div>
