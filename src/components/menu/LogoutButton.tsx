@@ -13,7 +13,7 @@ const LOGOUT = gql`
    }
 `;
 
-export function LogoutButton() {
+export function LogoutButton({ hidden }: { hidden?: boolean }) {
    const [logout, { loading }] = useMutation(LOGOUT);
    const router = useRouter();
 
@@ -30,7 +30,7 @@ export function LogoutButton() {
 
    return (
       <Item
-         className="text-red-600 hover:bg-red-400 hover:text-white dark:text-red-400 dark:hover:text-white"
+         className={`text-red-600 hover:bg-red-400 hover:text-white dark:text-red-400 dark:hover:text-white ${hidden ? 'max-lg:hidden' : ''}`}
          text="Logout"
          icon={<LogOut size={20} />}
          onClickFunction={handleLogOut}

@@ -19,15 +19,16 @@ export function Item({ url, text, icon, className = '', onClickFunction, loading
    const pathName = usePathname();
 
    return (
-      <li className="transition-all hover:bg-gray-100 dark:hover:bg-gray-800">
+      <li className="transition-all lg:hover:bg-gray-800">
          {url ? (
             <Link
                href={url}
                className={clsx(
-                  'flex h-20 w-20 flex-col items-center justify-center text-xs font-light text-gray-600 dark:hover:dark:text-white',
+                  'flex h-20 w-20 flex-col items-center justify-center gap-2 text-xs font-light text-gray-600 max-lg:h-auto max-lg:w-20 max-lg:gap-1 max-lg:py-2 max-lg:text-white',
                   {
                      className: className !== '',
-                     'bg-gray-100 dark:bg-gray-800 dark:text-white': pathName === url,
+                     'active-item lg:bg-gray-800': pathName === url,
+                     'opacity-50': pathName !== url,
                   },
                )}
             >

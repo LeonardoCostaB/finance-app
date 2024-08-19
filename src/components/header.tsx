@@ -17,9 +17,9 @@ export function Header({ search }: HeaderProps) {
    }, []);
 
    return (
-      <header className="relative flex w-full items-center justify-end gap-2 p-8">
+      <header className="relative flex w-full items-center justify-end gap-2 p-8 max-lg:p-4">
          {search && (
-            <form className="absolute left-1/2 flex w-96 -translate-x-1/2 justify-center max-xl:left-[40%]">
+            <form className="absolute left-20 flex w-[calc(100%-200px)] justify-center lg:left-1/2 lg:w-96 lg:-translate-x-1/2">
                <input
                   type="text"
                   placeholder="Encontrar mês"
@@ -29,10 +29,10 @@ export function Header({ search }: HeaderProps) {
             </form>
          )}
 
-         <div className="flex items-center gap-4">
+         <div className="flex items-center gap-4 max-lg:w-full max-lg:flex-row-reverse max-lg:justify-between">
             {user?.economy?.extract && (
-               <div className="mr-4 flex items-center gap-2 rounded-md p-2 text-xs ring-2 ring-lime-400">
-                  <PiggyBank size={25} />
+               <div className="flex items-center gap-2 rounded-md p-2 text-xs ring-2 ring-lime-400 max-lg:p-1 max-sm:text-[10px] lg:mr-4">
+                  <PiggyBank size={25} className="max-lg:hidden" />
 
                   <strong>
                      {user.economy.extract
@@ -42,7 +42,7 @@ export function Header({ search }: HeaderProps) {
                </div>
             )}
 
-            <span>{user?.name}</span>
+            <span className="max-lg:hidden">{user?.name}</span>
 
             <button type="button" className="h-10 w-10 overflow-hidden rounded-full bg-slate-700">
                {user?.avatar?.url ? (

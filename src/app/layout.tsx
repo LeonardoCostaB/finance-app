@@ -7,7 +7,7 @@ import { AppProvider } from '@/context/apollo-client';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-   title: 'note recording app',
+   title: 'Monthly Finance App',
    description: 'Aplicativo de registro de nota',
 };
 
