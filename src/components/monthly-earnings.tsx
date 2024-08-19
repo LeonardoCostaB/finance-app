@@ -10,7 +10,7 @@ import { FormattedPrice } from './formatted-price';
 import { Input } from './input';
 import { SubmitButton } from './submit-button';
 import { InformationModal } from './information-modal';
-import { Info, Link, Trash2 } from 'lucide-react';
+import { Info, Link, Trash2, X } from 'lucide-react';
 
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 import {
@@ -310,8 +310,8 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                               openAtTheBottom: true,
                            }}
                         >
-                           <div>
-                              <p>Ao deletar essa ganho ele será perdido para sempre</p>
+                           <div className="flex flex-col items-center gap-4">
+                              <p>Esse ganho será excluído para sempre</p>
 
                               <SubmitButton
                                  type="button"
@@ -338,9 +338,15 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                   <Dialog.Overlay className="fixed inset-0 animate-overlayShow bg-black/30" />
 
                   <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 animate-contentShow rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
-                     <Dialog.Title className="mb-4 inline-block w-full text-center text-xl">
-                        {earnings.title}
-                     </Dialog.Title>
+                     <div className="mb-4 flex w-full items-center lg:justify-center">
+                        <Dialog.Title className="inline-block w-full text-center text-xl capitalize max-lg:pl-7">
+                           {earnings.title}
+                        </Dialog.Title>
+
+                        <Dialog.DialogClose className="lg:hidden">
+                           <X />
+                        </Dialog.DialogClose>
+                     </div>
 
                      <form className="flex flex-col gap-7" onSubmit={handleSubmit(handleOnSubmit)}>
                         <Input
@@ -451,9 +457,9 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                   openAtTheBottom: true,
                }}
             >
-               <p>Deseja deletar esse bloco?</p>
+               <div className="flex flex-col items-center gap-4">
+                  <p>Esse bloco será excluído para sempre</p>
 
-               <div>
                   <SubmitButton
                      type="button"
                      loading={deleteEarningLoading}

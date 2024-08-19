@@ -132,7 +132,7 @@ export default function Month({ params }: { params: { id: string } }) {
             {month && month.length > 0 ? (
                <>
                   <div className="flex w-[calc(100%-332px)] items-center justify-center max-lg:w-full">
-                     <h1 className="flex-1 pl-[80px] text-center text-4xl max-lg:pl-0 max-lg:text-left">
+                     <h1 className="flex-1 pl-[80px] text-center text-4xl capitalize max-lg:pl-0 max-lg:text-left max-lg:text-2xl">
                         {month[0]?.title}
                      </h1>
 

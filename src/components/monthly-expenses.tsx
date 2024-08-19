@@ -9,7 +9,7 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { Input } from './input';
 import { FormattedPrice } from './formatted-price';
-import { Check, Handshake, Info, Loader2Icon, Trash2 } from 'lucide-react';
+import { Check, Handshake, Info, Loader2Icon, Trash2, X } from 'lucide-react';
 import { InformationModal } from './information-modal';
 import { SubmitButton } from './submit-button';
 
@@ -376,18 +376,19 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                               title: 'Marcar como pago',
                            }}
                            modal={{
-                              title: 'Deseja marca como pago ?',
+                              title: expense.name,
                               openAtTheBottom: true,
                            }}
                         >
-                           <div>
-                              <p>Essa cobrança deixará de contar em sua despesa mensal</p>
+                           <div className="flex flex-col items-center gap-4">
+                              <p>Deseja marca como paga?</p>
 
                               <SubmitButton
                                  type="button"
                                  loading={payLoading}
                                  bgColor={{ color: 'bg-green-400', hover: 'bg-green-600' }}
                                  onClick={() => handleOnPayExpense(expense.id)}
+                                 text="Pagar"
                               />
                            </div>
                         </InformationModal>
@@ -427,12 +428,18 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                </Dialog.Trigger>
 
                <Dialog.Portal>
-                  <Dialog.Overlay className="fixed inset-0 animate-overlayShow bg-black/30" />
+                  <Dialog.Overlay className="fixed inset-0 animate-overlayShow bg-black/30 max-lg:z-40" />
 
-                  <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 animate-contentShow rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
-                     <Dialog.Title className="mb-4 inline-block w-full text-center text-xl">
-                        {expense.title}
-                     </Dialog.Title>
+                  <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 animate-contentShow rounded-xl bg-slate-700 p-4 max-lg:z-40 max-lg:w-[95%] lg:ml-11">
+                     <div className="mb-4 flex w-full items-center lg:justify-center">
+                        <Dialog.Title className="inline-block w-full text-center text-xl capitalize max-lg:pl-7">
+                           {expense.title}
+                        </Dialog.Title>
+
+                        <Dialog.DialogClose className="lg:hidden">
+                           <X />
+                        </Dialog.DialogClose>
+                     </div>
 
                      <form className="flex flex-col gap-7" onSubmit={handleSubmit(handleOnSubmit)}>
                         <Input
@@ -545,9 +552,9 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                   openAtTheBottom: true,
                }}
             >
-               <p>Deseja deletar esse bloco?</p>
+               <div className="flex flex-col items-center gap-4">
+                  <p>Esse bloco será excluído para sempre</p>
 
-               <div>
                   <SubmitButton
                      type="button"
                      loading={deleteExpenseLoading}

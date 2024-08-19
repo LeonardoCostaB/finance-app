@@ -238,28 +238,22 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
                         openAtTheBottom: true,
                      }}
                   >
-                     <div>
-                        <p>
+                     <div className="flex flex-col items-center gap-4">
+                        <p className="text-center">
                            Ao deletar esse mês, todas as suas despesas e ganhos serão perdidos para
                            sempre.
                         </p>
 
-                        <div className="flex items-center gap-4">
-                           <button type="button" className="flex-1">
-                              Cancelar
-                           </button>
-
-                           <SubmitButton
-                              type="button"
-                              loading={loadingDeleteMonth}
-                              bgColor={{
-                                 color: 'bg-red-400',
-                                 hover: 'bg-red-600',
-                              }}
-                              text="Deletar"
-                              onClick={() => handleDeleteMonth(month)}
-                           />
-                        </div>
+                        <SubmitButton
+                           type="button"
+                           loading={loadingDeleteMonth}
+                           bgColor={{
+                              color: 'bg-red-400',
+                              hover: 'bg-red-600',
+                           }}
+                           text="Deletar"
+                           onClick={() => handleDeleteMonth(month)}
+                        />
                      </div>
                   </InformationModal>
                </li>
