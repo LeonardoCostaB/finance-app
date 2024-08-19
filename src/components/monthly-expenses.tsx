@@ -294,7 +294,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
    }
 
    useEffect(() => {
-      setExpenses(expense.extract);
+      setExpenses([...expense.extract].sort((a, b) => b.value - a.value));
    }, []);
 
    return (

@@ -233,7 +233,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
    }
 
    useEffect(() => {
-      setEarningsData(earnings.extract);
+      setEarningsData([...earnings.extract].sort((a, b) => b.value - a.value));
    }, []);
 
    return earnings.title.length > 0 ? (
