@@ -12,6 +12,7 @@ interface SelectInputProps {
    selectProps: {
       id: string;
       placeholder: string;
+      float?: boolean;
       register?: any;
       name: string;
       fields: {
@@ -54,7 +55,6 @@ export function SelectInput({ labelProps, selectProps, error }: SelectInputProps
    useEffect(() => {
       document.addEventListener('mousedown', (e) => {
          const target = e.target as Document;
-
          if (!optionsContainerRef.current?.contains(target)) {
             setShouldShowOptions(false);
          }
@@ -96,7 +96,7 @@ export function SelectInput({ labelProps, selectProps, error }: SelectInputProps
                   className={clsx(
                      'h-full w-full cursor-pointer rounded-lg border border-gray-300 bg-transparent pl-4 pr-10 text-sm outline-none focus-visible:border-0 focus-visible:ring-2 focus-visible:ring-blue-500',
                      {
-                        'placeholder:text-black': !selectProps.disabled,
+                        'placeholder:text-white': !selectProps.disabled,
                         'ring-2 ring-red-500': !!error?.message,
                         'cursor-no-drop': selectProps.disabled,
                      },
@@ -112,11 +112,14 @@ export function SelectInput({ labelProps, selectProps, error }: SelectInputProps
 
                <ChevronDown
                   size={20}
-                  className={clsx('arrow-input absolute right-3 z-0 transition-all ease-linear', {
-                     'rotate-180': shouldShowOptions,
-                     'rotate-0': !shouldShowOptions,
-                     'text-gray-300': selectProps.disabled,
-                  })}
+                  className={clsx(
+                     'arrow-input pointer-events-none absolute right-3 z-0 transition-all ease-linear',
+                     {
+                        'rotate-180': shouldShowOptions,
+                        'rotate-0': !shouldShowOptions,
+                        'text-gray-300': selectProps.disabled,
+                     },
+                  )}
                />
             </div>
 
@@ -130,9 +133,10 @@ export function SelectInput({ labelProps, selectProps, error }: SelectInputProps
          <ul
             ref={optionsContainerRef}
             id="options-select"
-            className={clsx('transition-al absolute z-10 mt-2 w-full overflow-auto bg-slate-600', {
+            className={clsx('relative mt-2 w-full overflow-auto bg-slate-600 transition-all', {
                'visible max-h-[222px] opacity-100': shouldShowOptions,
                'invisible max-h-0 opacity-0': !shouldShowOptions,
+               'absolute z-10': selectProps.float,
             })}
          >
             {fields?.map((field) => {

@@ -41,7 +41,7 @@ label.filled {
 
 #option:has(input:checked),
 #option:hover {
-   @apply bg-neutral-200;
+   @apply bg-slate-500;
 }
 
 #option:has(input:focus) {

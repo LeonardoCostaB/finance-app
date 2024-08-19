@@ -13,6 +13,8 @@ import { SubmitButton } from './submit-button';
 import { useRouter } from 'next/navigation';
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
+import clsx from 'clsx';
+import { useEffect, useState } from 'react';
 
 interface NewMonthCardProps {
    nextMonth?: string;
@@ -29,6 +31,10 @@ type CreateMonthFormData = z.infer<typeof createMonthFormSchema>;
 export function NewMonthCard({ onMonthCreated }: NewMonthCardProps) {
    const { updateUser } = useLoggedIn();
    const [createMonth, { loading }] = useMutation(CREATE_MONTH);
+
+   const [shouldShowModal, setShouldShowModal] = useState(false);
+   const [animation, setAnimation] = useState(false);
+   const [isMobile, setIsMobile] = useState(false);
 
    const router = useRouter();
 
@@ -86,8 +92,22 @@ export function NewMonthCard({ onMonthCreated }: NewMonthCardProps) {
       });
    }
 
+   useEffect(() => {
+      setIsMobile(window.innerWidth <= 1024);
+   }, []);
+
    return (
-      <Dialog.Root>
+      <Dialog.Root
+         open={shouldShowModal}
+         onOpenChange={async (open) => {
+            if (!open && isMobile) {
+               setAnimation(open);
+               await new Promise((resolve) => setTimeout(() => resolve(true), 500));
+            }
+            setAnimation(open);
+            setShouldShowModal(open);
+         }}
+      >
          <Dialog.Trigger className="flex flex-col items-center gap-3 space-y-3 rounded-md bg-slate-700 p-5 text-left outline-none hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400">
             <span className="text-center text-lg font-medium text-slate-200">Novo mês</span>
 
@@ -99,19 +119,29 @@ export function NewMonthCard({ onMonthCreated }: NewMonthCardProps) {
          </Dialog.Trigger>
 
          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/60" />
+            <Dialog.Overlay className="fixed inset-0 z-40 animate-overlayShow bg-black/40" />
 
-            <Dialog.Content className="fixed inset-0 flex w-full flex-col overflow-hidden bg-slate-700 outline-none md:inset-auto md:left-1/2 md:top-1/2 md:h-[60vh] md:max-w-[640px] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-md">
-               <Dialog.Close className="absolute right-0 top-0 bg-slate-800 p-1.5 text-slate-400 hover:text-slate-100">
-                  <X className="size-5" />
-               </Dialog.Close>
+            <Dialog.Content
+               className={clsx(
+                  'add-new-block-mobile fixed z-40 flex h-auto w-[min(500px,95%)] flex-col bg-slate-700 outline-none transition-all duration-500 max-lg:animate-contentMobileShow max-md:w-full md:inset-auto md:left-1/2 md:top-1/2 md:max-w-[640px] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-md lg:animate-contentShow',
+                  {
+                     'invisible max-h-0 opacity-0': isMobile && !animation,
+                     'opacity-1 visible max-h-[500px]': isMobile && animation,
+                  },
+               )}
+            >
+               <div className="mb-4 flex w-full items-center lg:justify-center lg:pt-5">
+                  <Dialog.Title className="inline-block w-full text-center text-xl max-lg:pl-7">
+                     Adicionar um novo mês
+                  </Dialog.Title>
 
-               <Dialog.Title className="text-sm font-medium text-slate-200">
-                  Adicionar nota
-               </Dialog.Title>
+                  <Dialog.DialogClose className="lg:hidden">
+                     <X />
+                  </Dialog.DialogClose>
+               </div>
 
                <form onSubmit={handleSubmit(handleSaveNote)} className="flex flex-1 flex-col">
-                  <div className="flex flex-1 flex-col gap-3 p-5">
+                  <div className="flex flex-1 flex-col gap-3 lg:p-5">
                      <SelectInput
                         labelProps={{
                            text: 'Selecione o mês',
@@ -219,6 +249,7 @@ export function NewMonthCard({ onMonthCreated }: NewMonthCardProps) {
                            color: 'bg-indigo-500',
                            hover: 'bg-indigo-700',
                         }}
+                        text="Salvar"
                      />
                   </div>
                </form>
