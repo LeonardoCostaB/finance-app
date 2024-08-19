@@ -10,7 +10,7 @@ import { FormattedPrice } from './formatted-price';
 import { Input } from './input';
 import { SubmitButton } from './submit-button';
 import { InformationModal } from './information-modal';
-import { Info, Link, Trash2, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info, Link, Trash2, X } from 'lucide-react';
 
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 import {
@@ -19,6 +19,7 @@ import {
    DELETE_EARNING_ITEM,
 } from '@/graphql/client/mutations/month';
 import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
+import clsx from 'clsx';
 
 interface MonthlyEarningsProps {
    monthId: string;
@@ -59,6 +60,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
    const [deleteEarning, { loading: deleteEarningLoading }] = useMutation(DELETE_EARNING);
 
    const [shouldShowModal, setShouldShowModal] = useState(false);
+   const [shouldShowListOptions, setShouldShowListOptions] = useState(false);
    const [earningsData, setEarningsData] = useState<Earnings['extract']>([]);
 
    async function handleOnSubmit(data: CreateNewEarningsFormData) {
@@ -239,13 +241,83 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
          <div className="mb-5 flex items-center justify-between px-1">
             <h3 className="text-xl capitalize">{earnings.title}</h3>
 
-            {earningsData.length > 0 && (
-               <FormattedPrice
-                  price={earningsData.reduce((a, b) => a + b.value, 0)}
-                  style="profit"
-                  classNames="text-xl"
-               />
-            )}
+            <div className="flex items-center gap-2">
+               {earningsData.length > 0 && (
+                  <FormattedPrice
+                     price={earningsData.reduce((a, b) => a + b.value, 0)}
+                     style="profit"
+                     classNames="text-xl"
+                  />
+               )}
+
+               {earningsData.length > 1 && (
+                  <div className="relative flex items-center">
+                     <button
+                        type="button"
+                        onClick={() => setShouldShowListOptions(!shouldShowListOptions)}
+                     >
+                        <svg
+                           xmlns="http://www.w3.org/2000/svg"
+                           width="18"
+                           height="18"
+                           viewBox="0 0 24 24"
+                           fill="none"
+                           stroke="currentColor"
+                           strokeWidth="2"
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
+                           className="lucide lucide-ellipsis-vertical"
+                        >
+                           <circle cx="12" cy="12" r="1" />
+                           <circle cx="12" cy="5" r="1" />
+                           <circle cx="12" cy="19" r="1" />
+                        </svg>
+                     </button>
+
+                     <div
+                        className={clsx(
+                           'absolute right-0 top-8 w-max overflow-hidden rounded-lg bg-slate-700 transition-all duration-300',
+                           {
+                              'max-h-0': !shouldShowListOptions,
+                              'max-h-40': shouldShowListOptions,
+                           },
+                        )}
+                     >
+                        <ul>
+                           <li>
+                              <button
+                                 type="button"
+                                 onClick={() => {
+                                    setEarningsData((prev) =>
+                                       [...prev].sort((a, b) => b.value - a.value),
+                                    );
+                                    setShouldShowListOptions(false);
+                                 }}
+                                 className="flex w-full cursor-pointer items-center gap-1 p-3 text-center text-sm hover:bg-slate-600"
+                              >
+                                 <ChevronUp size={16} /> Maior para o menor
+                              </button>
+                           </li>
+
+                           <li>
+                              <button
+                                 type="button"
+                                 onClick={() => {
+                                    setEarningsData((prev) =>
+                                       [...prev].sort((a, b) => a.value - b.value),
+                                    );
+                                    setShouldShowListOptions(false);
+                                 }}
+                                 className="flex w-full cursor-pointer items-center gap-1 p-3 text-center text-sm hover:bg-slate-600"
+                              >
+                                 <ChevronDown size={16} /> Menor para o maior
+                              </button>
+                           </li>
+                        </ul>
+                     </div>
+                  </div>
+               )}
+            </div>
          </div>
 
          {earningsData.length > 0 && (

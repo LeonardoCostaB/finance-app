@@ -9,7 +9,16 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { Input } from './input';
 import { FormattedPrice } from './formatted-price';
-import { Check, Handshake, Info, Loader2Icon, Trash2, X } from 'lucide-react';
+import {
+   Check,
+   ChevronDown,
+   ChevronUp,
+   Handshake,
+   Info,
+   Loader2Icon,
+   Trash2,
+   X,
+} from 'lucide-react';
 import { InformationModal } from './information-modal';
 import { SubmitButton } from './submit-button';
 
@@ -21,6 +30,7 @@ import {
    DELETE_EXPENSE_ITEM,
    PAY_EXPENSE_ITEM,
 } from '@/graphql/client/mutations/month';
+import clsx from 'clsx';
 
 interface MonthlyExpensesProps {
    monthId: string;
@@ -63,6 +73,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
 
    const [expenses, setExpenses] = useState<MonthlyExpensesProps['expense']['extract']>([]);
    const [shouldShowModal, setShouldShowModal] = useState(false);
+   const [shouldShowListOptions, setShouldShowListOptions] = useState(false);
 
    async function handleOnSubmit(data: CreateNewExpenseFormData) {
       await createExpenseItem({
@@ -291,11 +302,81 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
          <div className="mb-5 flex items-center justify-between px-1">
             <h3 className="text-xl capitalize">{expense.title}</h3>
 
-            <FormattedPrice
-               price={expenses.reduce((a, b) => a + b.value, 0)}
-               style="spent"
-               classNames="text-xl"
-            />
+            <div className="flex items-center gap-2">
+               <FormattedPrice
+                  price={expenses.reduce((a, b) => a + b.value, 0)}
+                  style="spent"
+                  classNames="text-xl"
+               />
+
+               {expenses.length > 1 && (
+                  <div className="relative flex items-center">
+                     <button
+                        type="button"
+                        onClick={() => setShouldShowListOptions(!shouldShowListOptions)}
+                     >
+                        <svg
+                           xmlns="http://www.w3.org/2000/svg"
+                           width="18"
+                           height="18"
+                           viewBox="0 0 24 24"
+                           fill="none"
+                           stroke="currentColor"
+                           strokeWidth="2"
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
+                           className="lucide lucide-ellipsis-vertical"
+                        >
+                           <circle cx="12" cy="12" r="1" />
+                           <circle cx="12" cy="5" r="1" />
+                           <circle cx="12" cy="19" r="1" />
+                        </svg>
+                     </button>
+
+                     <div
+                        className={clsx(
+                           'absolute right-0 top-8 w-max overflow-hidden rounded-lg bg-slate-700 transition-all duration-300',
+                           {
+                              'max-h-0': !shouldShowListOptions,
+                              'max-h-40': shouldShowListOptions,
+                           },
+                        )}
+                     >
+                        <ul>
+                           <li>
+                              <button
+                                 type="button"
+                                 onClick={() => {
+                                    setExpenses((prev) =>
+                                       [...prev].sort((a, b) => b.value - a.value),
+                                    );
+                                    setShouldShowListOptions(false);
+                                 }}
+                                 className="flex w-full cursor-pointer items-center gap-1 p-3 text-center text-sm hover:bg-slate-600"
+                              >
+                                 <ChevronUp size={16} /> Maior para o menor
+                              </button>
+                           </li>
+
+                           <li>
+                              <button
+                                 type="button"
+                                 onClick={() => {
+                                    setExpenses((prev) =>
+                                       [...prev].sort((a, b) => a.value - b.value),
+                                    );
+                                    setShouldShowListOptions(false);
+                                 }}
+                                 className="flex w-full cursor-pointer items-center gap-1 p-3 text-center text-sm hover:bg-slate-600"
+                              >
+                                 <ChevronDown size={16} /> Menor para o maior
+                              </button>
+                           </li>
+                        </ul>
+                     </div>
+                  </div>
+               )}
+            </div>
          </div>
 
          <ul
