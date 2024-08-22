@@ -47,10 +47,7 @@ export default function Home() {
 
          <div className="mx-auto my-12 max-w-6xl space-y-6 px-5 max-lg:mb-20">
             <div className="grid auto-rows-[250px] grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-               <NewMonthCard
-                  nextMonth={months?.map((month) => month.createdAt)[0]}
-                  onMonthCreated={onMonthCreated}
-               />
+               <NewMonthCard onMonthCreated={onMonthCreated} />
 
                {months && months.length > 0 ? (
                   months.map((month) => (
