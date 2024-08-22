@@ -5,6 +5,7 @@ import { createContext, ReactNode, useEffect, useState } from 'react';
 import { gql, useLazyQuery } from '@apollo/client';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import { sortMonth } from '@/utils/client/sort-month';
 
 export const GET_USER_BY_EMAIL = gql`
    query getUserByEmail($email: String!) {
@@ -106,14 +107,20 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
             console.log(error);
          },
          onCompleted: (data) => {
-            setUser(data.user);
+            setUser({
+               ...data.user,
+               months: sortMonth([...data.user.months]),
+            });
          },
          notifyOnNetworkStatusChange: true,
       });
    }
 
    function updateUser(user: User) {
-      setUser(user);
+      setUser({
+         ...user,
+         months: sortMonth([...user.months]),
+      });
    }
 
    useEffect(() => {

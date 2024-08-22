@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
    return (
       <html lang="pt-br">
-         <body className={`${inter.className} flex bg-slate-900 text-slate-50`}>
+         <body className={`${inter.className} bg-slate-900 text-slate-50 lg:flex`}>
             <AppProvider>
                {children}
 

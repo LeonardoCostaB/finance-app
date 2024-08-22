@@ -18,6 +18,7 @@ import { MonthlyExpenses } from '@/components/monthly-expenses';
 import { SubmitButton } from '@/components/submit-button';
 import { MoreOptions } from '@/components/more-options';
 import { MonthlySummary } from '@/components/monthly-summary';
+import { MonthPreview } from '@/components/months-preview';
 
 export default function Month({ params }: { params: { id: string } }) {
    const { user, updateUser } = useLoggedIn();
@@ -128,8 +129,14 @@ export default function Month({ params }: { params: { id: string } }) {
       <>
          <Header />
 
+         <MonthPreview
+            months={user?.months}
+            currentMonth={params.id}
+            userSalary={user?.monthlySalary ?? 0}
+         />
+
          <main className="relative mx-auto mb-20 flex max-w-6xl flex-col max-xl:px-6 max-lg:px-4">
-            {month && month.length > 0 ? (
+            {month && month.length > 0 && (
                <>
                   <div className="flex w-[calc(100%-332px)] items-center justify-center max-lg:w-full">
                      <h1 className="flex-1 pl-[80px] text-center text-4xl capitalize max-lg:pl-0 max-lg:text-left max-lg:text-2xl">
@@ -293,8 +300,6 @@ export default function Month({ params }: { params: { id: string } }) {
                      />
                   </div>
                </>
-            ) : (
-               <h1>Not Found</h1>
             )}
          </main>
       </>

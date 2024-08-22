@@ -17,8 +17,8 @@ import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 
 interface NewMonthCardProps {
-   nextMonth?: string;
    onMonthCreated: (month: Months) => void;
+   forThePreview?: boolean;
 }
 
 const createMonthFormSchema = z.object({
@@ -28,7 +28,7 @@ const createMonthFormSchema = z.object({
 
 type CreateMonthFormData = z.infer<typeof createMonthFormSchema>;
 
-export function NewMonthCard({ onMonthCreated }: NewMonthCardProps) {
+export function NewMonthCard({ onMonthCreated, forThePreview }: NewMonthCardProps) {
    const { updateUser } = useLoggedIn();
    const [createMonth, { loading }] = useMutation(CREATE_MONTH);
 
@@ -108,13 +108,21 @@ export function NewMonthCard({ onMonthCreated }: NewMonthCardProps) {
             setShouldShowModal(open);
          }}
       >
-         <Dialog.Trigger className="flex flex-col items-center gap-3 space-y-3 rounded-md bg-slate-700 p-5 text-left outline-none hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400">
-            <span className="text-center text-lg font-medium text-slate-200">Novo mês</span>
+         <Dialog.Trigger
+            className={`flex flex-col items-center ${forThePreview ? 'whitespace-nowrap max-lg:w-32 max-lg:p-2' : 'gap-3'} space-y-3 rounded-md bg-slate-700 p-5 text-left outline-none hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400`}
+         >
+            <span
+               className={`text-center text-lg font-medium text-slate-200 ${forThePreview ? 'max-lg:text-base' : ''}`}
+            >
+               Novo mês
+            </span>
 
-            <p className="text-sm leading-6 text-slate-400">Cadastre aqui um novo mês</p>
+            {!forThePreview && (
+               <p className="text-sm leading-6 text-slate-400">Cadastre aqui um novo mês</p>
+            )}
 
             <div className="flex w-full items-center justify-center">
-               <CircleFadingPlus size={100} />
+               <CircleFadingPlus size={forThePreview ? 30 : 100} />
             </div>
          </Dialog.Trigger>
 
