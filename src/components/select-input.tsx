@@ -104,6 +104,7 @@ export function SelectInput({ labelProps, selectProps, error }: SelectInputProps
                   placeholder={selectProps.placeholder}
                   onChange={handleChange}
                   onClick={() => setShouldShowOptions(!shouldShowOptions)}
+                  onFocus={() => setShouldShowOptions(!shouldShowOptions)}
                   {...(selectValue ? { ...{ value: selectValue } } : { value: '' })}
                   disabled={selectProps.disabled}
                   autoComplete="no"
@@ -133,7 +134,7 @@ export function SelectInput({ labelProps, selectProps, error }: SelectInputProps
          <ul
             ref={optionsContainerRef}
             id="options-select"
-            className={clsx('relative mt-2 w-full overflow-auto bg-slate-600 transition-all', {
+            className={clsx('mt-2 w-full overflow-auto bg-slate-600 transition-all', {
                'visible max-h-[222px] opacity-100': shouldShowOptions,
                'invisible max-h-0 opacity-0': !shouldShowOptions,
                'absolute z-10': selectProps.float,
