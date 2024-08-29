@@ -10,6 +10,11 @@ export const monthTypeDefs = gql`
       deleteExpense(data: DeleteBlockInput): DeleteBlock!
 
       createEarningItem(monthId: String!, data: ExpenseItemInput): CreateEarningItemResponse
+      updateEarningItem(
+         monthId: String!
+         data: UpdateEarningItemInput
+         type: TypeCreateEarningOrExpense
+      ): updateEarningOrExpenseRes
       deleteEarningItem(data: PayEarningInput): Boolean!
 
       addExpenseItem(monthId: String!, data: ExpenseItemInput): ExpenseItemResponse
@@ -33,6 +38,11 @@ export const monthTypeDefs = gql`
       earnings: [Expenses]
       expenses: [Expenses]
    }
+   type updateEarningOrExpenseRes {
+      id: String!
+      earnings: [Expenses]
+      expenses: [Expenses]
+   }
 
    # Earnings
    type CreateEarningItemResponse {
@@ -53,6 +63,15 @@ export const monthTypeDefs = gql`
    input DeleteBlockInput {
       monthId: String!
       title: String!
+   }
+
+   input UpdateEarningItemInput {
+      id: String!
+      title: String!
+      name: String
+      value: Int
+      link: String
+      notes: String
    }
 
    # Expenses

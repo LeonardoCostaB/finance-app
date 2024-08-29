@@ -237,7 +237,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
    }, []);
 
    return earnings.title.length > 0 ? (
-      <div className="mt-6 box-border w-full rounded-lg bg-slate-800 p-4">
+      <div className="mt-6 box-border w-full rounded-lg bg-slate-800 p-4 first:mt-0">
          <div className="mb-5 flex items-center justify-between px-1">
             <h3 className="text-xl capitalize">{earnings.title}</h3>
 
@@ -321,7 +321,10 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
          </div>
 
          {earningsData.length > 0 && (
-            <ul id="month-sub-items" className="flex max-h-96 flex-col items-center justify-center">
+            <ul
+               id="month-sub-items"
+               className="flex max-h-[285px] flex-col items-center justify-center overflow-y-auto"
+            >
                {earningsData.map((earning) => (
                   <li
                      key={earning.id}
@@ -340,6 +343,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                            modal={{
                               title: earning.name,
                               openAtTheBottom: true,
+                              centeredTitle: true,
                            }}
                         >
                            <div>
@@ -380,6 +384,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                            modal={{
                               title: earning.name,
                               openAtTheBottom: true,
+                              centeredTitle: true,
                            }}
                         >
                            <div className="flex flex-col items-center gap-4">
@@ -407,9 +412,9 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                </Dialog.Trigger>
 
                <Dialog.Portal>
-                  <Dialog.Overlay className="fixed inset-0 animate-overlayShow bg-black/30" />
+                  <Dialog.Overlay className="fixed inset-0 z-40 animate-overlayShow bg-black/30" />
 
-                  <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 animate-contentShow rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
+                  <Dialog.Content className="fixed left-1/2 top-1/2 z-40 w-full max-w-md -translate-x-1/2 -translate-y-1/2 animate-contentShow rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
                      <div className="mb-4 flex w-full items-center lg:justify-center">
                         <Dialog.Title className="inline-block w-full text-center text-xl capitalize max-lg:pl-7">
                            {earnings.title}
@@ -527,6 +532,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                modal={{
                   title: earnings.title,
                   openAtTheBottom: true,
+                  centeredTitle: true,
                }}
             >
                <div className="flex flex-col items-center gap-4">

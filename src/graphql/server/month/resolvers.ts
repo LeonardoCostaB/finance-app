@@ -58,6 +58,25 @@ interface MonthResolvers {
       context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
    ) => any;
 
+   updateEarningItem: (
+      _: any,
+      {
+         data,
+      }: {
+         monthId: string;
+         data: {
+            title: string;
+            id: string;
+            name: string;
+            value: number;
+            link: string;
+            notes: string;
+         };
+         type: 'earnings' | 'expenses';
+      },
+      context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
+   ) => any;
+
    deleteEarningItem: (
       _: any,
       { data }: { data: { monthId: string; earningItemId: string; earningTitle: string } },
@@ -190,6 +209,22 @@ const createEarningItem: MonthResolvers['createEarningItem'] = async (
    return createEarningItem;
 };
 
+const updateEarningItem: MonthResolvers['updateEarningItem'] = async (
+   _,
+   { monthId, data, type },
+   { isLoggedIn, dataSources },
+) => {
+   if (!isLoggedIn) {
+      await dataSources.loginApi.logout(isLoggedIn);
+
+      throw new GraphQLError('Unauthenticated');
+   }
+
+   const updateEarningItem = await dataSources.monthApi.updateEarningItem({ monthId, data, type });
+
+   return updateEarningItem;
+};
+
 const deleteEarningItem: MonthResolvers['deleteEarningItem'] = async (
    _,
    { data: { monthId, earningItemId, earningTitle } },
@@ -276,6 +311,7 @@ export const monthResolvers = {
       deleteExpense,
 
       createEarningItem,
+      updateEarningItem,
       deleteEarningItem,
 
       addExpenseItem,

@@ -138,7 +138,7 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
       <div className={'relative'}>
          <button
             type="button"
-            className="relative z-10 flex h-10 w-10 flex-col items-center justify-center gap-1 rounded-full bg-slate-700 max-lg:z-30"
+            className="relative z-20 flex h-10 w-10 flex-col items-center justify-center gap-1 rounded-full bg-slate-700 max-lg:z-30"
             onClick={() => setShouldShowModal(!shouldShowOptions)}
             onMouseEnter={shouldShowOptions ? () => setShouldShowModal(true) : () => {}}
          >
@@ -168,7 +168,7 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
 
          <div
             className={clsx(
-               'absolute right-0 top-0 z-0 rounded-xl bg-slate-700 transition-all max-lg:z-20',
+               'absolute right-0 top-0 z-10 rounded-xl bg-slate-700 transition-all max-lg:z-20',
                {
                   'invisible max-h-8 w-8 duration-500': !shouldShowOptions,
                   'visible max-h-56 w-[150px] overflow-hidden duration-500': shouldShowOptions,
@@ -194,6 +194,7 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
                      modal={{
                         title: 'Adicionar Poupança',
                         openAtTheBottom: true,
+                        centeredTitle: true,
                      }}
                   >
                      <div>
@@ -236,6 +237,7 @@ export function MoreOptions({ month, monthDate }: MoreOptionsProps) {
                      modal={{
                         title: 'Deletar mês',
                         openAtTheBottom: true,
+                        centeredTitle: true,
                      }}
                   >
                      <div className="flex flex-col items-center gap-4">

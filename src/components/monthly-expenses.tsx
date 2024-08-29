@@ -6,19 +6,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import Link from 'next/link';
 import { Input } from './input';
 import { FormattedPrice } from './formatted-price';
-import {
-   Check,
-   ChevronDown,
-   ChevronUp,
-   Handshake,
-   Info,
-   Loader2Icon,
-   Trash2,
-   X,
-} from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Handshake, Loader2Icon, Trash2, X } from 'lucide-react';
 import { InformationModal } from './information-modal';
 import { SubmitButton } from './submit-button';
 
@@ -31,6 +21,7 @@ import {
    PAY_EXPENSE_ITEM,
 } from '@/graphql/client/mutations/month';
 import clsx from 'clsx';
+import { UpdateMonthSubItems } from './update-month-sub-items';
 
 interface MonthlyExpensesProps {
    monthId: string;
@@ -298,7 +289,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
    }, []);
 
    return (
-      <div className="mt-6 box-border w-full rounded-lg bg-slate-800 p-4">
+      <div className="mt-6 box-border w-full rounded-lg bg-slate-800 p-4 first:mt-0">
          <div className="mb-5 flex items-center justify-between px-1">
             <h3 className="text-xl capitalize">{expense.title}</h3>
 
@@ -381,72 +372,25 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
 
          <ul
             id="month-sub-items"
-            className="flex max-h-[400px] flex-col items-center overflow-y-auto"
+            className="flex max-h-[285px] flex-col items-center overflow-y-auto"
          >
-            {expenses.map((expense) => (
+            {expenses.map((expenseItem) => (
                <li
-                  key={expense.id}
+                  key={expenseItem.id}
                   className="flex w-full items-center justify-between border-b px-1 py-4 text-sm text-gray-400"
                >
-                  {expense.name}
+                  {expenseItem.name}
 
                   <div className="flex items-center gap-2">
-                     <FormattedPrice price={expense.value} style="normal" classNames="text-sm" />
+                     <FormattedPrice
+                        price={expenseItem.value}
+                        style="normal"
+                        classNames="text-sm"
+                     />
 
-                     <InformationModal
-                        button={{
-                           icon: <Info size={16} className="text-blue-400" />,
-                           title: 'Informações',
-                        }}
-                        modal={{
-                           title: expense.name,
-                           openAtTheBottom: true,
-                        }}
-                     >
-                        <div>
-                           <div>
-                              <span>Data de Publicação:</span>
-                              <span>
-                                 {new Date(expense.date.published).toLocaleDateString('pt-BR', {
-                                    day: '2-digit',
-                                    month: 'long',
-                                    year: 'numeric',
-                                 })}
-                              </span>
-                           </div>
+                     <UpdateMonthSubItems extract={expenseItem} titleBlock={expense.title} />
 
-                           {expense.date.paidOut && (
-                              <div>
-                                 <span>Data de Pagamento:</span>
-                                 <span>
-                                    {new Date(expense.date.paidOut).toLocaleDateString('pt-BR', {
-                                       day: '2-digit',
-                                       month: 'long',
-                                       year: 'numeric',
-                                    })}
-                                 </span>
-                              </div>
-                           )}
-
-                           {expense.link && (
-                              <div>
-                                 <span>Link:</span>
-                                 <Link href={expense.link} target="_blank">
-                                    {expense.link}
-                                 </Link>
-                              </div>
-                           )}
-
-                           {expense.notes && (
-                              <div>
-                                 <span>Notas:</span>
-                                 <span>{expense.notes}</span>
-                              </div>
-                           )}
-                        </div>
-                     </InformationModal>
-
-                     {expense.date?.paidOut ? (
+                     {expenseItem.date?.paidOut ? (
                         <span className="inline-block p-1" title="Pago">
                            <Check size={16} className="text-green-400" />
                         </span>
@@ -457,8 +401,9 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                               title: 'Marcar como pago',
                            }}
                            modal={{
-                              title: expense.name,
+                              title: expenseItem.name,
                               openAtTheBottom: true,
+                              centeredTitle: true,
                            }}
                         >
                            <div className="flex flex-col items-center gap-4">
@@ -468,7 +413,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                                  type="button"
                                  loading={payLoading}
                                  bgColor={{ color: 'bg-green-400', hover: 'bg-green-600' }}
-                                 onClick={() => handleOnPayExpense(expense.id)}
+                                 onClick={() => handleOnPayExpense(expenseItem.id)}
                                  text="Pagar"
                               />
                            </div>
@@ -481,8 +426,9 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                            title: 'Deletar despesa',
                         }}
                         modal={{
-                           title: expense.name,
+                           title: expenseItem.name,
                            openAtTheBottom: true,
+                           centeredTitle: true,
                         }}
                      >
                         <div className="flex flex-col items-center gap-4">
@@ -492,7 +438,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                               type="button"
                               loading={deleteLoading}
                               bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
-                              onClick={() => handleOnDeleteExpenseItem(expense.id)}
+                              onClick={() => handleOnDeleteExpenseItem(expenseItem.id)}
                               text="Deletar"
                            />
                         </div>
@@ -509,9 +455,9 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                </Dialog.Trigger>
 
                <Dialog.Portal>
-                  <Dialog.Overlay className="fixed inset-0 animate-overlayShow bg-black/30 max-lg:z-40" />
+                  <Dialog.Overlay className="fixed inset-0 z-40 animate-overlayShow bg-black/30" />
 
-                  <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 animate-contentShow rounded-xl bg-slate-700 p-4 max-lg:z-40 max-lg:w-[95%] lg:ml-11">
+                  <Dialog.Content className="fixed left-1/2 top-1/2 z-40 w-full max-w-md -translate-x-1/2 -translate-y-1/2 animate-contentShow rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
                      <div className="mb-4 flex w-full items-center lg:justify-center">
                         <Dialog.Title className="inline-block w-full text-center text-xl capitalize max-lg:pl-7">
                            {expense.title}
@@ -631,6 +577,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                modal={{
                   title: expense.title,
                   openAtTheBottom: true,
+                  centeredTitle: true,
                }}
             >
                <div className="flex flex-col items-center gap-4">

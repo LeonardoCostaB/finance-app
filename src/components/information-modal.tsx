@@ -17,6 +17,9 @@ interface InformationModalProps {
    modal: {
       title: string;
       openAtTheBottom?: boolean;
+      classNames?: string;
+      centeredTitle?: boolean;
+      closeButtonClasses?: string;
    };
    children: ReactNode;
 }
@@ -60,16 +63,21 @@ export function InformationModal({ button, modal, children }: InformationModalPr
                   {
                      'add-new-block-mobile': modal.openAtTheBottom,
                      'invisible max-h-0 opacity-0': window.innerWidth <= 1024 && !animation,
-                     'opacity-1 visible max-h-80': window.innerWidth <= 1024 && animation,
+                     'opacity-1 visible max-h-[500px]': window.innerWidth <= 1024 && animation,
+                     [`${modal.classNames}`]: modal.classNames,
                   },
                )}
             >
-               <div className="mb-4 flex w-full items-center lg:justify-center">
-                  <Dialog.Title className="inline-block w-full text-center text-xl max-lg:pl-6">
+               <div
+                  className={`mb-4 flex w-full items-center lg:justify-center ${modal.centeredTitle ? '' : 'max-lg:justify-between'}`}
+               >
+                  <Dialog.Title
+                     className={`inline-block w-full text-center text-xl ${modal.centeredTitle ? 'max-lg:pl-6' : 'max-lg:text-left'}`}
+                  >
                      {modal.title}
                   </Dialog.Title>
 
-                  <Dialog.DialogClose className="lg:hidden">
+                  <Dialog.DialogClose className={`lg:hidden ${modal.closeButtonClasses}`}>
                      <X />
                   </Dialog.DialogClose>
                </div>

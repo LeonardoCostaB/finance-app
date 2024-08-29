@@ -15,8 +15,8 @@ export function MonthPreview({
    if (!months?.length) return <></>;
 
    return (
-      <aside className="mx-auto mb-10 max-w-6xl">
-         <div className="flex w-[calc(100%-332px)] gap-4 max-xl:px-6 max-lg:w-full max-lg:gap-2 max-lg:p-4">
+      <aside className="mx-auto max-w-6xl lg:mb-10">
+         <div className="flex w-[calc(100%-332px)] gap-4 max-xl:px-6 max-lg:w-full max-lg:gap-2 max-lg:p-4 max-lg:pb-6">
             <NewMonthCard onMonthCreated={() => {}} forThePreview />
             <SwiperCustomSlide
                slides={months
@@ -29,7 +29,7 @@ export function MonthPreview({
                            <Link
                               key={month.id}
                               href={`/${month.id}/month`}
-                              className="flex flex-1 flex-col items-center justify-between rounded-lg bg-slate-800 p-4 max-lg:p-2 max-lg:py-4"
+                              className="flex flex-1 flex-col items-center justify-between rounded-lg bg-slate-800 p-4 hover:ring-2 hover:ring-slate-700 max-lg:p-2 max-lg:py-4"
                            >
                               <h5 className="capitalize max-lg:mb-2">{month.title}</h5>
 
@@ -52,7 +52,7 @@ export function MonthPreview({
                         ),
                      };
                   })}
-               classNames="max-lg:flex-1"
+               classNames="max-lg:flex-1 !py-[2px]"
             />
          </div>
       </aside>

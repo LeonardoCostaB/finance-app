@@ -39,11 +39,11 @@ export function MonthlySummary({
             }) + (monthlySalary ?? 0),
          paidBills: MonthlyBillsPaid(month.flatMap((month) => month.expenses) ?? []),
       });
-   }, []);
+   }, [month, monthlySalary]);
 
    return (
       <div
-         className={`mt-10 flex h-max w-full max-w-[300px] flex-col items-center gap-4 rounded-lg bg-slate-800 p-4 transition-all duration-500 max-lg:relative max-lg:max-w-full max-lg:overflow-hidden ${shouldShowSummary ? 'max-h-96' : 'max-lg:max-h-14'}`}
+         className={`mt-10 flex h-max w-full max-w-[300px] flex-col items-center gap-4 rounded-lg bg-slate-800 p-4 transition-all duration-500 max-lg:relative max-lg:mt-6 max-lg:max-w-full max-lg:overflow-hidden ${shouldShowSummary ? 'max-h-96' : 'max-lg:max-h-14'}`}
       >
          <button
             type="button"
@@ -91,10 +91,12 @@ export function MonthlySummary({
                </span>
             )}
 
-            <span>
-               Poupou:{' '}
-               <FormattedPrice price={savingsMonth(month[0].date, userEconomy)} style="normal" />
-            </span>
+            {savingsMonth(month[0].date, userEconomy) > 0 && (
+               <span>
+                  Poupou:{' '}
+                  <FormattedPrice price={savingsMonth(month[0].date, userEconomy)} style="normal" />
+               </span>
+            )}
 
             <span>
                Saldo Final:{' '}

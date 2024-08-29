@@ -9,7 +9,7 @@ import { useLoggedIn } from '@/hooks/use-loggedIn';
 import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
 import { CREATE_EARNING_OR_EXPENSE } from '@/graphql/client/mutations/month';
 
-import { CircleFadingPlus, X } from 'lucide-react';
+import { ChevronsDown, CircleFadingPlus, X } from 'lucide-react';
 import { FormattedPrice } from '@/components/formatted-price';
 import { Header } from '@/components/header';
 import { Input } from '@/components/input';
@@ -28,6 +28,7 @@ export default function Month({ params }: { params: { id: string } }) {
 
    const [toggleLayout, setToggleLayout] = useState<'profit' | 'spent'>('profit');
    const [shouldShowModal, setShouldShowModal] = useState(false);
+   const [shouldShowArrow, setShouldShowArrow] = useState(true);
 
    function handleOnCreateBlock(e: FormEvent) {
       e.preventDefault();
@@ -121,6 +122,12 @@ export default function Month({ params }: { params: { id: string } }) {
       });
    }
 
+   function handleMounthContainerScroll(e: React.UIEvent<HTMLDivElement>) {
+      const target = e.target as HTMLDivElement;
+
+      setShouldShowArrow(target.scrollTop < 50);
+   }
+
    useEffect(() => {
       setMonth(user?.months.filter((month) => month.id === params.id));
    }, [params.id, user]);
@@ -135,7 +142,7 @@ export default function Month({ params }: { params: { id: string } }) {
             userSalary={user?.monthlySalary ?? 0}
          />
 
-         <main className="relative mx-auto mb-20 flex max-w-6xl flex-col max-xl:px-6 max-lg:px-4">
+         <main className="relative mx-auto mb-10 flex max-w-6xl flex-col max-xl:px-6 max-lg:mb-20 max-lg:px-4">
             {month && month.length > 0 && (
                <>
                   <div className="flex w-[calc(100%-332px)] items-center justify-center max-lg:w-full">
@@ -216,7 +223,7 @@ export default function Month({ params }: { params: { id: string } }) {
                   </div>
 
                   <div className="flex items-stretch justify-center gap-8 max-lg:flex-col-reverse max-lg:gap-4">
-                     <div className="flex w-full flex-col items-center">
+                     <div className="relative z-0 flex w-full flex-col items-center">
                         <div className="justify-cente flex w-full rounded-xl bg-slate-800 p-4 lg:mt-10">
                            <button
                               type="button"
@@ -268,28 +275,52 @@ export default function Month({ params }: { params: { id: string } }) {
                            </span>
                         )}
 
-                        {month.map((month) =>
-                           toggleLayout === 'profit'
-                              ? month.earnings.map((earning) => (
-                                   <MonthlyEarnings
-                                      key={earning.title}
-                                      monthId={params.id}
-                                      earnings={{
-                                         title: earning.title,
-                                         extract: earning.extract,
-                                      }}
-                                   />
-                                ))
-                              : month.expenses.map((expense) => (
-                                   <MonthlyExpenses
-                                      key={expense.title}
-                                      monthId={params.id}
-                                      expense={{
-                                         title: expense.title,
-                                         extract: expense.extract,
-                                      }}
-                                   />
-                                )),
+                        <div
+                           className="scroll-bar mt-6 flex max-h-[450px] w-full flex-col overflow-y-auto"
+                           onScroll={handleMounthContainerScroll}
+                        >
+                           {month.map((month) =>
+                              toggleLayout === 'profit'
+                                 ? month.earnings.map((earning) => (
+                                      <MonthlyEarnings
+                                         key={earning.title}
+                                         monthId={params.id}
+                                         earnings={{
+                                            title: earning.title,
+                                            extract: earning.extract,
+                                         }}
+                                      />
+                                   ))
+                                 : month.expenses.map((expense) => (
+                                      <MonthlyExpenses
+                                         key={expense.title}
+                                         monthId={params.id}
+                                         expense={{
+                                            title: expense.title,
+                                            extract: expense.extract,
+                                         }}
+                                      />
+                                   )),
+                           )}
+                        </div>
+
+                        {month
+                           .map((month) => ({
+                              profit: month.earnings.length > 1,
+                              spent: month.expenses.length > 1,
+                           }))
+                           .find((month) => month[toggleLayout]) && (
+                           <div
+                              className={clsx(
+                                 'absolute bottom-1 left-[47%] -translate-x-1/2 animate-bounce transition-all max-md:bottom-5',
+                                 {
+                                    'opacity-1 visible': shouldShowArrow,
+                                    'invisible opacity-0': !shouldShowArrow,
+                                 },
+                              )}
+                           >
+                              <ChevronsDown />
+                           </div>
                         )}
                      </div>
 

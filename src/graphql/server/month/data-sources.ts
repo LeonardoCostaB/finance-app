@@ -426,6 +426,92 @@ export class MonthApi extends RESTDataSource {
       }
    }
 
+   async updateEarningItem({
+      monthId,
+      data,
+      type,
+   }: {
+      monthId: string;
+      data: { title: string; id: string; name: string; value: number; link: string; notes: string };
+      type: 'earnings' | 'expenses';
+   }) {
+      const month = await this.getMonthById(monthId);
+
+      if (!month) {
+         throw new Error('Month not found');
+      }
+
+      this.verifyUserAuthenticity(this.userId, month.user?.id);
+
+      const earnings = month[type]?.filter((earning) => earning.title === data.title);
+
+      if (!earnings) {
+         throw new Error('Earning not found');
+      }
+
+      const earningExtract = earnings.flatMap((earning) => earning.extract);
+      const verifyIfExist = earningExtract.find((extract) => extract.id === data.id);
+      const earningItemExist = earningExtract.some(
+         (extract) => normalizeId(extract.name) === normalizeId(data.name),
+      );
+
+      if (!verifyIfExist) throw new GraphQLError('Despesa não existe');
+      if (!(normalizeId(verifyIfExist.name) === normalizeId(data.name)) && earningItemExist)
+         throw new Error('Você já tem um item cadastrado com esse nome');
+
+      const newExtract: MonthExtract = {
+         ...verifyIfExist,
+         value: data.value,
+         link: data.link,
+         notes: data.notes,
+         name: data.name,
+      };
+
+      const query = `
+         mutation CREATE_EARNINGS($earnings: [Json!], $monthId: ID!) {
+            updateMonth(
+               data: {${type}: $earnings},
+               where: {id: $monthId}
+            ) {
+               id
+               ${type}
+            }
+
+            publishManyMonths(where: {id: $monthId}, to: PUBLISHED) {
+               __typename
+            }
+         }
+      `;
+
+      const variables = {
+         monthId,
+         earnings: [
+            ...month[type].filter((earnings) => earnings.title !== data.title),
+            {
+               title: data.title,
+               extract: [
+                  ...earningExtract.filter((earningExtract) => earningExtract.id !== data.id),
+                  {
+                     ...newExtract,
+                  },
+               ],
+            },
+         ],
+      };
+
+      try {
+         const { data: createEarningItem } = await axios.post(
+            this.baseURL as string,
+            { query, variables },
+            { headers: this.headers },
+         );
+
+         return createEarningItem.data.updateMonth;
+      } catch (error) {
+         console.log(error);
+      }
+   }
+
    async deleteEarningItem({
       monthId,
       earningTitle,
