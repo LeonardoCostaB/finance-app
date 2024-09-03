@@ -10,7 +10,7 @@ import { FormattedPrice } from './formatted-price';
 import { Input } from './input';
 import { SubmitButton } from './submit-button';
 import { InformationModal } from './information-modal';
-import { ChevronDown, ChevronUp, Info, Link, Trash2, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Trash2, X } from 'lucide-react';
 
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 import {
@@ -20,6 +20,7 @@ import {
 } from '@/graphql/client/mutations/month';
 import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
 import clsx from 'clsx';
+import { UpdateMonthSubItems } from './update-month-sub-items';
 
 interface MonthlyEarningsProps {
    monthId: string;
@@ -30,7 +31,7 @@ const createNewEarningsFormSchema = z.object({
    earningName: z
       .string()
       .min(3, 'Mínimo 3 caracteres')
-      .transform((name) => name[0].toUpperCase() + name.substring(1)),
+      .transform((name) => (name[0].toUpperCase() + name.substring(1)).trim()),
    earningValue: z.number().min(1, 'Mínimo R$ 1'),
    earningLink: z.union([z.literal(''), z.string()]),
    earningNotes: z.union([z.literal(''), z.string().min(5, 'Mínimo de 5 caracteres')]),
@@ -234,7 +235,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
 
    useEffect(() => {
       setEarningsData([...earnings.extract].sort((a, b) => b.value - a.value));
-   }, []);
+   }, [earnings.extract]);
 
    return earnings.title.length > 0 ? (
       <div className="mt-6 box-border w-full rounded-lg bg-slate-800 p-4 first:mt-0">
@@ -335,46 +336,12 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                      <div className="flex items-center gap-2">
                         <FormattedPrice price={earning.value} style="normal" classNames="text-sm" />
 
-                        <InformationModal
-                           button={{
-                              icon: <Info size={16} className="text-blue-400" />,
-                              title: 'Informações',
-                           }}
-                           modal={{
-                              title: earning.name,
-                              openAtTheBottom: true,
-                              centeredTitle: true,
-                           }}
-                        >
-                           <div>
-                              <div>
-                                 <span>Data de Publicação:</span>
-                                 <span>
-                                    {new Date(earning.date.published).toLocaleDateString('pt-BR', {
-                                       day: '2-digit',
-                                       month: 'long',
-                                       year: 'numeric',
-                                    })}
-                                 </span>
-                              </div>
-
-                              {earning.link && (
-                                 <div>
-                                    <span>Link:</span>
-                                    <Link href={earning.link} target="_blank">
-                                       {earning.link}
-                                    </Link>
-                                 </div>
-                              )}
-
-                              {earning.notes && (
-                                 <div>
-                                    <span>Notas:</span>
-                                    <span>{earning.notes}</span>
-                                 </div>
-                              )}
-                           </div>
-                        </InformationModal>
+                        <UpdateMonthSubItems
+                           monthId={monthId}
+                           extract={earning}
+                           blockTitle={earnings.title}
+                           type="earnings"
+                        />
 
                         <InformationModal
                            button={{

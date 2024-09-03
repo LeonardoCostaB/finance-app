@@ -19,6 +19,7 @@ import { SubmitButton } from '@/components/submit-button';
 import { MoreOptions } from '@/components/more-options';
 import { MonthlySummary } from '@/components/monthly-summary';
 import { MonthPreview } from '@/components/months-preview';
+import { sortSubItemsMonth } from '@/utils/client/sort-month';
 
 export default function Month({ params }: { params: { id: string } }) {
    const { user, updateUser } = useLoggedIn();
@@ -35,13 +36,13 @@ export default function Month({ params }: { params: { id: string } }) {
 
       const target = e.target as HTMLFormElement;
       const formData = new FormData(target);
-      const title = formData.get('block-title');
+      const title = formData.get('block-title') as string;
 
       createEarningOrExpense({
          variables: {
             data: {
                monthId: params.id,
-               title,
+               title: title.trim(),
                type: toggleLayout === 'profit' ? 'earnings' : 'expenses',
             },
          },
@@ -276,28 +277,31 @@ export default function Month({ params }: { params: { id: string } }) {
                         )}
 
                         <div
-                           className="scroll-bar mt-6 flex max-h-[450px] w-full flex-col overflow-y-auto"
+                           className={clsx('scroll-bar mt-6 flex w-full flex-col overflow-y-auto', {
+                              'max-h-[450px]': toggleLayout === 'spent',
+                              'max-h-[calc(450px-60px)]': toggleLayout === 'profit',
+                           })}
                            onScroll={handleMounthContainerScroll}
                         >
                            {month.map((month) =>
                               toggleLayout === 'profit'
-                                 ? month.earnings.map((earning) => (
+                                 ? sortSubItemsMonth([...month.earnings]).map((earning) => (
                                       <MonthlyEarnings
                                          key={earning.title}
                                          monthId={params.id}
                                          earnings={{
+                                            ...earning,
                                             title: earning.title,
-                                            extract: earning.extract,
                                          }}
                                       />
                                    ))
-                                 : month.expenses.map((expense) => (
+                                 : sortSubItemsMonth([...month.expenses]).map((expense) => (
                                       <MonthlyExpenses
                                          key={expense.title}
                                          monthId={params.id}
                                          expense={{
+                                            ...expense,
                                             title: expense.title,
-                                            extract: expense.extract,
                                          }}
                                       />
                                    )),

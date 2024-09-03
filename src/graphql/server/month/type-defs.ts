@@ -105,6 +105,7 @@ export const monthTypeDefs = gql`
 
    type Expenses {
       title: String!
+      created: String
       extract: [Extract]
    }
 
@@ -116,6 +117,7 @@ export const monthTypeDefs = gql`
    # Earning
    type Earnings {
       title: String!
+      created: String
       extract: [Extract]
    }
 

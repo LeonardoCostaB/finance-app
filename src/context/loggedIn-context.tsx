@@ -45,6 +45,7 @@ export const GET_USER_BY_EMAIL = gql`
             date
             expenses {
                title
+               created
                extract {
                   id
                   name
@@ -59,6 +60,7 @@ export const GET_USER_BY_EMAIL = gql`
             }
             earnings {
                title
+               created
                extract {
                   id
                   name

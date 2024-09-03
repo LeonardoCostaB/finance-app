@@ -186,7 +186,7 @@ export class MonthApi extends RESTDataSource {
 
       if (type === 'expenses') {
          const expenses = month?.expenses?.filter(
-            (expense) => expense.title === normalizeId(title),
+            (expense) => normalizeId(expense.title) === normalizeId(title),
          );
 
          if (expenses && expenses.length > 0)
@@ -213,14 +213,15 @@ export class MonthApi extends RESTDataSource {
                ...month.expenses,
                {
                   id: `${normalizeId(title)}-${randomUUID()}`,
-                  title: normalizeId(title),
+                  title: title,
+                  created: new Date().toISOString(),
                   extract: [],
                },
             ],
          };
       } else {
          const earnings = month?.earnings?.filter(
-            (earning) => earning.title === normalizeId(title),
+            (earning) => normalizeId(earning.title) === normalizeId(title),
          );
 
          if (earnings && earnings?.length > 0)
@@ -247,7 +248,8 @@ export class MonthApi extends RESTDataSource {
                ...month.earnings,
                {
                   id: `${normalizeId(title)}-${randomUUID()}`,
-                  title: normalizeId(title),
+                  title: title,
+                  created: new Date().toISOString(),
                   extract: [],
                },
             ],
@@ -278,7 +280,9 @@ export class MonthApi extends RESTDataSource {
 
       this.verifyUserAuthenticity(this.userId, month.user?.id);
 
-      const earnings = month.earnings.filter((earning) => earning.title !== normalizeId(title));
+      const earnings = month.earnings.filter(
+         (earning) => normalizeId(earning.title) !== normalizeId(title),
+      );
 
       const query = `
          mutation DELETE_EARNINGS($monthId: ID!, $earnings: [Json!]) {
@@ -321,7 +325,9 @@ export class MonthApi extends RESTDataSource {
 
       this.verifyUserAuthenticity(this.userId, month.user?.id);
 
-      const expenses = month.expenses.filter((expense) => expense.title !== normalizeId(title));
+      const expenses = month.expenses.filter(
+         (expense) => normalizeId(expense.title) !== normalizeId(title),
+      );
 
       const query = `
          mutation DELETE_EARNINGS($monthId: ID!, $expenses: [Json!]) {
@@ -449,14 +455,14 @@ export class MonthApi extends RESTDataSource {
          throw new Error('Earning not found');
       }
 
-      const earningExtract = earnings.flatMap((earning) => earning.extract);
-      const verifyIfExist = earningExtract.find((extract) => extract.id === data.id);
-      const earningItemExist = earningExtract.some(
+      const monthExtract = earnings.flatMap((earning) => earning.extract);
+      const verifyIfExist = monthExtract.find((extract) => extract.id === data.id);
+      const itemNameExist = monthExtract.some(
          (extract) => normalizeId(extract.name) === normalizeId(data.name),
       );
 
       if (!verifyIfExist) throw new GraphQLError('Despesa não existe');
-      if (!(normalizeId(verifyIfExist.name) === normalizeId(data.name)) && earningItemExist)
+      if (!(normalizeId(verifyIfExist.name) === normalizeId(data.name)) && itemNameExist)
          throw new Error('Você já tem um item cadastrado com esse nome');
 
       const newExtract: MonthExtract = {
@@ -486,11 +492,11 @@ export class MonthApi extends RESTDataSource {
       const variables = {
          monthId,
          earnings: [
-            ...month[type].filter((earnings) => earnings.title !== data.title),
+            ...month[type].filter((monthExtract) => monthExtract.title !== data.title),
             {
                title: data.title,
                extract: [
-                  ...earningExtract.filter((earningExtract) => earningExtract.id !== data.id),
+                  ...monthExtract.filter((monthExtract) => monthExtract.id !== data.id),
                   {
                      ...newExtract,
                   },
@@ -665,7 +671,9 @@ export class MonthApi extends RESTDataSource {
       expenseItemId: string;
    }) {
       const month = await this.getMonthById(monthId);
-      const expenses = month?.expenses?.filter((month) => month.title === expenseTitle);
+      const expenses = month?.expenses?.filter(
+         (month) => normalizeId(month.title) === normalizeId(expenseTitle),
+      );
 
       if (!month) {
          throw new Error('Month not found');
@@ -738,11 +746,10 @@ export class MonthApi extends RESTDataSource {
       }
 
       const expenseItemExist = expenses
-         .map((expense) => expense.extract)
-         .reduce((acc, item) => acc.concat(item), [])
-         .some((extract) => normalizeId(extract.name) === normalizeId(data.name));
+         .flatMap((expenseItem) => expenseItem?.extract)
+         ?.some((extract) => normalizeId(extract.name) === normalizeId(data.name));
 
-      if (expenseItemExist) throw new Error('Você já tem um item cadastrado com esse nome ');
+      if (expenseItemExist) throw new Error('Você já tem um item cadastrado com esse nome');
 
       const extract = {
          id: `${normalizeId(data.name)}-${randomUUID()}`,

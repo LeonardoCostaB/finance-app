@@ -32,7 +32,7 @@ const createNewExpenseFormSchema = z.object({
    name: z
       .string()
       .min(3, 'Mínimo 3 caracteres')
-      .transform((name) => name[0].toUpperCase() + name.substring(1)),
+      .transform((name) => (name[0].toUpperCase() + name.substring(1)).trim()),
    value: z.number().min(1, 'Mínimo R$ 1'),
    link: z.union([z.literal(''), z.string()]),
    notes: z.union([z.literal(''), z.string().min(5, 'Mínimo de 5 caracteres')]),
@@ -286,7 +286,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
 
    useEffect(() => {
       setExpenses([...expense.extract].sort((a, b) => b.value - a.value));
-   }, []);
+   }, [expense.extract]);
 
    return (
       <div className="mt-6 box-border w-full rounded-lg bg-slate-800 p-4 first:mt-0">
@@ -388,7 +388,12 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                         classNames="text-sm"
                      />
 
-                     <UpdateMonthSubItems extract={expenseItem} titleBlock={expense.title} />
+                     <UpdateMonthSubItems
+                        monthId={monthId}
+                        extract={expenseItem}
+                        blockTitle={expense.title}
+                        type="expenses"
+                     />
 
                      {expenseItem.date?.paidOut ? (
                         <span className="inline-block p-1" title="Pago">

@@ -52,7 +52,7 @@ export function MonthPreview({
                         ),
                      };
                   })}
-               classNames="max-lg:flex-1 !py-[2px]"
+               classNames="flex-1 !py-[2px]"
             />
          </div>
       </aside>

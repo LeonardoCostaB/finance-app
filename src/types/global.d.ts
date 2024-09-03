@@ -12,11 +12,13 @@ interface MonthExtract {
 
 interface Earnings {
    title: string;
+   created: string;
    extract: Array<MonthExtract>;
 }
 
 interface Expenses {
    title: string;
+   created: string;
    extract: Array<MonthExtract>;
 }
 

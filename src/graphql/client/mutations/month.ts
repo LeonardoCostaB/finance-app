@@ -95,6 +95,47 @@ export const CREATE_EARNING_ITEM = gql`
    }
 `;
 
+export const UPDATE_EARNING_OR_EXPENSE_ITEM = gql`
+   mutation Mutation(
+      $monthId: String!
+      $data: UpdateEarningItemInput
+      $type: TypeCreateEarningOrExpense
+   ) {
+      updateEarningItem(monthId: $monthId, data: $data, type: $type) {
+         id
+         earnings {
+            title
+            created
+            extract {
+               id
+               date {
+                  published
+               }
+               link
+               name
+               notes
+               value
+            }
+         }
+         expenses {
+            title
+            created
+            extract {
+               date {
+                  paidOut
+                  published
+               }
+               id
+               link
+               name
+               notes
+               value
+            }
+         }
+      }
+   }
+`;
+
 export const DELETE_EARNING_ITEM = gql`
    mutation DeleteEarningItem($data: PayEarningInput) {
       deleteEarningItem(data: $data)

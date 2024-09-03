@@ -2,16 +2,23 @@ import Link from 'next/link';
 import { InformationModal } from './information-modal';
 
 import { Clock, Handshake, Info, LinkIcon, NotebookPen, SquarePen, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from './input';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { SubmitButton } from './submit-button';
+import { useMutation } from '@apollo/client';
+import { UPDATE_EARNING_OR_EXPENSE_ITEM } from '@/graphql/client/mutations/month';
+import { toast } from 'sonner';
+import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
+import { useLoggedIn } from '@/hooks/use-loggedIn';
 
 interface UpdateMonthSubItems {
+   monthId: string;
    extract: MonthExtract;
-   titleBlock: string;
+   blockTitle: string;
+   type: 'earnings' | 'expenses';
 }
 
 const createNewExpenseFormSchema = z.object({
@@ -26,12 +33,14 @@ const createNewExpenseFormSchema = z.object({
 
 type CreateNewExpenseFormData = z.infer<typeof createNewExpenseFormSchema>;
 
-export function UpdateMonthSubItems({ extract, titleBlock }: UpdateMonthSubItems) {
+export function UpdateMonthSubItems({ monthId, extract, blockTitle, type }: UpdateMonthSubItems) {
+   const { updateUser } = useLoggedIn();
+   const [updateEarningOrExpenseItem, { loading }] = useMutation(UPDATE_EARNING_OR_EXPENSE_ITEM);
+
    const {
       register,
-      // handleSubmit,
+      handleSubmit,
       watch,
-      // reset,
       formState: { errors },
    } = useForm<CreateNewExpenseFormData>({
       resolver: zodResolver(createNewExpenseFormSchema),
@@ -44,6 +53,95 @@ export function UpdateMonthSubItems({ extract, titleBlock }: UpdateMonthSubItems
    });
 
    const [shouldShowEditForm, setShouldShowEditForm] = useState(false);
+
+   async function handleOnUpdateItem(data: CreateNewExpenseFormData) {
+      const fieldsToCheck: Array<{
+         data: keyof CreateNewExpenseFormData;
+         extract: keyof MonthExtract;
+      }> = [
+         {
+            data: 'updateName',
+            extract: 'name',
+         },
+         {
+            data: 'updateValue',
+            extract: 'value',
+         },
+         {
+            data: 'updateLink',
+            extract: 'link',
+         },
+         {
+            data: 'updateValue',
+            extract: 'value',
+         },
+      ];
+
+      const hasChanges = fieldsToCheck.some((field) => data[field.data] !== extract[field.extract]);
+
+      if (hasChanges) {
+         await updateEarningOrExpenseItem({
+            variables: {
+               monthId,
+               data: {
+                  title: blockTitle,
+                  id: extract.id,
+                  name: data.updateName,
+                  value: data.updateValue,
+                  link: data.updateLink,
+                  notes: data.updateNotes,
+               },
+               type,
+            },
+            onError: (error) => {
+               toast.error(error.message);
+            },
+            onCompleted: () => {
+               setShouldShowEditForm(false);
+               toast.success('Seu item foi atualizado com sucesso!');
+            },
+            update: (cache, { data }) => {
+               const existingData: { user: User } | null = cache.readQuery({
+                  query: GET_USER_BY_EMAIL,
+                  variables: { email: '' },
+               });
+
+               if (existingData) {
+                  const updatedData = {
+                     ...existingData.user,
+                     months: [
+                        ...existingData.user.months.filter(
+                           (month) => month.id !== data.updateEarningItem.id,
+                        ),
+                        ...existingData.user.months
+                           .filter((month) => month.id === data.updateEarningItem.id)
+                           .map((month) => {
+                              return {
+                                 ...month,
+                                 [type]: data.updateEarningItem[type],
+                              };
+                           }),
+                     ],
+                  };
+
+                  cache.writeQuery({
+                     query: GET_USER_BY_EMAIL,
+                     data: {
+                        user: updatedData,
+                     },
+                     variables: { email: '' },
+                  });
+
+                  updateUser(updatedData);
+               }
+            },
+         });
+      } else {
+         toast.info('Altere algum valor para continuar');
+      }
+   }
+
+   useEffect(() => {}, [extract]);
 
    return (
       <InformationModal
@@ -67,7 +165,10 @@ export function UpdateMonthSubItems({ extract, titleBlock }: UpdateMonthSubItems
             </button>
 
             {shouldShowEditForm ? (
-               <div className="flex flex-col gap-5 lg:w-[288px]">
+               <form
+                  className="flex flex-col gap-5 lg:w-[288px]"
+                  onSubmit={handleSubmit(handleOnUpdateItem)}
+               >
                   <div className="flex items-center gap-2">
                      <Input
                         labelProps={{
@@ -79,7 +180,7 @@ export function UpdateMonthSubItems({ extract, titleBlock }: UpdateMonthSubItems
                            id: 'mockup-block-name',
                            type: 'text',
                            classNames: 'bg-slate-700 disabled:cursor-no-drop',
-                           register: { value: titleBlock, disabled: true },
+                           register: { value: blockTitle, disabled: true },
                         }}
                         error={{
                            show: !!errors.updateName,
@@ -185,10 +286,10 @@ export function UpdateMonthSubItems({ extract, titleBlock }: UpdateMonthSubItems
                         color: 'bg-blue-500',
                         hover: 'bg-blue-700',
                      }}
-                     loading={false}
+                     loading={loading}
                      text="Atualizar"
                   />
-               </div>
+               </form>
             ) : (
                <>
                   <div className="flex items-center gap-1">
@@ -203,7 +304,7 @@ export function UpdateMonthSubItems({ extract, titleBlock }: UpdateMonthSubItems
                      </span>
                   </div>
 
-                  {extract?.date.paidOut && (
+                  {type === 'expenses' && extract?.date.paidOut && (
                      <div className="flex items-center gap-1">
                         <Handshake size={18} />
                         <span className="text-sm">Pago em:</span>
