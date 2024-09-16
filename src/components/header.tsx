@@ -1,3 +1,5 @@
+'use client';
+
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 import { PiggyBank, User } from 'lucide-react';
 import { useEffect } from 'react';

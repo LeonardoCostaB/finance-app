@@ -30,6 +30,10 @@ export class UserApi extends RESTDataSource {
                id
                name
                email
+               profession
+               dateOfBirth
+               location
+               owner
                monthlySalary
                commonPayment
                benefits

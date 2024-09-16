@@ -58,6 +58,14 @@ interface User {
          value: number;
       }>;
    };
+   profession: string;
+   dateOfBirth: string;
+   location: {
+      city: string;
+      state: string;
+      country: string;
+   };
+   owner: boolean;
    commonPayment: Array<CommonPaymentsAndBenefits>;
    benefits: Array<CommonPaymentsAndBenefits>;
    monthlySalary: number;

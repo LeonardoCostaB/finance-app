@@ -21,10 +21,20 @@ export const userTypeDefs = gql`
       value: Int!
    }
 
+   type Location {
+      city: String
+      state: String
+      country: String
+   }
+
    type User {
       id: String!
       name: String!
       economy: Economy
+      profession: String
+      dateOfBirth: String
+      location: Location
+      owner: Boolean
       commonPayment: [CommonPaymentsAndBenefits]
       benefits: [CommonPaymentsAndBenefits]
       monthlySalary: Int

@@ -74,6 +74,24 @@ label.filled {
    @apply block;
 }
 
+.user-img-input {
+   display: none;
+}
+
+.monthly-salary-info {
+   max-height: 0px;
+   visibility: hidden;
+   opacity: 0;
+   transition: all 300ms linear;
+}
+
+.monthly-salary-info[open] {
+   max-height: 1000px;
+   visibility: visible;
+   opacity: 1;
+}
+
+
 @media screen and (max-width: 1024px) {
    .active-item {
       position: relative;

@@ -13,6 +13,14 @@ export const GET_USER_BY_EMAIL = gql`
          id
          name
          email
+         profession
+         dateOfBirth
+         location {
+            city
+            state
+            country
+         }
+         owner
          economy {
             id
             extract {
