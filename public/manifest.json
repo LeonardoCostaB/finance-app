@@ -1,0 +1,26 @@
+{
+   "theme_color": "#0f172a",
+   "background_color": "#0f172a",
+   "icons": [
+      {
+         "purpose": "maskable",
+         "sizes": "512x512",
+         "src": "/icon-pwa-mac.png",
+         "type": "image/png"
+      },
+      {
+         "purpose": "any",
+         "sizes": "512x512",
+         "src": "/icon-pwa-google.png",
+         "type": "image/png"
+      }
+   ],
+   "orientation": "any",
+   "display": "standalone",
+   "dir": "auto",
+   "lang": "pt-BR",
+   "start_url": "/",
+   "scope": "/",
+   "name": "Monthly Finance",
+   "description": "Aplicativo que irá te ajudar a controlar suas finanças mensais"
+}
