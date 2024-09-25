@@ -1,17 +1,49 @@
 'use client';
 
+import { useRef, useState } from 'react';
+import Image from 'next/image';
+import clsx from 'clsx';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 import { FormTwoInputs } from '@/components/form-two-inputs';
 import { FormattedPrice } from '@/components/formatted-price';
 import { Header } from '@/components/header';
 import { Input } from '@/components/input';
-import { useLoggedIn } from '@/hooks/use-loggedIn';
-import clsx from 'clsx';
 import { Building, Camera, Info, MapPin, Plus, /*SendHorizontal*/ User, X } from 'lucide-react';
-import Image from 'next/image';
-import { useRef, useState } from 'react';
+
+import { useLoggedIn } from '@/hooks/use-loggedIn';
+import { formatDate } from '@/utils/client/formatDate';
+
+const updateUserFormSchema = z.object({
+   name: z.string().min(3, 'Mínimo 3 caracteres'),
+   areaOfActivity: z.string().min(2, 'Mínimo 2 caracteres'),
+   monthlySalary: z.number().default(0),
+   state: z.string().default(''),
+   city: z.string().default(''),
+});
+
+type UpdateUserFormData = z.infer<typeof updateUserFormSchema>;
 
 export default function MyAccount() {
    const { user } = useLoggedIn();
+
+   const {
+      register,
+      handleSubmit,
+      formState: { errors },
+   } = useForm<UpdateUserFormData>({
+      resolver: zodResolver(updateUserFormSchema),
+      defaultValues: {
+         name: user?.name ?? '',
+         areaOfActivity: user?.profession ?? '',
+         monthlySalary: user?.monthlySalary?.[0]?.salary ?? 0,
+         state: user?.location.state ?? '',
+         city: user?.location.city ?? '',
+      },
+   });
+
    const popoverMonthlySalary = useRef<HTMLDialogElement | null>(null);
    const userImgInput = useRef<HTMLInputElement | null>(null);
 
@@ -28,14 +60,18 @@ export default function MyAccount() {
       }
    }
 
+   function handleOnUpdateUser(data: UpdateUserFormData) {
+      console.log({ data });
+   }
+
    if (!user) return <></>;
 
    return (
       <>
-         <Header />
+         <Header backToPage />
 
-         <main className="mx-auto mb-10 max-w-3xl rounded-lg bg-slate-800 p-4 max-lg:mx-4 max-lg:mb-20">
-            <section className="flex w-full gap-4 max-sm:flex-col max-sm:items-center">
+         <main className="mx-auto mb-10 max-w-3xl rounded-lg p-4 max-lg:mx-0 max-lg:mb-20 lg:bg-slate-800">
+            <section className="flex w-full gap-4 max-sm:flex-col">
                <div className="relative h-[160px] w-[160px] overflow-hidden rounded-full ring-1 ring-blue-500 max-sm:h-[120px] max-sm:w-[120px]">
                   {user?.avatar?.url ? (
                      <Image
@@ -142,344 +178,235 @@ export default function MyAccount() {
                      className="text-xs font-light underline underline-offset-2"
                      onClick={() => setShouldShowSalveButton(!shouldShowSalveButton)}
                   >
-                     {shouldShowSalveButton ? 'Salvar' : 'Editar'}
+                     {shouldShowSalveButton ? 'Cancelar' : 'Editar'}
                   </button>
                </span>
 
-               <div className="flex items-center gap-3 max-sm:flex-col max-sm:gap-6">
-                  <Input
-                     container={{
-                        classNames: `${shouldShowSalveButton ? 'border-slate-400' : 'border-slate-700'}`,
-                     }}
-                     labelProps={{
-                        text: 'Nome:',
-                        filled: true,
-                        labelClasses: `bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
-                     }}
-                     inputProps={{
-                        id: 'mockup-block-name',
-                        type: 'text',
-                        classNames: 'bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
-                        register: {
-                           value: user?.name,
-                           disabled: shouldShowSalveButton ? false : true,
-                           readOnly: shouldShowSalveButton ? false : true,
-                        },
-                     }}
-                     // error={{
-                     //    show: !!errors.updateName,
-                     //    message: errors.updateName?.message,
-                     // }}
-                  />
-
-                  <Input
-                     container={{
-                        classNames: 'border-slate-700',
-                     }}
-                     labelProps={{
-                        text: 'Email:',
-                        filled: true,
-                        labelClasses: 'bg-slate-800 opacity-70 z-10',
-                     }}
-                     inputProps={{
-                        id: 'mockup-block-name',
-                        type: 'text',
-                        classNames: 'bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
-                        register: { value: user?.email, disabled: true, readOnly: true },
-                     }}
-                     // error={{
-                     //    show: !!errors.updateName,
-                     //    message: errors.updateName?.message,
-                     // }}
-                  />
-               </div>
-
-               <div className="my-8 flex items-center gap-3 max-sm:flex-col max-sm:gap-6">
-                  <Input
-                     container={{
-                        classNames: `${shouldShowSalveButton ? 'border-slate-400' : 'border-slate-700'}`,
-                     }}
-                     labelProps={{
-                        text: 'Área de atuação:',
-                        filled: true,
-                        labelClasses: `bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
-                     }}
-                     inputProps={{
-                        id: 'mockup-block-name',
-                        type: 'text',
-                        classNames: 'bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
-                        register: {
-                           value: user?.profession ?? '',
-                           disabled: shouldShowSalveButton ? false : true,
-                           readOnly: shouldShowSalveButton ? false : true,
-                        },
-                     }}
-                     // error={{
-                     //    show: !!errors.updateName,
-                     //    message: errors.updateName?.message,
-                     // }}
-                  />
-
-                  <div className="relative w-full">
+               <form onSubmit={handleSubmit(handleOnUpdateUser)}>
+                  <div className="flex items-center gap-3 max-sm:flex-col max-sm:gap-6">
                      <Input
                         container={{
                            classNames: `${shouldShowSalveButton ? 'border-slate-400' : 'border-slate-700'}`,
                         }}
                         labelProps={{
-                           text: 'Salário atual:',
+                           text: 'Nome:',
                            filled: true,
-                           labelClasses: `bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
+                           labelClasses: `bg-slate-900 lg:bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
                         }}
                         inputProps={{
                            id: 'mockup-block-name',
                            type: 'text',
-                           classNames: 'bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
+                           classNames:
+                              'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
                            register: {
-                              value: user?.monthlySalary ?? '',
+                              ...register('name'),
                               disabled: shouldShowSalveButton ? false : true,
                               readOnly: shouldShowSalveButton ? false : true,
                            },
                         }}
-                        // error={{
-                        //    show: !!errors.updateName,
-                        //    message: errors.updateName?.message,
-                        // }}
-                     />
-
-                     <button
-                        type="button"
-                        className="absolute right-4 top-1/2 -translate-y-1/2"
-                        onClick={() =>
-                           popoverMonthlySalary.current?.open
-                              ? popoverMonthlySalary.current.close()
-                              : popoverMonthlySalary.current?.show()
-                        }
-                     >
-                        <Info size={16} />
-                     </button>
-
-                     <dialog
-                        ref={popoverMonthlySalary}
-                        className="monthly-salary-info z-20 mt-4 flex w-full flex-col gap-3 rounded-md bg-slate-600 px-4 py-2"
-                     >
-                        <h5 className="text-sm text-white">Meus salários</h5>
-
-                        <button
-                           type="button"
-                           className="absolute right-4 top-[10px]"
-                           onClick={() => popoverMonthlySalary.current?.close()}
-                        >
-                           <X size={16} color="#fff" />
-                        </button>
-
-                        <div className="flex items-center justify-between">
-                           <FormattedPrice price={1500} style="normal" classNames="text-black" />
-                           <span className="text-xs text-white">11/12/2014</span>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                           <FormattedPrice price={3000} style="normal" classNames="text-black" />
-                           <span className="text-xs text-white">15/05/2016</span>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                           <FormattedPrice price={5000} style="normal" classNames="text-black" />
-                           <span className="text-xs text-white">01/02/2018</span>
-                        </div>
-                     </dialog>
-                  </div>
-               </div>
-
-               <div className="flex items-center gap-3 max-sm:flex-col max-sm:gap-6">
-                  <Input
-                     container={{
-                        classNames: `${shouldShowSalveButton ? 'border-slate-400' : 'border-slate-700'}`,
-                     }}
-                     labelProps={{
-                        text: 'Cidade:',
-                        filled: true,
-                        labelClasses: `bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
-                     }}
-                     inputProps={{
-                        id: 'mockup-block-name',
-                        type: 'text',
-                        classNames: 'bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
-                        register: {
-                           value: user?.location?.city,
-                           disabled: shouldShowSalveButton ? false : true,
-                           readOnly: shouldShowSalveButton ? false : true,
-                        },
-                     }}
-                     // error={{
-                     //    show: !!errors.updateName,
-                     //    message: errors.updateName?.message,
-                     // }}
-                  />
-
-                  <Input
-                     container={{
-                        classNames: `${shouldShowSalveButton ? 'border-slate-400' : 'border-slate-700'}`,
-                     }}
-                     labelProps={{
-                        text: 'Estado:',
-                        filled: true,
-                        labelClasses: `bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
-                     }}
-                     inputProps={{
-                        id: 'mockup-block-name',
-                        type: 'text',
-                        classNames: 'bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
-                        register: {
-                           value: user?.location?.state,
-                           disabled: shouldShowSalveButton ? false : true,
-                           readOnly: shouldShowSalveButton ? false : true,
-                        },
-                     }}
-                     // error={{
-                     //    show: !!errors.updateName,
-                     //    message: errors.updateName?.message,
-                     // }}
-                  />
-               </div>
-            </section>
-
-            {/* <section>
-               <div className="relative my-8 flex flex-col">
-                  <span className="mb-6 flex items-center justify-between gap-1">
-                     <h2 className="text-base font-medium text-white">
-                        {user && user.benefits?.length > 0
-                           ? 'Benefícios:'
-                           : 'Adicione seu primeiro benefício'}
-                     </h2>
-
-                     {user && user.benefits?.length > 0 && (
-                        <button
-                           type="button"
-                           className="text-xs font-light underline underline-offset-2"
-                           onClick={() => setShouldShowAddNewBenefit(!shouldShowAddNewBenefit)}
-                        >
-                           {shouldShowAddNewBenefit ? <X size={18} /> : <Plus size={18} />}
-                        </button>
-                     )}
-                  </span>
-
-                  <div
-                     className={clsx(
-                        'relative flex w-full items-stretch transition-all last:mb-0',
-                        {
-                           'invisible max-h-0 opacity-0':
-                              !shouldShowAddNewBenefit && user.benefits.length > 0,
-                           'visible mb-8 max-h-20 opacity-100': shouldShowAddNewBenefit,
-                        },
-                     )}
-                  >
-                     <Input
-                        container={{
-                           classNames: 'border-slate-600',
+                        error={{
+                           show: !!errors.name,
+                           message: errors.name?.message,
                         }}
-                        labelProps={{
-                           text: 'Nome:',
-                           filled: true,
-                           labelClasses: 'bg-slate-800',
-                        }}
-                        inputProps={{
-                           id: 'mockup-block-name',
-                           type: 'text',
-                           classNames: 'bg-slate-800 disabled:cursor-no-drop',
-                        }}
-                        // error={{
-                        //    show: !!errors.updateName,
-                        //    message: errors.updateName?.message,
-                        // }}
                      />
 
                      <Input
                         container={{
-                           classNames: 'border-slate-600 !w-[calc(100%-80px)] ml-3 mr-1',
+                           classNames: 'border-slate-700',
                         }}
                         labelProps={{
-                           text: 'Valor:',
+                           text: 'Email:',
                            filled: true,
-                           labelClasses: 'bg-slate-800',
+                           labelClasses: 'bg-slate-900 lg:bg-slate-800 opacity-70 z-10',
                         }}
                         inputProps={{
                            id: 'mockup-block-name',
                            type: 'text',
-                           classNames: 'bg-slate-800 disabled:cursor-no-drop',
+                           classNames:
+                              'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
+                           register: {
+                              value: user.email,
+                              disabled: true,
+                              readOnly: true,
+                           },
                         }}
-                        // error={{
-                        //    show: !!errors.updateName,
-                        //    message: errors.updateName?.message,
-                        // }}
                      />
-
-                     <button type="button" className="w-10 rounded-lg border border-slate-600 p-2">
-                        <SendHorizontal size={18} />
-                     </button>
                   </div>
 
-                  {user &&
-                     user.benefits?.length > 0 &&
-                     user.benefits?.map((benefit) => (
-                        <div
-                           key={benefit.name}
-                           className="mb-8 flex w-full items-stretch last:mb-0"
-                        >
-                           <Input
-                              container={{
-                                 classNames: 'border-slate-600',
-                              }}
-                              labelProps={{
-                                 text: 'Nome:',
-                                 filled: true,
-                                 labelClasses: 'bg-slate-800',
-                              }}
-                              inputProps={{
-                                 id: 'mockup-block-name',
-                                 type: 'text',
-                                 classNames: 'bg-slate-800 disabled:cursor-no-drop',
-                                 register: { value: benefit.name },
-                              }}
-                              // error={{
-                              //    show: !!errors.updateName,
-                              //    message: errors.updateName?.message,
-                              // }}
-                           />
+                  <div className="my-8 flex items-center gap-3 max-sm:my-6 max-sm:flex-col max-sm:gap-6">
+                     <Input
+                        container={{
+                           classNames: `${shouldShowSalveButton ? 'border-slate-400' : 'border-slate-700'}`,
+                        }}
+                        labelProps={{
+                           text: 'Área de atuação:',
+                           filled: true,
+                           labelClasses: `bg-slate-900 lg:bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
+                        }}
+                        inputProps={{
+                           id: 'mockup-block-name',
+                           type: 'text',
+                           classNames:
+                              'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
+                           register: {
+                              ...register('areaOfActivity'),
+                              disabled: shouldShowSalveButton ? false : true,
+                              readOnly: shouldShowSalveButton ? false : true,
+                           },
+                        }}
+                        error={{
+                           show: !!errors.areaOfActivity,
+                           message: errors.areaOfActivity?.message,
+                        }}
+                     />
 
-                           <Input
-                              container={{
-                                 classNames: 'border-slate-600 !w-[calc(100%-80px)] ml-3 mr-1',
-                              }}
-                              labelProps={{
-                                 text: 'Valor:',
-                                 filled: true,
-                                 labelClasses: 'bg-slate-800',
-                              }}
-                              inputProps={{
-                                 id: 'mockup-block-name',
-                                 type: 'text',
-                                 classNames: 'bg-slate-800 disabled:cursor-no-drop',
-                                 register: { value: benefit.value },
-                              }}
-                              // error={{
-                              //    show: !!errors.updateName,
-                              //    message: errors.updateName?.message,
-                              // }}
-                           />
+                     <div className="relative w-full">
+                        <Input
+                           container={{
+                              classNames: `${shouldShowSalveButton ? 'border-slate-400' : 'border-slate-700'}`,
+                           }}
+                           labelProps={{
+                              text: 'Salário atual:',
+                              filled: true,
+                              labelClasses: `bg-slate-900 lg:bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
+                           }}
+                           inputProps={{
+                              id: 'mockup-block-name',
+                              type: 'text',
+                              classNames:
+                                 'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
+                              register: {
+                                 ...register('monthlySalary'),
+                                 disabled: shouldShowSalveButton ? false : true,
+                                 readOnly: shouldShowSalveButton ? false : true,
+                              },
+                           }}
+                           error={{
+                              show: !!errors.monthlySalary,
+                              message: errors.monthlySalary?.message,
+                           }}
+                        />
+
+                        <button
+                           type="button"
+                           className="absolute right-4 top-1/2 -translate-y-1/2"
+                           onClick={() =>
+                              popoverMonthlySalary.current?.open
+                                 ? popoverMonthlySalary.current.close()
+                                 : popoverMonthlySalary.current?.show()
+                           }
+                        >
+                           <Info size={16} />
+                        </button>
+
+                        <dialog
+                           ref={popoverMonthlySalary}
+                           className="monthly-salary-info z-20 mt-4 flex w-full flex-col gap-3 rounded-md bg-slate-800 px-4 py-2 lg:bg-slate-700"
+                        >
+                           <h5 className="text-sm text-white">Meus salários</h5>
 
                            <button
                               type="button"
-                              className="w-10 rounded-lg border border-slate-600 p-2"
+                              className="absolute right-4 top-[10px]"
+                              onClick={() => popoverMonthlySalary.current?.close()}
                            >
-                              <SendHorizontal size={18} />
+                              <X size={16} color="#fff" />
                            </button>
-                        </div>
-                     ))}
-               </div>
-            </section> */}
+
+                           {user.monthlySalary?.length > 0 ? (
+                              user.monthlySalary.map((month) => (
+                                 <div key={month.id} className="flex items-center justify-between">
+                                    <FormattedPrice
+                                       price={month.salary}
+                                       style="normal"
+                                       classNames="text-black"
+                                    />
+                                    <span className="text-xs text-white">
+                                       {formatDate(month.createAt)}
+                                    </span>
+                                 </div>
+                              ))
+                           ) : (
+                              <p className="text-xs text-white">
+                                 Aqui ficaram todos os registros de seu salário, além disso, nos
+                                 registros mensais o seu salário irá contabilizar de forma
+                                 automática
+                              </p>
+                           )}
+                        </dialog>
+                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 max-sm:flex-col max-sm:gap-6">
+                     <Input
+                        container={{
+                           classNames: `${shouldShowSalveButton ? 'border-slate-400' : 'border-slate-700'}`,
+                        }}
+                        labelProps={{
+                           text: 'Cidade:',
+                           filled: true,
+                           labelClasses: `bg-slate-900 lg:bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
+                        }}
+                        inputProps={{
+                           id: 'mockup-block-name',
+                           type: 'text',
+                           classNames:
+                              'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
+                           register: {
+                              ...register('city'),
+                              disabled: shouldShowSalveButton ? false : true,
+                              readOnly: shouldShowSalveButton ? false : true,
+                           },
+                        }}
+                        error={{
+                           show: !!errors.city,
+                           message: errors.city?.message,
+                        }}
+                     />
+
+                     <Input
+                        container={{
+                           classNames: `${shouldShowSalveButton ? 'border-slate-400' : 'border-slate-700'}`,
+                        }}
+                        labelProps={{
+                           text: 'Estado:',
+                           filled: true,
+                           labelClasses: `bg-slate-900 lg:bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
+                        }}
+                        inputProps={{
+                           id: 'mockup-block-name',
+                           type: 'text',
+                           classNames:
+                              'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
+                           register: {
+                              ...register('state'),
+                              disabled: shouldShowSalveButton ? false : true,
+                              readOnly: shouldShowSalveButton ? false : true,
+                           },
+                        }}
+                        error={{
+                           show: !!errors.state,
+                           message: errors.state?.message,
+                        }}
+                     />
+                  </div>
+
+                  <div className="flex lg:justify-center">
+                     <button
+                        type="submit"
+                        className={clsx('w-full rounded-xl transition-all lg:w-1/2', {
+                           'mt-6 h-10 bg-blue-500 opacity-100': shouldShowSalveButton,
+                           'h-0 bg-transparent opacity-0': !shouldShowSalveButton,
+                        })}
+                     >
+                        Salvar
+                     </button>
+                  </div>
+               </form>
+            </section>
 
             <section>
-               <div className="relative my-8 flex flex-col">
+               <div className="relative mb-4 mt-6 flex flex-col">
                   <span className="mb-6 flex items-center justify-between gap-1">
                      <h2 className="text-base font-medium text-white">
                         {user && user.commonPayment?.length > 0
@@ -536,6 +463,141 @@ export default function MyAccount() {
                   ))}
                </div>
             </section>
+
+            {/* <section>
+               <div className="relative my-8 flex flex-col">
+                  <span className="mb-6 flex items-center justify-between gap-1">
+                     <h2 className="text-base font-medium text-white">
+                        {user && user.benefits?.length > 0
+                           ? 'Benefícios:'
+                           : 'Adicione seu primeiro benefício'}
+                     </h2>
+
+                     {user && user.benefits?.length > 0 && (
+                        <button
+                           type="button"
+                           className="text-xs font-light underline underline-offset-2"
+                           onClick={() => setShouldShowAddNewBenefit(!shouldShowAddNewBenefit)}
+                        >
+                           {shouldShowAddNewBenefit ? <X size={18} /> : <Plus size={18} />}
+                        </button>
+                     )}
+                  </span>
+
+                  <div
+                     className={clsx(
+                        'relative flex w-full items-stretch transition-all last:mb-0',
+                        {
+                           'invisible max-h-0 opacity-0':
+                              !shouldShowAddNewBenefit && user.benefits.length > 0,
+                           'visible mb-8 max-h-20 opacity-100': shouldShowAddNewBenefit,
+                        },
+                     )}
+                  >
+                     <Input
+                        container={{
+                           classNames: 'border-slate-600',
+                        }}
+                        labelProps={{
+                           text: 'Nome:',
+                           filled: true,
+                           labelClasses: 'bg-slate-900 lg:bg-slate-800',
+                        }}
+                        inputProps={{
+                           id: 'mockup-block-name',
+                           type: 'text',
+                           classNames: 'bg-slate-900 lg:bg-slate-800 disabled:cursor-no-drop',
+                        }}
+                        // error={{
+                        //    show: !!errors.updateName,
+                        //    message: errors.updateName?.message,
+                        // }}
+                     />
+
+                     <Input
+                        container={{
+                           classNames: 'border-slate-600 !w-[calc(100%-80px)] ml-3 mr-1',
+                        }}
+                        labelProps={{
+                           text: 'Valor:',
+                           filled: true,
+                           labelClasses: 'bg-slate-900 lg:bg-slate-800',
+                        }}
+                        inputProps={{
+                           id: 'mockup-block-name',
+                           type: 'text',
+                           classNames: 'bg-slate-900 lg:bg-slate-800 disabled:cursor-no-drop',
+                        }}
+                        // error={{
+                        //    show: !!errors.updateName,
+                        //    message: errors.updateName?.message,
+                        // }}
+                     />
+
+                     <button type="button" className="w-10 rounded-lg border border-slate-600 p-2">
+                        <SendHorizontal size={18} />
+                     </button>
+                  </div>
+
+                  {user &&
+                     user.benefits?.length > 0 &&
+                     user.benefits?.map((benefit) => (
+                        <div
+                           key={benefit.name}
+                           className="mb-8 flex w-full items-stretch last:mb-0"
+                        >
+                           <Input
+                              container={{
+                                 classNames: 'border-slate-600',
+                              }}
+                              labelProps={{
+                                 text: 'Nome:',
+                                 filled: true,
+                                 labelClasses: 'bg-slate-900 lg:bg-slate-800',
+                              }}
+                              inputProps={{
+                                 id: 'mockup-block-name',
+                                 type: 'text',
+                                 classNames: 'bg-slate-900 lg:bg-slate-800 disabled:cursor-no-drop',
+                                 register: { value: benefit.name },
+                              }}
+                              // error={{
+                              //    show: !!errors.updateName,
+                              //    message: errors.updateName?.message,
+                              // }}
+                           />
+
+                           <Input
+                              container={{
+                                 classNames: 'border-slate-600 !w-[calc(100%-80px)] ml-3 mr-1',
+                              }}
+                              labelProps={{
+                                 text: 'Valor:',
+                                 filled: true,
+                                 labelClasses: 'bg-slate-900 lg:bg-slate-800',
+                              }}
+                              inputProps={{
+                                 id: 'mockup-block-name',
+                                 type: 'text',
+                                 classNames: 'bg-slate-900 lg:bg-slate-800 disabled:cursor-no-drop',
+                                 register: { value: benefit.value },
+                              }}
+                              // error={{
+                              //    show: !!errors.updateName,
+                              //    message: errors.updateName?.message,
+                              // }}
+                           />
+
+                           <button
+                              type="button"
+                              className="w-10 rounded-lg border border-slate-600 p-2"
+                           >
+                              <SendHorizontal size={18} />
+                           </button>
+                        </div>
+                     ))}
+               </div>
+            </section> */}
          </main>
       </>
    );

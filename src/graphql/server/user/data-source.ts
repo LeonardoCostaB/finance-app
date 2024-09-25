@@ -68,7 +68,14 @@ export class UserApi extends RESTDataSource {
             { headers: this.headers },
          );
 
-         return user.data.subscriber;
+         return {
+            ...user.data.subscriber,
+            monthlySalary: user.data.subscriber.monthlySalary?.length
+               ? user.data.subscriber.monthlySalary.sort(
+                    (a, b) => new Date(b.createAt).getTime() - new Date(a.createAt).getTime(),
+                 )
+               : user.data.subscriber.monthlySalary,
+         };
       } catch (error: any) {
          console.log(error);
       }

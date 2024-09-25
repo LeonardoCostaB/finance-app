@@ -140,7 +140,7 @@ export default function Month({ params }: { params: { id: string } }) {
          <MonthPreview
             months={user?.months}
             currentMonth={params.id}
-            userSalary={user?.monthlySalary ?? 0}
+            userSalary={user?.monthlySalary?.[0]?.salary ?? 0}
          />
 
          <main className="relative mx-auto mb-10 flex max-w-6xl flex-col max-xl:px-6 max-lg:mb-20 max-lg:px-4">
@@ -270,11 +270,17 @@ export default function Month({ params }: { params: { id: string } }) {
                            </button>
                         </div>
 
-                        {toggleLayout === 'profit' && user && user.monthlySalary > 0 && (
-                           <span className="mt-6 box-border flex w-full items-center justify-between rounded-lg bg-slate-800 p-4 text-xl">
-                              Salario: <FormattedPrice price={user.monthlySalary} style="profit" />
-                           </span>
-                        )}
+                        {toggleLayout === 'profit' &&
+                           user &&
+                           user.monthlySalary?.[0].salary > 0 && (
+                              <span className="mt-6 box-border flex w-full items-center justify-between rounded-lg bg-slate-800 p-4 text-xl">
+                                 Salario:{' '}
+                                 <FormattedPrice
+                                    price={user.monthlySalary?.[0].salary}
+                                    style="profit"
+                                 />
+                              </span>
+                           )}
 
                         <div
                            className={clsx('scroll-bar mt-6 flex w-full flex-col overflow-y-auto', {
@@ -331,7 +337,7 @@ export default function Month({ params }: { params: { id: string } }) {
                      <MonthlySummary
                         month={month}
                         userEconomy={user?.economy?.extract}
-                        monthlySalary={user?.monthlySalary}
+                        monthlySalary={user?.monthlySalary?.[0].salary}
                      />
                   </div>
                </>

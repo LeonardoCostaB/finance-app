@@ -4,12 +4,12 @@ import { LogoutButton } from './LogoutButton';
 
 export function Menu() {
    return (
-      <aside className="sticky bottom-0 top-0 flex max-lg:fixed max-lg:top-auto max-lg:z-40 max-lg:w-full max-lg:bg-slate-900 lg:h-screen lg:flex-col">
+      <aside className="sticky bottom-0 top-0 flex shadow shadow-slate-600 max-lg:fixed max-lg:top-auto max-lg:z-40 max-lg:w-full max-lg:border-t max-lg:border-slate-700 max-lg:bg-slate-900 lg:h-screen lg:flex-col">
          <div className="mx-auto my-8 flex h-10 w-10 items-center justify-center rounded-full bg-white max-lg:hidden">
             <LineChart size={20} className="text-black" />
          </div>
 
-         <nav className="flex max-lg:w-full max-lg:justify-center max-lg:gap-4 max-lg:px-4 lg:flex-1 lg:flex-col lg:justify-between">
+         <nav className="flex max-lg:w-full max-lg:justify-center max-lg:gap-4 max-lg:px-4 max-lg:pb-5 lg:flex-1 lg:flex-col lg:justify-between">
             <ul className="max-lg:flex max-lg:gap-4">
                <Item
                   url="/"

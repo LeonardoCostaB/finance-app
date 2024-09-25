@@ -21,6 +21,12 @@ export const userTypeDefs = gql`
       value: Int!
    }
 
+   type MonthlySalary {
+      id: String
+      salary: Int
+      createAt: String
+   }
+
    type Location {
       city: String
       state: String
@@ -37,7 +43,7 @@ export const userTypeDefs = gql`
       owner: Boolean
       commonPayment: [CommonPaymentsAndBenefits]
       benefits: [CommonPaymentsAndBenefits]
-      monthlySalary: Int
+      monthlySalary: [MonthlySalary]
       email: String!
       avatar: Avatar
       months: [Months]

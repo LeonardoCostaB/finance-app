@@ -68,6 +68,6 @@ interface User {
    owner: boolean;
    commonPayment: Array<CommonPaymentsAndBenefits>;
    benefits: Array<CommonPaymentsAndBenefits>;
-   monthlySalary: number;
+   monthlySalary: Array<{ id: string; salary: number; createAt: string }>;
    months: Array<Months>;
 }

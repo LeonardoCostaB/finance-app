@@ -28,7 +28,11 @@ export const GET_USER_BY_EMAIL = gql`
                value
             }
          }
-         monthlySalary
+         monthlySalary {
+            id
+            salary
+            createAt
+         }
          avatar {
             id
             url

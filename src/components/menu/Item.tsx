@@ -24,10 +24,10 @@ export function Item({ url, text, icon, className = '', onClickFunction, loading
             <Link
                href={url}
                className={clsx(
-                  'flex h-20 w-20 flex-col items-center justify-center gap-2 text-xs font-light text-gray-600 max-lg:h-auto max-lg:w-20 max-lg:gap-1 max-lg:py-2 max-lg:text-white',
+                  'flex h-20 w-20 flex-col items-center justify-center gap-2 text-xs font-light text-white max-lg:h-auto max-lg:w-20 max-lg:gap-1 max-lg:py-2 max-lg:text-white lg:hover:bg-slate-800 lg:hover:opacity-100',
                   {
                      className: className !== '',
-                     'active-item lg:bg-gray-800': pathName === url,
+                     'active-item lg:bg-slate-800': pathName === url,
                      'opacity-50': pathName !== url,
                   },
                )}
@@ -38,7 +38,7 @@ export function Item({ url, text, icon, className = '', onClickFunction, loading
             </Link>
          ) : (
             <button
-               className={`flex h-20 w-20 flex-col items-center justify-center text-xs font-light text-gray-600 transition-all dark:text-gray-200 ${className}`}
+               className={`flex h-20 w-20 flex-col items-center justify-center text-xs font-light text-white transition-all dark:text-gray-200 ${className}`}
                onClick={onClickFunction}
                disabled={loading}
             >

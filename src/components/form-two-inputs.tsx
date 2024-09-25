@@ -48,6 +48,8 @@ export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
 
       console.log(firstInput, secondInput);
 
+      if (newInput) target.reset();
+
       setError(false);
       toast.success('Novo pagamento salvo');
    }
@@ -68,12 +70,12 @@ export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
             labelProps={{
                text: inputs.firstInput.name,
                filled: true,
-               labelClasses: 'bg-slate-800',
+               labelClasses: 'bg-slate-900 lg:bg-slate-800',
             }}
             inputProps={{
                id: inputs.firstInput.id,
                type: inputs.firstInput.type ?? 'text',
-               classNames: 'bg-slate-800 disabled:cursor-no-drop',
+               classNames: 'bg-slate-900 lg:bg-slate-800 disabled:cursor-no-drop',
                register: {
                   name: inputs.firstInput.id,
                   ...(inputs.secondInput.value ? { value: firstInputValue } : {}),
@@ -93,12 +95,12 @@ export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
             labelProps={{
                text: inputs.secondInput.name,
                filled: true,
-               labelClasses: 'bg-slate-800',
+               labelClasses: 'bg-slate-900 lg:bg-slate-800',
             }}
             inputProps={{
                id: inputs.secondInput.id,
                type: inputs.secondInput.type ?? 'text',
-               classNames: 'bg-slate-800 disabled:cursor-no-drop',
+               classNames: 'bg-slate-900 lg:bg-slate-800 disabled:cursor-no-drop',
                register: {
                   name: inputs.secondInput.id,
                   ...(inputs.secondInput.value ? { value: secondInputValue } : {}),
