@@ -39,8 +39,8 @@ export default function MyAccount() {
          name: user?.name ?? '',
          areaOfActivity: user?.profession ?? '',
          monthlySalary: user?.monthlySalary?.[0]?.salary ?? 0,
-         state: user?.location.state ?? '',
-         city: user?.location.city ?? '',
+         state: user?.location?.state ?? '',
+         city: user?.location?.city ?? '',
       },
    });
 
