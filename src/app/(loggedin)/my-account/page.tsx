@@ -11,14 +11,27 @@ import { FormTwoInputs } from '@/components/form-two-inputs';
 import { FormattedPrice } from '@/components/formatted-price';
 import { Header } from '@/components/header';
 import { Input } from '@/components/input';
-import { Building, Camera, Info, MapPin, Plus, /*SendHorizontal*/ User, X } from 'lucide-react';
+import {
+   Building,
+   Camera,
+   Info,
+   Loader,
+   MapPin,
+   Plus,
+   /*SendHorizontal*/ User,
+   X,
+} from 'lucide-react';
 
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 import { formatDate } from '@/utils/client/formatDate';
+import { useMutation } from '@apollo/client';
+import { UPDATE_USER } from '@/graphql/client/mutations/user';
+import { toast } from 'sonner';
+import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
 
 const updateUserFormSchema = z.object({
    name: z.string().min(3, 'Mínimo 3 caracteres'),
-   areaOfActivity: z.string().min(2, 'Mínimo 2 caracteres'),
+   areaOfActivity: z.string().default(''),
    monthlySalary: z.number().default(0),
    state: z.string().default(''),
    city: z.string().default(''),
@@ -27,7 +40,8 @@ const updateUserFormSchema = z.object({
 type UpdateUserFormData = z.infer<typeof updateUserFormSchema>;
 
 export default function MyAccount() {
-   const { user } = useLoggedIn();
+   const { user, updateUser } = useLoggedIn();
+   const [updateUserGQL, { loading }] = useMutation(UPDATE_USER);
 
    const {
       register,
@@ -61,7 +75,53 @@ export default function MyAccount() {
    }
 
    function handleOnUpdateUser(data: UpdateUserFormData) {
-      console.log({ data });
+      if (data.city && !data.state) {
+         toast.error('O estado é obrigatório quando a cidade é preenchida.');
+         return;
+      }
+
+      if (data.state && !data.city) {
+         toast.error('A cidade é obrigatório quando o estado é preenchido.');
+         return;
+      }
+
+      updateUserGQL({
+         variables: {
+            userId: user?.id,
+            data: {
+               name: data.name,
+               profession: data.areaOfActivity,
+               monthlySalary: data.monthlySalary,
+               location: {
+                  state: data.state,
+                  city: data.city,
+               },
+            },
+         },
+         onError: (error) => {
+            toast.error(error.message);
+         },
+         onCompleted: () => {
+            toast.success('Informações salvas com sucesso!');
+            setShouldShowSalveButton(false);
+         },
+         update: (cache, { data }) => {
+            const existingCache: { user: User } | null = cache.readQuery({
+               query: GET_USER_BY_EMAIL,
+               variables: { email: '' },
+            });
+
+            if (existingCache) {
+               cache.writeQuery({
+                  query: GET_USER_BY_EMAIL,
+                  variables: { email: '' },
+                  data: { user: data.updateUser },
+               });
+
+               updateUser(data.updateUser);
+            }
+         },
+      });
    }
 
    if (!user) return <></>;
@@ -139,7 +199,7 @@ export default function MyAccount() {
                      </span>
                   )}
 
-                  {user?.location && (
+                  {user?.location.city && (
                      <span className="flex items-center gap-2">
                         <MapPin size={24} />
                         <span className="text-base">
@@ -194,7 +254,7 @@ export default function MyAccount() {
                            labelClasses: `bg-slate-900 lg:bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
                         }}
                         inputProps={{
-                           id: 'mockup-block-name',
+                           id: 'name',
                            type: 'text',
                            classNames:
                               'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
@@ -220,7 +280,7 @@ export default function MyAccount() {
                            labelClasses: 'bg-slate-900 lg:bg-slate-800 opacity-70 z-10',
                         }}
                         inputProps={{
-                           id: 'mockup-block-name',
+                           id: 'email',
                            type: 'text',
                            classNames:
                               'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
@@ -244,7 +304,7 @@ export default function MyAccount() {
                            labelClasses: `bg-slate-900 lg:bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
                         }}
                         inputProps={{
-                           id: 'mockup-block-name',
+                           id: 'areaOfActivity',
                            type: 'text',
                            classNames:
                               'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
@@ -271,12 +331,12 @@ export default function MyAccount() {
                               labelClasses: `bg-slate-900 lg:bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
                            }}
                            inputProps={{
-                              id: 'mockup-block-name',
+                              id: 'monthlySalary',
                               type: 'text',
                               classNames:
                                  'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
                               register: {
-                                 ...register('monthlySalary'),
+                                 ...register('monthlySalary', { valueAsNumber: true }),
                                  disabled: shouldShowSalveButton ? false : true,
                                  readOnly: shouldShowSalveButton ? false : true,
                               },
@@ -348,7 +408,7 @@ export default function MyAccount() {
                            labelClasses: `bg-slate-900 lg:bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
                         }}
                         inputProps={{
-                           id: 'mockup-block-name',
+                           id: 'city',
                            type: 'text',
                            classNames:
                               'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
@@ -374,7 +434,7 @@ export default function MyAccount() {
                            labelClasses: `bg-slate-900 lg:bg-slate-800 ${shouldShowSalveButton ? '' : 'opacity-70 z-10'}`,
                         }}
                         inputProps={{
-                           id: 'mockup-block-name',
+                           id: 'state',
                            type: 'text',
                            classNames:
                               'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
@@ -394,12 +454,16 @@ export default function MyAccount() {
                   <div className="flex lg:justify-center">
                      <button
                         type="submit"
-                        className={clsx('w-full rounded-xl transition-all lg:w-1/2', {
-                           'mt-6 h-10 bg-blue-500 opacity-100': shouldShowSalveButton,
-                           'h-0 bg-transparent opacity-0': !shouldShowSalveButton,
-                        })}
+                        className={clsx(
+                           'flex w-full items-center justify-center rounded-xl transition-all disabled:cursor-no-drop disabled:opacity-50 lg:w-1/2',
+                           {
+                              'mt-6 h-10 bg-blue-500 opacity-100': shouldShowSalveButton,
+                              'h-0 bg-transparent opacity-0': !shouldShowSalveButton,
+                           },
+                        )}
+                        disabled={loading}
                      >
-                        Salvar
+                        {loading ? <Loader className="animate-spin" /> : 'Salvar'}
                      </button>
                   </div>
                </form>

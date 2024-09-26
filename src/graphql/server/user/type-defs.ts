@@ -5,8 +5,29 @@ export const userTypeDefs = gql`
       user(data: UserInput!): User!
    }
 
+   extend type Mutation {
+      updateUser(userId: String!, data: UpdateUserInput!): User
+   }
+
+   input CommonPaymentsAndBenefitsInput {
+      name: String!
+      value: Int!
+   }
+
+   input LocationInput {
+      city: String
+      state: String
+   }
+
    input UserInput {
       email: String!
+   }
+
+   input UpdateUserInput {
+      name: String!
+      profession: String!
+      location: LocationInput!
+      monthlySalary: Int
    }
 
    type Avatar {

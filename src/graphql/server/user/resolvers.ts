@@ -20,6 +20,26 @@ interface UserResolvers {
       __: any,
       context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
    ) => any;
+
+   updateUser: (
+      _: any,
+      {
+         userId,
+         data,
+      }: {
+         userId: string;
+         data: {
+            monthlySalary: number;
+            name: string;
+            profession: string;
+            location: {
+               city: string;
+               state: string;
+            };
+         };
+      },
+      context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
+   ) => any;
 }
 
 const user: UserResolvers['user'] = async (_, __, { isLoggedIn, dataSources }) => {
@@ -34,8 +54,33 @@ const user: UserResolvers['user'] = async (_, __, { isLoggedIn, dataSources }) =
    return userData;
 };
 
+const updateUser: UserResolvers['updateUser'] = async (
+   _,
+   { userId, data },
+   { isLoggedIn, dataSources },
+) => {
+   if (!isLoggedIn) {
+      await dataSources.loginApi.logout(isLoggedIn);
+
+      throw new GraphQLError('Unauthenticated');
+   }
+
+   if (userId !== isLoggedIn) {
+      throw new GraphQLError(
+         'Esse item pode não existir ou você não tem autorização para acessa-lo',
+      );
+   }
+
+   const userData = await dataSources.userApi.updateUserById({ userId: isLoggedIn, data });
+
+   return userData;
+};
+
 export const userResolvers = {
    Query: {
       user,
+   },
+   Mutation: {
+      updateUser,
    },
 };

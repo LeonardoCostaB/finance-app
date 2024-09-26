@@ -43,6 +43,12 @@ interface CommonPaymentsAndBenefits {
    };
 }
 
+interface MonthlySalary {
+   id: string;
+   salary: number;
+   createAt: string;
+}
+
 interface User {
    id: string;
    avatar: {
@@ -68,6 +74,6 @@ interface User {
    owner: boolean;
    commonPayment: Array<CommonPaymentsAndBenefits>;
    benefits: Array<CommonPaymentsAndBenefits>;
-   monthlySalary: Array<{ id: string; salary: number; createAt: string }>;
+   monthlySalary: Array<MonthlySalary>;
    months: Array<Months>;
 }
