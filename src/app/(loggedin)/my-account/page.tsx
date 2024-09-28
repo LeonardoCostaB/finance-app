@@ -199,7 +199,7 @@ export default function MyAccount() {
                      </span>
                   )}
 
-                  {user?.location.city && (
+                  {user?.location?.city && (
                      <span className="flex items-center gap-2">
                         <MapPin size={24} />
                         <span className="text-base">
