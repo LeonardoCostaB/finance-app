@@ -541,44 +541,46 @@ export default function MyAccount() {
                      )}
                   </span>
 
-                  <FormTwoInputs
-                     newInput={{
-                        isVisible: user.commonPayment?.length > 0,
-                        toggleOpen: shouldShowAddNewPayment,
-                     }}
-                     inputs={{
-                        firstInput: {
-                           name: 'Nome:',
-                           id: 'new-common-payment-name',
-                        },
-                        secondInput: {
-                           name: 'Valor:',
-                           id: 'new-common-payment-value',
-                           type: 'number',
-                        },
-                        onSubmit: handleOnCreateCommonPayment,
-                     }}
-                  />
-
-                  {user?.commonPayment?.map((payment) => (
+                  <div className="scroll-bar max-h-[400px] overflow-x-auto pt-3">
                      <FormTwoInputs
-                        key={payment.id}
+                        newInput={{
+                           isVisible: user.commonPayment?.length > 0,
+                           toggleOpen: shouldShowAddNewPayment,
+                        }}
                         inputs={{
                            firstInput: {
                               name: 'Nome:',
-                              id: `common-payment-name-${payment.name}`,
-                              value: payment.name,
+                              id: 'new-common-payment-name',
                            },
                            secondInput: {
                               name: 'Valor:',
-                              id: `common-payment-value-${payment.name}`,
+                              id: 'new-common-payment-value',
                               type: 'number',
-                              value: payment.value,
                            },
                            onSubmit: handleOnCreateCommonPayment,
                         }}
                      />
-                  ))}
+
+                     {user?.commonPayment?.map((payment) => (
+                        <FormTwoInputs
+                           key={payment.id}
+                           inputs={{
+                              firstInput: {
+                                 name: 'Nome:',
+                                 id: `common-payment-name-${payment.name}`,
+                                 value: payment.name,
+                              },
+                              secondInput: {
+                                 name: 'Valor:',
+                                 id: `common-payment-value-${payment.name}`,
+                                 type: 'number',
+                                 value: payment.value,
+                              },
+                              onSubmit: handleOnCreateCommonPayment,
+                           }}
+                        />
+                     ))}
+                  </div>
                </div>
             </section>
 
