@@ -255,4 +255,82 @@ export class UserApi extends RESTDataSource {
    }) {
       return this.updateUser({ userId, data });
    }
+
+   async createCommonPayment({
+      userId,
+      data,
+   }: {
+      userId: string;
+      data: { name: string; value: number };
+   }) {
+      const user = await this.getUserById(userId);
+
+      if (!user) {
+         throw new GraphQLError('User not found');
+      }
+
+      if (!data.name || !data.value) {
+         throw new GraphQLError('Nome ou valor não preenchido');
+      }
+
+      if (
+         user?.commonPayment?.some(
+            (payment) => normalizeId(payment.name) === normalizeId(data.name),
+         )
+      ) {
+         throw new GraphQLError('Já existe um pagamento com esse nome');
+      }
+
+      const query = `
+         mutation MyMutation($userId: ID!, $commonPayments: Json) {
+            updateSubscriber(
+               data: {
+                  commonPayment: $commonPayments
+               }
+               where: {
+                  id: $userId
+               }
+            ) {
+               commonPayment
+            }
+
+            publishSubscriber(where: {id: $userId}) {
+               id
+            }
+         }
+      `;
+
+      const commonPaymentJson = {
+         id: data.name,
+         name: data.name,
+         value: data.value,
+         date: {
+            published: new Date().toISOString(),
+         },
+      };
+
+      const variables = {
+         userId,
+         commonPayments: user.commonPayment?.length
+            ? [...user.commonPayment, commonPaymentJson]
+            : [commonPaymentJson],
+      };
+
+      try {
+         const { data: cms } = await axios.post(
+            this.baseURL as string,
+            {
+               query,
+               variables,
+            },
+            { headers: this.headers },
+         );
+
+         return cms.data.updateSubscriber.commonPayment;
+      } catch (error: any) {
+         console.log(error.response.data);
+
+         throw new GraphQLError('Tivemos um error ao atualizar seu dados, tente novamente');
+      }
+   }
 }

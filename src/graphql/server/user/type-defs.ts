@@ -7,6 +7,8 @@ export const userTypeDefs = gql`
 
    extend type Mutation {
       updateUser(userId: String!, data: UpdateUserInput!): User
+
+      createCommonPayments(userId: String!, data: CommonPaymentsAndBenefitsInput): [Extract]
    }
 
    input CommonPaymentsAndBenefitsInput {

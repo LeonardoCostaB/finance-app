@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { z } from 'zod';
@@ -26,6 +26,7 @@ import { useLoggedIn } from '@/hooks/use-loggedIn';
 import { formatDate } from '@/utils/client/formatDate';
 import { useMutation } from '@apollo/client';
 import { UPDATE_USER } from '@/graphql/client/mutations/user';
+import { CREATE_COMMON_PAYMENT } from '@/graphql/client/mutations/user';
 import { toast } from 'sonner';
 import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
 
@@ -42,6 +43,7 @@ type UpdateUserFormData = z.infer<typeof updateUserFormSchema>;
 export default function MyAccount() {
    const { user, updateUser } = useLoggedIn();
    const [updateUserGQL, { loading }] = useMutation(UPDATE_USER);
+   const [createCommonPayment] = useMutation(CREATE_COMMON_PAYMENT);
 
    const {
       register,
@@ -123,6 +125,56 @@ export default function MyAccount() {
          },
       });
    }
+
+   async function handleOnCreateCommonPayment({
+      first: name,
+      second: value,
+   }: {
+      first: string;
+      second: string;
+   }) {
+      await createCommonPayment({
+         variables: {
+            userId: user?.id,
+            data: {
+               name,
+               value: +value,
+            },
+         },
+         onError: (error) => {
+            toast.error(error.message);
+         },
+         onCompleted: () => {
+            toast.success('Pagamento salvo com sucesso!');
+            setShouldShowAddNewPayment(false);
+         },
+         update: (cache, { data }) => {
+            const existingCache: { user: User } | null = cache.readQuery({
+               query: GET_USER_BY_EMAIL,
+               variables: { email: '' },
+            });
+
+            if (existingCache) {
+               const updatedData: User = {
+                  ...existingCache.user,
+                  commonPayment: [...data.createCommonPayments],
+               };
+
+               cache.writeQuery({
+                  query: GET_USER_BY_EMAIL,
+                  data: {
+                     user: updatedData,
+                  },
+                  variables: { email: '' },
+               });
+
+               updateUser(updatedData);
+            }
+         },
+      });
+   }
+
+   useEffect(() => {}, [user]);
 
    if (!user) return <></>;
 
@@ -504,6 +556,7 @@ export default function MyAccount() {
                            id: 'new-common-payment-value',
                            type: 'number',
                         },
+                        onSubmit: handleOnCreateCommonPayment,
                      }}
                   />
 
@@ -522,6 +575,7 @@ export default function MyAccount() {
                               type: 'number',
                               value: payment.value,
                            },
+                           onSubmit: handleOnCreateCommonPayment,
                         }}
                      />
                   ))}

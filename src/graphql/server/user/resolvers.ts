@@ -40,6 +40,21 @@ interface UserResolvers {
       },
       context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
    ) => any;
+
+   createCommonPayments: (
+      _: any,
+      {
+         userId,
+         data,
+      }: {
+         userId: string;
+         data: {
+            name: string;
+            value: number;
+         };
+      },
+      context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
+   ) => any;
 }
 
 const user: UserResolvers['user'] = async (_, __, { isLoggedIn, dataSources }) => {
@@ -76,11 +91,33 @@ const updateUser: UserResolvers['updateUser'] = async (
    return userData;
 };
 
+const createCommonPayments: UserResolvers['createCommonPayments'] = async (
+   _,
+   { userId, data },
+   { isLoggedIn, dataSources },
+) => {
+   if (!isLoggedIn) {
+      await dataSources.loginApi.logout(isLoggedIn);
+      throw new GraphQLError('Unauthenticated');
+   }
+
+   if (userId !== isLoggedIn) {
+      throw new GraphQLError(
+         'Esse item pode não existir ou você não tem autorização para acessa-lo',
+      );
+   }
+
+   const createCommonPayment = await dataSources.userApi.createCommonPayment({ userId, data });
+
+   return createCommonPayment;
+};
+
 export const userResolvers = {
    Query: {
       user,
    },
    Mutation: {
       updateUser,
+      createCommonPayments,
    },
 };

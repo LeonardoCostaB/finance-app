@@ -23,6 +23,7 @@ interface FormTwoInputsProps {
          name: string;
          value?: string | number;
       };
+      onSubmit: (data: { first: string; second: string }) => Promise<void>;
    };
 }
 
@@ -31,7 +32,7 @@ export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
    const [firstInputValue, setFirstInputValue] = useState(inputs.firstInput.value);
    const [secondInputValue, setSecondInputValue] = useState(inputs.secondInput.value);
 
-   function handleOnSubmit(e: FormEvent) {
+   async function handleOnSubmit(e: FormEvent) {
       e.preventDefault();
 
       const target = e.target as HTMLFormElement;
@@ -46,12 +47,11 @@ export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
          return toast.info('Preencha os campos: "nome" e "valor"');
       }
 
-      console.log(firstInput, secondInput);
+      await inputs.onSubmit({ first: firstInput, second: secondInput });
 
       if (newInput) target.reset();
 
       setError(false);
-      toast.success('Novo pagamento salvo');
    }
 
    return (
