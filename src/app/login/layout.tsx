@@ -17,7 +17,7 @@ export default function LoggedInLayout({ children }: { children: React.ReactNode
 
    return (
       <div className={'flex w-full'}>
-         <picture className="w-full">
+         <picture className="w-full max-lg:hidden">
             <img
                src="https://picsum.photos/1200/1200?random=2"
                alt="Imagens aleatória para tela de login"
