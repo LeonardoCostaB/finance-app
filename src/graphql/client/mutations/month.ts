@@ -12,6 +12,16 @@ export const CREATE_MONTH = gql`
          }
          expenses {
             title
+            extract {
+               id
+               name
+               value
+               date {
+                  published
+               }
+               link
+               notes
+            }
          }
       }
    }

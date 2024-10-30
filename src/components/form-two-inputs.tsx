@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { Input } from './input';
-import { SendHorizontal } from 'lucide-react';
+import { Loader2, SendHorizontal, Trash2 } from 'lucide-react';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -23,17 +23,27 @@ interface FormTwoInputsProps {
          name: string;
          value?: string | number;
       };
-      onSubmit: (data: { first: string; second: string }) => Promise<void>;
+      onSubmit: (data: {
+         first: string;
+         second: string;
+         type: 'create' | 'update';
+      }) => Promise<void>;
+      onDelete?: (paymentName?: string) => Promise<void>;
    };
 }
 
 export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
-   const [error, setError] = useState(false);
    const [firstInputValue, setFirstInputValue] = useState(inputs.firstInput.value);
    const [secondInputValue, setSecondInputValue] = useState(inputs.secondInput.value);
 
+   const [error, setError] = useState(false);
+   const [isLoading, setIsLoading] = useState(false);
+   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+
    async function handleOnSubmit(e: FormEvent) {
       e.preventDefault();
+
+      setIsLoading(true);
 
       const target = e.target as HTMLFormElement;
       const formData = new FormData(target);
@@ -47,11 +57,22 @@ export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
          return toast.info('Preencha os campos: "nome" e "valor"');
       }
 
-      await inputs.onSubmit({ first: firstInput, second: secondInput });
+      await inputs.onSubmit({
+         first: firstInput,
+         second: secondInput,
+         type: newInput ? 'create' : 'update',
+      });
 
       if (newInput) target.reset();
 
       setError(false);
+      setIsLoading(false);
+   }
+
+   async function handleOnDelete() {
+      setIsDeleteLoading(true);
+      await inputs.onDelete?.(inputs.firstInput.value);
+      setIsDeleteLoading(false);
    }
 
    return (
@@ -113,8 +134,31 @@ export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
             }}
          />
 
-         <button type="submit" className="w-10 rounded-lg border border-slate-600 p-2">
-            <SendHorizontal size={18} />
+         {inputs.onDelete && (
+            <button
+               type="button"
+               className="mr-1 w-10 rounded-lg border border-slate-600 p-2 disabled:cursor-no-drop disabled:opacity-50"
+               onClick={handleOnDelete}
+               disabled={isDeleteLoading}
+            >
+               {isDeleteLoading ? (
+                  <Loader2 size={18} className="animate-spin" />
+               ) : (
+                  <Trash2 size={18} />
+               )}
+            </button>
+         )}
+
+         <button
+            type="submit"
+            className="w-10 rounded-lg border border-slate-600 p-2 disabled:cursor-no-drop disabled:opacity-50"
+            disabled={isLoading}
+         >
+            {isLoading ? (
+               <Loader2 size={18} className="animate-spin" />
+            ) : (
+               <SendHorizontal size={18} />
+            )}
          </button>
       </form>
    );

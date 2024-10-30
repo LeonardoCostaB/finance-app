@@ -259,9 +259,11 @@ export class UserApi extends RESTDataSource {
    async createCommonPayment({
       userId,
       data,
+      type,
    }: {
       userId: string;
       data: { name: string; value: number };
+      type: 'create' | 'update';
    }) {
       const user = await this.getUserById(userId);
 
@@ -274,11 +276,111 @@ export class UserApi extends RESTDataSource {
       }
 
       if (
+         type === 'create' &&
          user?.commonPayment?.some(
             (payment) => normalizeId(payment.name) === normalizeId(data.name),
          )
       ) {
          throw new GraphQLError('Já existe um pagamento com esse nome');
+      }
+
+      const findPayment = user?.commonPayment?.find(
+         (payment) => normalizeId(payment.name) === normalizeId(data.name),
+      );
+
+      if (
+         type === 'update' &&
+         normalizeId(findPayment?.name ?? '') === normalizeId(data.name) &&
+         findPayment?.value === data.value
+      ) {
+         throw new GraphQLError('Você deve alterar algum dos valores para continuar');
+      }
+
+      const commonPaymentJson = {
+         id: normalizeId(data.name),
+         name: data.name,
+         value: data.value,
+         date: {
+            published: new Date().toISOString(),
+         },
+      };
+
+      const query = `
+         mutation MyMutation($userId: ID!, $commonPayments: Json) {
+            updateSubscriber(
+               data: {
+                  commonPayment: $commonPayments
+               }
+               where: {
+                  id: $userId
+               }
+            ) {
+               commonPayment
+            }
+
+            publishSubscriber(where: {id: $userId}) {
+               id
+            }
+         }
+      `;
+      let variables;
+
+      const createCommonPayment = user.commonPayment?.length
+         ? [...user.commonPayment, commonPaymentJson]
+         : [commonPaymentJson];
+
+      if (type === 'create') {
+         variables = {
+            userId,
+            commonPayments: createCommonPayment,
+         };
+      }
+
+      if (type === 'update') {
+         const updateIndex = user.commonPayment?.findIndex(
+            (commonPayment) => normalizeId(commonPayment.name) === normalizeId(data.name),
+         );
+
+         user.commonPayment[updateIndex] = commonPaymentJson;
+
+         variables = {
+            userId,
+            commonPayments: user.commonPayment,
+         };
+      }
+
+      try {
+         const { data: cms } = await axios.post(
+            this.baseURL as string,
+            {
+               query,
+               variables,
+            },
+            { headers: this.headers },
+         );
+
+         return cms.data.updateSubscriber.commonPayment;
+      } catch (error: any) {
+         console.log(error.response.data);
+
+         throw new GraphQLError('Tivemos um error ao atualizar seu dados, tente novamente');
+      }
+   }
+
+   async deleteCommonPayment({ userId, paymentName }: { userId: string; paymentName: string }) {
+      const user = await this.getUserById(userId);
+
+      if (!user) {
+         throw new GraphQLError('User not found');
+      }
+
+      if (
+         !paymentName ||
+         !user?.commonPayment?.some(
+            (payment) => normalizeId(payment.name) === normalizeId(paymentName),
+         )
+      ) {
+         throw new GraphQLError('Pagamento não encontrado');
       }
 
       const query = `
@@ -300,20 +402,11 @@ export class UserApi extends RESTDataSource {
          }
       `;
 
-      const commonPaymentJson = {
-         id: data.name,
-         name: data.name,
-         value: data.value,
-         date: {
-            published: new Date().toISOString(),
-         },
-      };
-
       const variables = {
          userId,
-         commonPayments: user.commonPayment?.length
-            ? [...user.commonPayment, commonPaymentJson]
-            : [commonPaymentJson],
+         commonPayments: user.commonPayment.filter(
+            (payment) => payment.id !== normalizeId(paymentName),
+         ),
       };
 
       try {

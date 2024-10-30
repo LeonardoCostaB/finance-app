@@ -39,11 +39,14 @@ export function MonthPreview({
                                     price={
                                        month.earnings
                                           .flatMap((earning) => earning.extract)
-                                          .reduce((acc, extract) => acc + extract.value, 0) +
+                                          .reduce(
+                                             (acc, extract) => acc + (extract?.value ?? 0),
+                                             0,
+                                          ) +
                                        userSalary -
                                        month.expenses
                                           .flatMap((earning) => earning.extract)
-                                          .reduce((acc, extract) => acc + extract.value, 0)
+                                          .reduce((acc, extract) => acc + (extract?.value ?? 0), 0)
                                     }
                                     classNames="text-sm"
                                  />

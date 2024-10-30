@@ -46,12 +46,26 @@ interface UserResolvers {
       {
          userId,
          data,
+         type,
       }: {
          userId: string;
          data: {
             name: string;
             value: number;
          };
+         type: 'create' | 'update';
+      },
+      context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
+   ) => any;
+
+   deleteCommonPayments: (
+      _: any,
+      {
+         userId,
+         paymentName,
+      }: {
+         userId: string;
+         paymentName: string;
       },
       context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
    ) => any;
@@ -93,7 +107,7 @@ const updateUser: UserResolvers['updateUser'] = async (
 
 const createCommonPayments: UserResolvers['createCommonPayments'] = async (
    _,
-   { userId, data },
+   { userId, data, type },
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
@@ -107,7 +121,35 @@ const createCommonPayments: UserResolvers['createCommonPayments'] = async (
       );
    }
 
-   const createCommonPayment = await dataSources.userApi.createCommonPayment({ userId, data });
+   const createCommonPayment = await dataSources.userApi.createCommonPayment({
+      userId,
+      data,
+      type,
+   });
+
+   return createCommonPayment;
+};
+
+const deleteCommonPayments: UserResolvers['deleteCommonPayments'] = async (
+   _,
+   { userId, paymentName },
+   { isLoggedIn, dataSources },
+) => {
+   if (!isLoggedIn) {
+      await dataSources.loginApi.logout(isLoggedIn);
+      throw new GraphQLError('Unauthenticated');
+   }
+
+   if (userId !== isLoggedIn) {
+      throw new GraphQLError(
+         'Esse item pode não existir ou você não tem autorização para acessa-lo',
+      );
+   }
+
+   const createCommonPayment = await dataSources.userApi.deleteCommonPayment({
+      userId,
+      paymentName,
+   });
 
    return createCommonPayment;
 };
@@ -119,5 +161,6 @@ export const userResolvers = {
    Mutation: {
       updateUser,
       createCommonPayments,
+      deleteCommonPayments,
    },
 };

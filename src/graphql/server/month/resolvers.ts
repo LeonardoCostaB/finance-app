@@ -118,7 +118,7 @@ const createMonth: MonthResolvers['createMonth'] = async (
       throw new GraphQLError('Você não tem permisão pra acessar esse item');
    }
 
-   const createMonth = await dataSources.monthApi.createMonth(data, user?.months);
+   const createMonth = await dataSources.monthApi.createMonth(data, user);
 
    return createMonth;
 };

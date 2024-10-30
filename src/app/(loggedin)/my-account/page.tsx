@@ -25,7 +25,7 @@ import {
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 import { formatDate } from '@/utils/client/formatDate';
 import { useMutation } from '@apollo/client';
-import { UPDATE_USER } from '@/graphql/client/mutations/user';
+import { DELETE_COMMON_PAYMENT, UPDATE_USER } from '@/graphql/client/mutations/user';
 import { CREATE_COMMON_PAYMENT } from '@/graphql/client/mutations/user';
 import { toast } from 'sonner';
 import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
@@ -44,6 +44,7 @@ export default function MyAccount() {
    const { user, updateUser } = useLoggedIn();
    const [updateUserGQL, { loading }] = useMutation(UPDATE_USER);
    const [createCommonPayment] = useMutation(CREATE_COMMON_PAYMENT);
+   const [deleteCommonPayment] = useMutation(DELETE_COMMON_PAYMENT);
 
    const {
       register,
@@ -62,6 +63,7 @@ export default function MyAccount() {
 
    const popoverMonthlySalary = useRef<HTMLDialogElement | null>(null);
    const userImgInput = useRef<HTMLInputElement | null>(null);
+   const commonPaymentContainer = useRef<HTMLDivElement | null>(null);
 
    const [shouldShowSalveButton, setShouldShowSalveButton] = useState(false);
    const [shouldShowAddNewPayment, setShouldShowAddNewPayment] = useState(false);
@@ -129,9 +131,11 @@ export default function MyAccount() {
    async function handleOnCreateCommonPayment({
       first: name,
       second: value,
+      type,
    }: {
       first: string;
       second: string;
+      type: 'create' | 'update';
    }) {
       await createCommonPayment({
          variables: {
@@ -140,6 +144,7 @@ export default function MyAccount() {
                name,
                value: +value,
             },
+            type,
          },
          onError: (error) => {
             toast.error(error.message);
@@ -158,6 +163,44 @@ export default function MyAccount() {
                const updatedData: User = {
                   ...existingCache.user,
                   commonPayment: [...data.createCommonPayments],
+               };
+
+               cache.writeQuery({
+                  query: GET_USER_BY_EMAIL,
+                  data: {
+                     user: updatedData,
+                  },
+                  variables: { email: '' },
+               });
+
+               updateUser(updatedData);
+            }
+         },
+      });
+   }
+
+   async function handleOnDeleteCommonPayment(paymentName?: string) {
+      await deleteCommonPayment({
+         variables: {
+            userId: user?.id,
+            paymentName,
+         },
+         onError: (error) => {
+            toast.error(error.message);
+         },
+         onCompleted: () => {
+            toast.success('Pagamento deletado com sucesso!');
+         },
+         update: (cache, { data }) => {
+            const existingCache: { user: User } | null = cache.readQuery({
+               query: GET_USER_BY_EMAIL,
+               variables: { email: '' },
+            });
+
+            if (existingCache) {
+               const updatedData: User = {
+                  ...existingCache.user,
+                  commonPayment: [...data.deleteCommonPayments],
                };
 
                cache.writeQuery({
@@ -534,14 +577,23 @@ export default function MyAccount() {
                         <button
                            type="button"
                            className="text-xs font-light underline underline-offset-2"
-                           onClick={() => setShouldShowAddNewPayment(!shouldShowAddNewPayment)}
+                           onClick={() => {
+                              setShouldShowAddNewPayment(!shouldShowAddNewPayment);
+                              commonPaymentContainer.current?.scroll({
+                                 top: 0,
+                                 behavior: 'smooth',
+                              });
+                           }}
                         >
                            {shouldShowAddNewPayment ? <X size={18} /> : <Plus size={18} />}
                         </button>
                      )}
                   </span>
 
-                  <div className="scroll-bar max-h-[400px] overflow-x-auto pt-3">
+                  <div
+                     ref={commonPaymentContainer}
+                     className="scroll-bar max-h-[400px] overflow-y-auto pt-3"
+                  >
                      <FormTwoInputs
                         newInput={{
                            isVisible: user.commonPayment?.length > 0,
@@ -576,6 +628,7 @@ export default function MyAccount() {
                                  type: 'number',
                                  value: payment.value,
                               },
+                              onDelete: handleOnDeleteCommonPayment,
                               onSubmit: handleOnCreateCommonPayment,
                            }}
                         />

@@ -58,8 +58,8 @@ export class MonthApi extends RESTDataSource {
       }
    }
 
-   async createMonth(data: { month: string; year: string }, userMonths?: Months[]) {
-      const months = userMonths?.map((month) => ({
+   async createMonth(data: { month: string; year: string }, user?: User) {
+      const months = user?.months?.map((month) => ({
          month: new Date(month.date).getMonth().toString(),
          year: new Date(month.date).getFullYear().toString(),
       }));
@@ -79,13 +79,14 @@ export class MonthApi extends RESTDataSource {
             $title: String!,
             $date: String!,
             $id: ID!
+            $expenses: [Json!]
          ) {
             createMonth(data: {
                ref: $ref,
                title: $title,
                date: $date,
                user: {connect: {id: $id}},
-               expenses: [],
+               expenses: $expenses,
                earnings: [],
             }) {
                id
@@ -102,11 +103,28 @@ export class MonthApi extends RESTDataSource {
          }
       `;
 
+      const commonPayments = user?.commonPayment?.map((payment) => {
+         return {
+            ...payment,
+            id: `${normalizeId(payment.name)}-${randomUUID()}`,
+         };
+      });
+
       const variables = {
          ref: `${date.toLocaleDateString('pt-BR', { month: 'long' })}-${this.userId}`,
          title: date.toLocaleDateString('pt-BR', { month: 'long' }),
          date,
          id: this.userId,
+         expenses: commonPayments
+            ? [
+                 {
+                    id: `${normalizeId('comuns')}-${randomUUID()}`,
+                    title: 'Comuns',
+                    created: new Date().toISOString(),
+                    extract: commonPayments,
+                 },
+              ]
+            : [],
       };
 
       try {

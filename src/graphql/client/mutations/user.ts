@@ -95,8 +95,22 @@ export const SAVE_ECONOMY = gql`
 `;
 
 export const CREATE_COMMON_PAYMENT = gql`
-   mutation CreteCommonPayment($userId: String!, $data: CommonPaymentsAndBenefitsInput!) {
-      createCommonPayments(userId: $userId, data: $data) {
+   mutation CreteCommonPayment(
+      $userId: String!
+      $data: CommonPaymentsAndBenefitsInput!
+      $type: CommonPaymentRequestType
+   ) {
+      createCommonPayments(userId: $userId, data: $data, type: $type) {
+         id
+         name
+         value
+      }
+   }
+`;
+
+export const DELETE_COMMON_PAYMENT = gql`
+   mutation DeleteCommonPayment($userId: String!, $paymentName: String!) {
+      deleteCommonPayments(userId: $userId, paymentName: $paymentName) {
          id
          name
          value
