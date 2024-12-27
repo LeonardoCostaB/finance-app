@@ -1,6 +1,7 @@
-import { CreateUserForm } from '@/components/create-user-form';
-import { MoveLeft } from 'lucide-react';
+import { CreateUserForm } from '../components/create-user-form';
 import Link from 'next/link';
+
+import { MoveLeft } from 'lucide-react';
 
 export default function createUser() {
    return (

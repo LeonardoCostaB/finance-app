@@ -7,8 +7,9 @@ import { toast } from 'sonner';
 import { gql, useMutation } from '@apollo/client';
 
 import Link from 'next/link';
-import { Input } from './input';
-import { PasswordInput } from './password-input';
+import { Input } from '@/components/input';
+import { PasswordInput } from '@/components/password-input';
+
 import { Loader2Icon } from 'lucide-react';
 
 const LOGIN = gql`

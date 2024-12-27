@@ -13,13 +13,15 @@ import { ChevronsDown, CircleFadingPlus, X } from 'lucide-react';
 import { FormattedPrice } from '@/components/formatted-price';
 import { Header } from '@/components/header';
 import { Input } from '@/components/input';
-import { MonthlyEarnings } from '@/components/monthly-earnings';
-import { MonthlyExpenses } from '@/components/monthly-expenses';
+
 import { SubmitButton } from '@/components/submit-button';
-import { MoreOptions } from '@/components/more-options';
-import { MonthlySummary } from '@/components/monthly-summary';
-import { MonthPreview } from '@/components/months-preview';
+import { MoreOptions } from './components/more-options';
+import { MonthPreview } from './components/months-preview';
+import { MonthlySummary } from './components/monthly-summary';
+
 import { sortSubItemsMonth } from '@/utils/client/sort-month';
+import { MonthlyEarnings } from './components/monthly-earnings';
+import { MonthlyExpenses } from './components/monthly-expenses';
 
 export default function Month({ params }: { params: { id: string } }) {
    const { user, updateUser } = useLoggedIn();

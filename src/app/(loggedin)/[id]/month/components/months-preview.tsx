@@ -1,7 +1,7 @@
+import { FormattedPrice } from '@/components/formatted-price';
+import { NewMonthCard } from '@/components/new-month-card';
+import { SwiperCustomSlide } from '@/components/swipper-slider';
 import Link from 'next/link';
-import { NewMonthCard } from './new-month-card';
-import { SwiperCustomSlide } from './swipper-slider';
-import { FormattedPrice } from './formatted-price';
 
 export function MonthPreview({
    months,

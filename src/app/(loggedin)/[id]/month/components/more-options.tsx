@@ -1,16 +1,19 @@
-import clsx from 'clsx';
-import { PiggyBank, Trash2, X } from 'lucide-react';
 import { FormEvent, useState } from 'react';
-import { InformationModal } from './information-modal';
-import { Input } from './input';
-import { SubmitButton } from './submit-button';
+import { useRouter } from 'next/navigation';
 import { useMutation } from '@apollo/client';
+import { toast } from 'sonner';
+import clsx from 'clsx';
+
+import { InformationModal } from '@/components/information-modal';
+import { Input } from '@/components/input';
+import { SubmitButton } from '@/components/submit-button';
+
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 import { SAVE_ECONOMY } from '@/graphql/client/mutations/user';
-import { toast } from 'sonner';
 import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
 import { DELETE_MONTH } from '@/graphql/client/mutations/month';
-import { useRouter } from 'next/navigation';
+
+import { PiggyBank, Trash2, X } from 'lucide-react';
 
 interface MoreOptionsProps {
    month: string;

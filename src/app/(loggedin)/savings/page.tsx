@@ -1,7 +1,7 @@
 'use client';
 
 import { Header } from '@/components/header';
-import { SavingsPreview } from '@/components/common/savings-preview';
+import { SavingsPreview } from '@/components/savings-preview';
 
 export default function Savings() {
    return (

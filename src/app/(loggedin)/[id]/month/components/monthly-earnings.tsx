@@ -1,47 +1,47 @@
 import { useEffect, useState } from 'react';
-import { useMutation } from '@apollo/client';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useForm } from 'react-hook-form';
+import { useMutation } from '@apollo/client';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { z } from 'zod';
+import clsx from 'clsx';
 
-import { Input } from './input';
-import { FormattedPrice } from './formatted-price';
-import { Check, ChevronDown, ChevronUp, Handshake, Loader2Icon, Trash2, X } from 'lucide-react';
-import { InformationModal } from './information-modal';
-import { SubmitButton } from './submit-button';
+import { FormattedPrice } from '@/components/formatted-price';
+import { UpdateMonthSubItems } from './update-month-sub-items';
+import { InformationModal } from '@/components/information-modal';
+import { SubmitButton } from '@/components/submit-button';
+import { Input } from '@/components/input';
 
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
 import {
-   CREATE_EXPENSE_ITEM,
-   DELETE_EXPENSE,
-   DELETE_EXPENSE_ITEM,
-   PAY_EXPENSE_ITEM,
+   CREATE_EARNING_ITEM,
+   DELETE_EARNING,
+   DELETE_EARNING_ITEM,
 } from '@/graphql/client/mutations/month';
-import clsx from 'clsx';
-import { UpdateMonthSubItems } from './update-month-sub-items';
 
-interface MonthlyExpensesProps {
+import { ChevronDown, ChevronUp, Trash2, X } from 'lucide-react';
+
+interface MonthlyEarningsProps {
    monthId: string;
-   expense: Expenses;
+   earnings: Earnings;
 }
 
-const createNewExpenseFormSchema = z.object({
-   name: z
+const createNewEarningsFormSchema = z.object({
+   earningName: z
       .string()
       .min(3, 'Mínimo 3 caracteres')
       .transform((name) => (name[0].toUpperCase() + name.substring(1)).trim()),
-   value: z.number().min(1, 'Mínimo R$ 1'),
-   link: z.union([z.literal(''), z.string()]),
-   notes: z.union([z.literal(''), z.string().min(5, 'Mínimo de 5 caracteres')]),
+   earningValue: z.number().min(1, 'Mínimo R$ 1'),
+   earningLink: z.union([z.literal(''), z.string()]),
+   earningNotes: z.union([z.literal(''), z.string().min(5, 'Mínimo de 5 caracteres')]),
 });
 
-type CreateNewExpenseFormData = z.infer<typeof createNewExpenseFormSchema>;
+type CreateNewEarningsFormData = z.infer<typeof createNewEarningsFormSchema>;
 
-export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
-   const { user, updateUser } = useLoggedIn();
+export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
+   const { updateUser } = useLoggedIn();
 
    const {
       register,
@@ -49,86 +49,87 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
       watch,
       reset,
       formState: { errors },
-   } = useForm<CreateNewExpenseFormData>({
-      resolver: zodResolver(createNewExpenseFormSchema),
+   } = useForm<CreateNewEarningsFormData>({
+      resolver: zodResolver(createNewEarningsFormSchema),
       defaultValues: {
-         value: 0,
-         link: '',
+         earningValue: 0,
+         earningLink: '',
       },
    });
 
-   const [createExpenseItem, { loading }] = useMutation(CREATE_EXPENSE_ITEM);
-   const [deleteExpenseItem, { loading: deleteLoading }] = useMutation(DELETE_EXPENSE_ITEM);
-   const [payExpenseItem, { loading: payLoading }] = useMutation(PAY_EXPENSE_ITEM);
-   const [deleteExpense, { loading: deleteExpenseLoading }] = useMutation(DELETE_EXPENSE);
+   const [createEarningItem, { loading }] = useMutation(CREATE_EARNING_ITEM);
+   const [deleteEarningItem, { loading: deleteLoading }] = useMutation(DELETE_EARNING_ITEM);
+   const [deleteEarning, { loading: deleteEarningLoading }] = useMutation(DELETE_EARNING);
 
-   const [expenses, setExpenses] = useState<MonthlyExpensesProps['expense']['extract']>([]);
    const [shouldShowModal, setShouldShowModal] = useState(false);
    const [shouldShowListOptions, setShouldShowListOptions] = useState(false);
+   const [earningsData, setEarningsData] = useState<Earnings['extract']>([]);
 
-   async function handleOnSubmit(data: CreateNewExpenseFormData) {
-      await createExpenseItem({
+   async function handleOnSubmit(data: CreateNewEarningsFormData) {
+      await createEarningItem({
          variables: {
             monthId,
             data: {
-               title: expense.title,
-               name: data.name,
-               value: data.value,
-               link: data.link,
-               notes: data.notes,
+               title: earnings.title,
+               name: data.earningName,
+               value: data.earningValue,
+               link: data.earningLink,
+               notes: data.earningNotes,
             },
          },
          update: (cache, { data }) => {
-            if (user) {
-               const newExpensesItems = [...(data.addExpenseItem.expenses as Months['expenses'])];
+            const existingData: { user: User } | null = cache.readQuery({
+               query: GET_USER_BY_EMAIL,
+               variables: { email: '' },
+            });
+
+            if (existingData) {
+               const newEarningsItems = [
+                  ...(data.createEarningItem.earnings as Months['earnings']),
+               ];
 
                const updatedData = {
-                  ...user,
+                  ...existingData.user,
                   months: [
-                     ...user.months.filter((month) => month.id !== monthId),
-                     ...user.months
+                     ...existingData.user.months.filter((month) => month.id !== monthId),
+                     ...existingData.user.months
                         .filter((month) => month.id === monthId)
                         .map((month) => ({
                            ...month,
-                           expenses: newExpensesItems,
+                           earnings: newEarningsItems,
                         })),
                   ],
                };
 
                cache.writeQuery({
                   query: GET_USER_BY_EMAIL,
-                  data: {
-                     user: updatedData,
-                  },
+                  data: { user: updatedData },
                   variables: { email: '' },
                });
 
                updateUser(updatedData);
 
-               setExpenses(
+               setEarningsData(
                   updatedData.months
                      .filter((month) => month.id === monthId)[0]
-                     .expenses.filter((exp) => exp.title === expense.title)[0].extract,
+                     .earnings.filter((earning) => earning.title === earnings.title)[0].extract,
                );
             }
-         },
-         onCompleted: () => {
-            reset();
-            setShouldShowModal(false);
-            toast.success('Despesa criada com sucesso!');
          },
          onError: (error) => {
             toast.error(error.message);
          },
       });
+      reset();
+      setShouldShowModal(false);
    }
 
    function handleOnDeleteBlock() {
-      deleteExpense({
+      deleteEarning({
          variables: {
             data: {
                monthId,
-               title: expense.title,
+               title: earnings.title,
             },
          },
          update: (cache) => {
@@ -146,7 +147,9 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                         .filter((month) => month.id === monthId)
                         .map((month) => ({
                            ...month,
-                           expenses: month.expenses.filter((exp) => exp.title !== expense.title),
+                           earnings: month.earnings.filter(
+                              (earning) => earning.title !== earnings.title,
+                           ),
                         })),
                   ],
                };
@@ -163,7 +166,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
             }
          },
          onCompleted: () => {
-            toast.success('Bloco de despesas excluído com sucesso!');
+            toast.success('Bloco de ganhos excluído com sucesso!');
          },
          onError: (error) => {
             toast.error(error.message);
@@ -171,13 +174,13 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
       });
    }
 
-   function handleOnDeleteExpenseItem(expenseItemId: string) {
-      deleteExpenseItem({
+   async function handleOnDeleteEarningItem(earningItemId: string) {
+      await deleteEarningItem({
          variables: {
             data: {
-               monthId,
-               expenseTitle: expense.title,
-               expenseItemId,
+               monthId: monthId,
+               earningTitle: earnings.title,
+               earningItemId,
             },
          },
          update: (cache) => {
@@ -194,13 +197,13 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                      ...existingData.user.months
                         .filter((month) => month.id === monthId)
                         .map((month) => {
-                           const expenses = month.expenses.flatMap((ex) => {
-                              const extract = ex.extract.filter(
-                                 (extract) => extract.id !== expenseItemId,
+                           const expenses = month.earnings.flatMap((earning) => {
+                              const extract = earning.extract.filter(
+                                 (extract) => extract.id !== earningItemId,
                               );
 
                               return {
-                                 ...ex,
+                                 ...earning,
                                  extract,
                               };
                            });
@@ -222,85 +225,34 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                });
 
                updateUser(updatedData);
-
-               setExpenses((prev) => prev.filter((prev) => prev.id !== expenseItemId));
+               setEarningsData((prev) => prev.filter((prev) => prev.id !== earningItemId));
             }
          },
          onError: (error) => {
-            toast.error(error.message);
-         },
-      });
-   }
-
-   function handleOnPayExpense(expenseItemId: string) {
-      payExpenseItem({
-         variables: {
-            data: {
-               monthId,
-               expenseTitle: expense.title,
-               expenseItemId,
-            },
-         },
-         update: (cache, { data }) => {
-            const existingData: { user: User } | null = cache.readQuery({
-               query: GET_USER_BY_EMAIL,
-               variables: { email: '' },
-            });
-
-            if (existingData) {
-               const updatedData = {
-                  ...existingData.user,
-                  months: [
-                     ...existingData.user.months.filter((month) => month.id !== monthId),
-                     ...existingData.user.months
-                        .filter((month) => month.id === monthId)
-                        .map((month) => ({
-                           ...month,
-                           expenses: data.payExpense.expenses,
-                        })),
-                  ],
-               };
-
-               cache.writeQuery({
-                  query: GET_USER_BY_EMAIL,
-                  data: {
-                     user: updatedData,
-                  },
-                  variables: { email: '' },
-               });
-
-               updateUser(updatedData);
-
-               setExpenses([
-                  ...data.payExpense.expenses.find((ex: Expenses) => ex.title === expense.title)
-                     .extract,
-               ]);
-            }
-         },
-         onError: (error) => {
-            console.log(error);
             toast.error(error.message);
          },
       });
    }
 
    useEffect(() => {
-      setExpenses([...expense.extract].sort((a, b) => b.value - a.value));
-   }, [expense.extract]);
+      setEarningsData([...earnings.extract].sort((a, b) => b.value - a.value));
+   }, [earnings.extract]);
 
-   return (
+   return earnings.title.length > 0 ? (
       <div className="mt-6 box-border w-full rounded-lg bg-slate-800 p-4 first:mt-0">
          <div className="mb-5 flex items-center justify-between px-1">
-            <h3 className="text-xl capitalize">{expense.title}</h3>
+            <h3 className="text-xl capitalize">{earnings.title}</h3>
 
             <div className="flex items-center gap-2">
-               <FormattedPrice
-                  price={expenses.reduce((a, b) => a + b.value, 0)}
-                  style="spent"
-                  classNames="text-xl"
-               />
+               {earningsData.length > 0 && (
+                  <FormattedPrice
+                     price={earningsData.reduce((a, b) => a + b.value, 0)}
+                     style="profit"
+                     classNames="text-xl"
+                  />
+               )}
 
-               {expenses.length > 1 && (
+               {earningsData.length > 1 && (
                   <div className="relative flex items-center">
                      <button
                         type="button"
@@ -338,7 +290,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                               <button
                                  type="button"
                                  onClick={() => {
-                                    setExpenses((prev) =>
+                                    setEarningsData((prev) =>
                                        [...prev].sort((a, b) => b.value - a.value),
                                     );
                                     setShouldShowListOptions(false);
@@ -353,7 +305,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                               <button
                                  type="button"
                                  onClick={() => {
-                                    setExpenses((prev) =>
+                                    setEarningsData((prev) =>
                                        [...prev].sort((a, b) => a.value - b.value),
                                     );
                                     setShouldShowListOptions(false);
@@ -370,93 +322,61 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
             </div>
          </div>
 
-         <ul
-            id="month-sub-items"
-            className="flex max-h-[285px] flex-col items-center overflow-y-auto"
-         >
-            {expenses.map((expenseItem) => (
-               <li
-                  key={expenseItem.id}
-                  className="flex w-full items-center justify-between border-b px-1 py-4 text-sm text-gray-400"
-               >
-                  {expenseItem.name}
+         {earningsData.length > 0 && (
+            <ul
+               id="month-sub-items"
+               className="flex max-h-[285px] flex-col items-center justify-center overflow-y-auto"
+            >
+               {earningsData.map((earning) => (
+                  <li
+                     key={earning.id}
+                     className="flex w-full items-center justify-between border-b px-1 py-4 text-sm text-gray-400"
+                  >
+                     {earning.name}
 
-                  <div className="flex items-center gap-2">
-                     <FormattedPrice
-                        price={expenseItem.value}
-                        style="normal"
-                        classNames="text-sm"
-                     />
+                     <div className="flex items-center gap-2">
+                        <FormattedPrice price={earning.value} style="normal" classNames="text-sm" />
 
-                     <UpdateMonthSubItems
-                        monthId={monthId}
-                        extract={expenseItem}
-                        blockTitle={expense.title}
-                        type="expenses"
-                     />
+                        <UpdateMonthSubItems
+                           monthId={monthId}
+                           extract={earning}
+                           blockTitle={earnings.title}
+                           type="earnings"
+                        />
 
-                     {expenseItem.date?.paidOut ? (
-                        <span className="inline-block p-1" title="Pago">
-                           <Check size={16} className="text-green-400" />
-                        </span>
-                     ) : (
                         <InformationModal
                            button={{
-                              icon: <Handshake size={16} className="text-green-400" />,
-                              title: 'Marcar como pago',
+                              icon: <Trash2 size={16} className="text-red-400" />,
+                              title: 'Deletar ganho',
                            }}
                            modal={{
-                              title: expenseItem.name,
+                              title: earning.name,
                               openAtTheBottom: true,
                               centeredTitle: true,
                            }}
                         >
                            <div className="flex flex-col items-center gap-4">
-                              <p>Deseja marca como paga?</p>
+                              <p>Esse ganho será excluído para sempre</p>
 
                               <SubmitButton
                                  type="button"
-                                 loading={payLoading}
-                                 bgColor={{ color: 'bg-green-400', hover: 'bg-green-600' }}
-                                 onClick={() => handleOnPayExpense(expenseItem.id)}
-                                 text="Pagar"
+                                 loading={deleteLoading}
+                                 bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
+                                 onClick={() => handleOnDeleteEarningItem(earning.id)}
+                                 text="Deletar"
                               />
                            </div>
                         </InformationModal>
-                     )}
-
-                     <InformationModal
-                        button={{
-                           icon: <Trash2 size={16} className="text-red-400" />,
-                           title: 'Deletar despesa',
-                        }}
-                        modal={{
-                           title: expenseItem.name,
-                           openAtTheBottom: true,
-                           centeredTitle: true,
-                        }}
-                     >
-                        <div className="flex flex-col items-center gap-4">
-                           <p>Essa despesa será excluída para sempre</p>
-
-                           <SubmitButton
-                              type="button"
-                              loading={deleteLoading}
-                              bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
-                              onClick={() => handleOnDeleteExpenseItem(expenseItem.id)}
-                              text="Deletar"
-                           />
-                        </div>
-                     </InformationModal>
-                  </div>
-               </li>
-            ))}
-         </ul>
+                     </div>
+                  </li>
+               ))}
+            </ul>
+         )}
 
          <div className="mt-6 flex w-full justify-end gap-2">
             <Dialog.Root open={shouldShowModal} onOpenChange={(open) => setShouldShowModal(open)}>
                <Dialog.Trigger type="button" className="rounded-lg border p-2">
-                  {expenses.length > 0 ? 'Adicionar mais +' : 'Adicione uma despesa'}
+                  {earningsData.length > 0 ? 'Adicionar mais +' : 'Adicione um ganho 🚀'}
                </Dialog.Trigger>
 
                <Dialog.Portal>
@@ -465,7 +385,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                   <Dialog.Content className="fixed left-1/2 top-1/2 z-40 w-full max-w-md -translate-x-1/2 -translate-y-1/2 animate-contentShow rounded-xl bg-slate-700 p-4 max-lg:w-[95%] lg:ml-11">
                      <div className="mb-4 flex w-full items-center lg:justify-center">
                         <Dialog.Title className="inline-block w-full text-center text-xl capitalize max-lg:pl-7">
-                           {expense.title}
+                           {earnings.title}
                         </Dialog.Title>
 
                         <Dialog.DialogClose className="lg:hidden">
@@ -477,38 +397,38 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                         <Input
                            labelProps={{
                               text: 'Nome:',
-                              filled: watch('name')?.length > 0,
+                              filled: watch('earningName')?.length > 0,
                               labelClasses: 'bg-slate-700',
                            }}
                            inputProps={{
-                              id: 'expense-name',
+                              id: 'earnings-name',
                               type: 'text',
                               required: true,
                               classNames: 'bg-slate-700',
-                              register: { ...register('name') },
+                              register: { ...register('earningName') },
                            }}
                            error={{
-                              show: !!errors.name,
-                              message: errors.name?.message,
+                              show: !!errors.earningName,
+                              message: errors.earningName?.message,
                            }}
                         />
 
                         <Input
                            labelProps={{
                               text: 'Valor:',
-                              filled: watch('value')?.toString().length > 0,
+                              filled: watch('earningValue')?.toString().length > 0,
                               labelClasses: 'bg-slate-700',
                            }}
                            inputProps={{
-                              id: 'expense-value',
+                              id: 'earnings-value',
                               type: 'number',
                               required: true,
                               classNames: 'bg-slate-700',
-                              register: { ...register('value', { valueAsNumber: true }) },
+                              register: { ...register('earningValue', { valueAsNumber: true }) },
                            }}
                            error={{
-                              show: !!errors.value,
-                              message: errors.value?.message,
+                              show: !!errors.earningValue,
+                              message: errors.earningValue?.message,
                            }}
                         />
 
@@ -519,18 +439,18 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                               <Input
                                  labelProps={{
                                     text: 'Link:',
-                                    filled: watch('link')?.length > 0,
+                                    filled: watch('earningLink')?.length > 0,
                                     labelClasses: 'bg-slate-700',
                                  }}
                                  inputProps={{
-                                    id: 'expense-value',
+                                    id: 'earnings-value',
                                     type: 'text',
                                     classNames: 'bg-slate-700',
-                                    register: { ...register('link') },
+                                    register: { ...register('earningLink') },
                                  }}
                                  error={{
-                                    show: !!errors.link,
-                                    message: errors.link?.message,
+                                    show: !!errors.earningLink,
+                                    message: errors.earningLink?.message,
                                  }}
                               />
 
@@ -540,34 +460,32 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                                  }}
                                  labelProps={{
                                     text: 'Anotações:',
-                                    filled: watch('notes')?.length > 0,
+                                    filled: watch('earningNotes')?.length > 0,
                                     labelClasses: 'bg-slate-700',
                                  }}
                                  inputProps={{
-                                    id: 'expense-notes',
+                                    id: 'earnings-notes',
                                     type: 'textarea',
                                     classNames: 'bg-slate-700 pt-3 min-h-24 max-h-60',
-                                    register: { ...register('notes') },
+                                    register: { ...register('earningNotes') },
                                  }}
                                  error={{
-                                    show: !!errors.notes,
-                                    message: errors.notes?.message,
+                                    show: !!errors.earningNotes,
+                                    message: errors.earningNotes?.message,
                                  }}
                               />
                            </div>
                         </div>
 
-                        <button
+                        <SubmitButton
                            type="submit"
-                           className="flex w-full items-center justify-center rounded-lg bg-indigo-500 py-2 text-white transition-all duration-300 ease-out hover:bg-indigo-700"
-                           disabled={loading}
-                        >
-                           {loading ? (
-                              <Loader2Icon size={24} className="animate-spin" />
-                           ) : (
-                              'Adicionar'
-                           )}
-                        </button>
+                           loading={loading}
+                           bgColor={{
+                              color: 'bg-indigo-500',
+                              hover: 'bg-indigo-700',
+                           }}
+                           text="Adicionar"
+                        />
                      </form>
                   </Dialog.Content>
                </Dialog.Portal>
@@ -580,7 +498,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                      'w-[42px] flex p-0 items-center justify-center border border-white rounded-lg transition-all hover:bg-red-400 hover:border-red-400',
                }}
                modal={{
-                  title: expense.title,
+                  title: earnings.title,
                   openAtTheBottom: true,
                   centeredTitle: true,
                }}
@@ -590,7 +508,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
 
                   <SubmitButton
                      type="button"
-                     loading={deleteExpenseLoading}
+                     loading={deleteEarningLoading}
                      bgColor={{ color: 'bg-red-400', hover: 'bg-red-600' }}
                      onClick={handleOnDeleteBlock}
                      text="Deletar"
@@ -599,5 +517,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
             </InformationModal>
          </div>
       </div>
+   ) : (
+      <div>Nenhum ganho foi cadastrado no momento</div>
    );
 }

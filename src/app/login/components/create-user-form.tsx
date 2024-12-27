@@ -1,16 +1,19 @@
 'use client';
 
+import { useState } from 'react';
+
+import gql from 'graphql-tag';
+import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { AlertCircle, Loader2Icon } from 'lucide-react';
-import { Input } from './input';
-import { PasswordInput } from './password-input';
-import gql from 'graphql-tag';
 import { useMutation } from '@apollo/client';
 import { toast } from 'sonner';
-import { useState } from 'react';
+
 import Link from 'next/link';
+import { Input } from '@/components/input';
+import { PasswordInput } from '@/components/password-input';
+
+import { AlertCircle, Loader2Icon } from 'lucide-react';
 
 const CREATE_USER = gql`
    mutation createUser($name: String!, $email: String!, $password: String!) {

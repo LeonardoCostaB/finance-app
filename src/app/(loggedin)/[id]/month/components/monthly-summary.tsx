@@ -1,5 +1,5 @@
 import { ChevronDown } from 'lucide-react';
-import { FormattedPrice } from './formatted-price';
+import { FormattedPrice } from '@/components/formatted-price';
 import { useEffect, useState } from 'react';
 import { calculateMonthySummary } from '@/utils/calculate-monthy-sumary';
 import { MonthlyBillsPaid } from '@/utils/monthly-bills-paid';
