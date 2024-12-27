@@ -28,6 +28,7 @@ export default function Month({ params }: { params: { id: string } }) {
    const [createEarningOrExpense, { loading }] = useMutation(CREATE_EARNING_OR_EXPENSE);
 
    const [month, setMonth] = useState<User['months'] | undefined>([]);
+   const [monthlySalary, setMonthSalary] = useState(0);
 
    const [toggleLayout, setToggleLayout] = useState<'profit' | 'spent'>('profit');
    const [shouldShowModal, setShouldShowModal] = useState(false);
@@ -132,18 +133,26 @@ export default function Month({ params }: { params: { id: string } }) {
    }
 
    useEffect(() => {
-      setMonth(user?.months.filter((month) => month.id === params.id));
+      const filterMonth = user?.months.filter((month) => month.id === params.id);
+
+      const targetDate = new Date(filterMonth?.[0].date ?? '').getTime();
+
+      const userMonthlySalary = user?.monthlySalary.reduce((closest, current) => {
+         const closestDiff = Math.abs(new Date(closest.createAt).getTime() - targetDate);
+         const currentDiff = Math.abs(new Date(current.createAt).getTime() - targetDate);
+
+         return currentDiff < closestDiff ? current : closest;
+      });
+
+      setMonth(filterMonth);
+      setMonthSalary(userMonthlySalary?.salary ?? 0);
    }, [params.id, user]);
 
    return (
       <>
          <Header />
 
-         <MonthPreview
-            months={user?.months}
-            currentMonth={params.id}
-            userSalary={user?.monthlySalary?.[0]?.salary ?? 0}
-         />
+         <MonthPreview months={user?.months} currentMonth={params.id} userSalary={monthlySalary} />
 
          <main className="relative mx-auto mb-10 flex max-w-6xl flex-col max-xl:px-6 max-lg:mb-20 max-lg:px-4">
             {month && month.length > 0 && (
@@ -272,17 +281,11 @@ export default function Month({ params }: { params: { id: string } }) {
                            </button>
                         </div>
 
-                        {toggleLayout === 'profit' &&
-                           user &&
-                           user.monthlySalary?.[0].salary > 0 && (
-                              <span className="mt-6 box-border flex w-full items-center justify-between rounded-lg bg-slate-800 p-4 text-xl">
-                                 Salario:{' '}
-                                 <FormattedPrice
-                                    price={user.monthlySalary?.[0].salary}
-                                    style="profit"
-                                 />
-                              </span>
-                           )}
+                        {toggleLayout === 'profit' && monthlySalary > 0 && (
+                           <span className="mt-6 box-border flex w-full items-center justify-between rounded-lg bg-slate-800 p-4 text-xl">
+                              Salario: <FormattedPrice price={monthlySalary} style="profit" />
+                           </span>
+                        )}
 
                         <div
                            className={clsx('scroll-bar mt-6 flex w-full flex-col overflow-y-auto', {
@@ -339,7 +342,7 @@ export default function Month({ params }: { params: { id: string } }) {
                      <MonthlySummary
                         month={month}
                         userEconomy={user?.economy?.extract}
-                        monthlySalary={user?.monthlySalary?.[0].salary}
+                        monthlySalary={monthlySalary}
                      />
                   </div>
                </>
