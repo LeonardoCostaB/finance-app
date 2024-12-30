@@ -7,6 +7,7 @@ import { Header } from '@/components/header';
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 import { formatToYear } from '@/utils/client/format-to-year';
 import { Pagination } from '@/components/pagination';
+import { useRouter } from 'next/navigation';
 
 export interface Note {
    id: string;
@@ -26,7 +27,7 @@ type HomePageSearchParams = {
 
 export default function Home({ searchParams }: HomePageSearchParams) {
    const { user } = useLoggedIn();
-   // const router = useRouter();
+   const router = useRouter();
 
    // const [search, setSearch] = useState('');
    const [months, setMonths] = useState<Months[] | undefined>([]);
@@ -46,23 +47,34 @@ export default function Home({ searchParams }: HomePageSearchParams) {
 
    useEffect(() => {
       if (user && user.months.length > 0) {
+         const pageStorage = window.localStorage.getItem('pageRef');
+
+         const years = formatToYear(user.months);
+         const currentYear = new Date().getFullYear();
+
+         if (pageStorage) {
+            router.replace(`/${pageStorage}`);
+         } else {
+            const yearIndex = years.indexOf(currentYear);
+
+            router.replace(`/?page=${yearIndex + 1}&year=${currentYear}`);
+         }
+
          setMonths(user.months);
       } else {
          setMonths(undefined);
       }
-   }, [user]);
+   }, [user, router]);
 
    return (
       <>
          <Header search={{ onSearch: () => false }} />
 
          <div className="mx-auto my-12 max-w-6xl space-y-6 px-5 max-lg:mb-20">
-            <div className="flex justify-end gap-3">
-               <Pagination
-                  pages={formatToYear(months ?? [])}
-                  currentPage={{ number: +searchParams.page, index: +searchParams.year }}
-               />
-            </div>
+            <Pagination
+               pages={formatToYear(months ?? [])}
+               currentPage={{ index: +searchParams.page, year: +searchParams.year }}
+            />
 
             <div className="grid auto-rows-[250px] grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                <NewMonthCard onMonthCreated={onMonthCreated} />
@@ -72,7 +84,7 @@ export default function Home({ searchParams }: HomePageSearchParams) {
                      .filter((month) => {
                         const year = searchParams.year ?? new Date().getFullYear();
 
-                        return new Date(month.date).getFullYear() === Number(year);
+                        return new Date(month?.date).getFullYear() === Number(year);
                      })
                      .map((month) => (
                         <MonthCard

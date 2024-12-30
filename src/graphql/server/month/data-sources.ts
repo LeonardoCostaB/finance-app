@@ -111,7 +111,7 @@ export class MonthApi extends RESTDataSource {
       });
 
       const variables = {
-         ref: `${date.toLocaleDateString('pt-BR', { month: 'long' })}-${this.userId}`,
+         ref: `${date.toLocaleDateString('pt-BR', { month: 'long', year: '2-digit' }).replace(/\s/g, '-')}-${this.userId}`,
          title: date.toLocaleDateString('pt-BR', { month: 'long' }),
          date,
          id: this.userId,

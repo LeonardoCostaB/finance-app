@@ -4,33 +4,50 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import clsx from 'clsx';
+import { useEffect } from 'react';
 
 interface PaginationProps {
    pages: number[];
-   currentPage: { number: number; index: number };
+   currentPage: { index: number; year: number };
 }
 
 export function Pagination({ pages, currentPage }: PaginationProps) {
    const router = useRouter();
 
    function handleOnPreviusPage() {
-      const { number } = currentPage;
+      const { index } = currentPage;
 
-      if (number > 1) router.push(`/?page=${number - 1}&year=${pages[number - 2]}`);
+      if (index > 1) router.push(`/?page=${index - 1}&year=${pages[index - 2]}`);
    }
 
    function handleOnNextPage() {
-      const { number } = currentPage;
+      const { index } = currentPage;
 
-      if (number < pages.length) router.push(`/?page=${number + 1}&year=${pages[number]}`);
+      if (index < pages.length) router.push(`/?page=${index + 1}&year=${pages[index]}`);
    }
 
+   useEffect(() => {
+      if (!currentPage.index) return;
+
+      window.localStorage.setItem('pageRef', `?page=${currentPage.index}&year=${currentPage.year}`);
+   }, [currentPage]);
+
+   if (pages.length <= 1) return <></>;
+
    return (
-      <>
+      <div className="flex items-center justify-end gap-3">
          <button
             type="button"
+            className={clsx(
+               'flex h-6 w-6 cursor-pointer items-center justify-center rounded-full transition-all hover:bg-white/15',
+               {
+                  'disabled:cursor-default disabled:hover:bg-transparent':
+                     pages.indexOf(currentPage.year) === 0,
+               },
+            )}
             onClick={handleOnPreviusPage}
-            disabled={pages.indexOf(currentPage.index) <= 0}
+            disabled={pages.indexOf(currentPage.year) === 0}
          >
             <ChevronLeft size={16} />
          </button>
@@ -39,7 +56,13 @@ export function Pagination({ pages, currentPage }: PaginationProps) {
             <Link
                key={page}
                href={`/?page=${i + 1}&year=${page}`}
-               className="flex items-center gap-2"
+               className={clsx(
+                  'flex h-10 w-10 items-center justify-center gap-2 rounded-full text-xs transition-all hover:bg-white/15 hover:text-white',
+                  {
+                     'text-gray-500': currentPage.index - 1 !== i,
+                     'bg-indigo-400 hover:bg-indigo-400': currentPage.index - 1 === i,
+                  },
+               )}
             >
                {page}
             </Link>
@@ -47,11 +70,18 @@ export function Pagination({ pages, currentPage }: PaginationProps) {
 
          <button
             type="button"
+            className={clsx(
+               'flex h-6 w-6 cursor-pointer items-center justify-center rounded-full transition-all hover:bg-white/15',
+               {
+                  'disabled:cursor-default disabled:hover:bg-transparent':
+                     currentPage.index >= pages.length,
+               },
+            )}
             onClick={handleOnNextPage}
-            disabled={pages.indexOf(currentPage.index) + 1 >= pages.length}
+            disabled={currentPage.index >= pages.length}
          >
             <ChevronRight size={16} />
          </button>
-      </>
+      </div>
    );
 }
