@@ -57,9 +57,10 @@ export function Pagination({ pages, currentPage }: PaginationProps) {
                key={page}
                href={`/?page=${i + 1}&year=${page}`}
                className={clsx(
-                  'flex h-10 w-10 items-center justify-center gap-2 rounded-full text-xs transition-all hover:bg-white/15 hover:text-white',
+                  'flex h-10 w-10 items-center justify-center gap-2 rounded-full text-xs transition-all',
                   {
-                     'text-gray-500': currentPage.index - 1 !== i,
+                     'text-gray-500 hover:bg-white/15 hover:text-white':
+                        currentPage.index - 1 !== i,
                      'bg-indigo-400 hover:bg-indigo-400': currentPage.index - 1 === i,
                   },
                )}
