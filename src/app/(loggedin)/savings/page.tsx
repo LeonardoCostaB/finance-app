@@ -31,7 +31,7 @@ export default function Savings() {
                      key={extract.date}
                      className="flex items-center justify-between rounded-lg border px-4 py-2"
                   >
-                     <p>{format(extract.date, 'MM/dd/yyyy')}</p>
+                     <p>{format(extract.date, 'dd/MM/yyyy')}</p>
 
                      <div className="flex items-center gap-4">
                         <FormattedPrice style="normal" price={extract.value} />
