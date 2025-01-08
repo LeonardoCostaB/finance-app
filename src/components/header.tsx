@@ -1,10 +1,11 @@
 'use client';
 
 import { useLoggedIn } from '@/hooks/use-loggedIn';
-import { ArrowLeft, PiggyBank, User } from 'lucide-react';
-import { useEffect } from 'react';
+import { ArrowLeft, Construction, PiggyBank, User, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { LogoutButton } from './menu/LogoutButton';
 
 interface HeaderProps {
    search?: {
@@ -15,6 +16,8 @@ interface HeaderProps {
 
 export function Header({ search, backToPage }: HeaderProps) {
    const { getUser, user } = useLoggedIn();
+
+   const [shouldShowMobileMenu, setShouldShowMobileMenu] = useState(false);
 
    useEffect(() => {
       getUser();
@@ -57,6 +60,7 @@ export function Header({ search, backToPage }: HeaderProps) {
                   <button
                      type="button"
                      className="h-10 w-10 overflow-hidden rounded-full bg-slate-700"
+                     onClick={() => setShouldShowMobileMenu(true)}
                   >
                      {user?.avatar?.url ? (
                         <Image
@@ -69,6 +73,30 @@ export function Header({ search, backToPage }: HeaderProps) {
                         <User size={40} className="p-1" />
                      )}
                   </button>
+
+                  <div
+                     className={`fixed inset-0 z-40 bg-slate-900 transition-all duration-200 ease-in-out ${shouldShowMobileMenu ? '' : '-translate-x-full'}`}
+                  >
+                     <div className="flex items-center justify-between">
+                        <button
+                           type="button"
+                           className="pl-4"
+                           onClick={() => setShouldShowMobileMenu(false)}
+                        >
+                           <X size={24} />
+                        </button>
+
+                        <ul>
+                           <LogoutButton />
+                        </ul>
+                     </div>
+
+                     <div className="flex h-3/4 flex-col items-center justify-center gap-4">
+                        <Construction size={50} />
+
+                        <p className="text-2xl">Área em construção...</p>
+                     </div>
+                  </div>
                </div>
             )}
          </div>

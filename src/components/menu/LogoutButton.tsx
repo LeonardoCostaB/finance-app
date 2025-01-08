@@ -1,23 +1,24 @@
 'use client';
 
+import { useCallback } from 'react';
+
 import { useMutation } from '@apollo/client';
 import { useRouter } from 'next/navigation';
-import gql from 'graphql-tag';
 
 import { Item } from './Item';
 import { LogOut } from 'lucide-react';
 
-const LOGOUT = gql`
-   mutation Logout($userId: String) {
-      logout(userId: $userId)
-   }
-`;
+import { LOGOUT } from '@/graphql/client/mutations/login';
 
-export function LogoutButton({ hidden }: { hidden?: boolean }) {
+interface LogoutButtonProps {
+   hidden?: boolean;
+}
+
+export function LogoutButton({ hidden }: LogoutButtonProps) {
    const [logout, { loading }] = useMutation(LOGOUT);
    const router = useRouter();
 
-   function handleLogOut() {
+   const handleLogOut = useCallback(() => {
       logout({
          variables: {
             userId: '',
@@ -26,7 +27,7 @@ export function LogoutButton({ hidden }: { hidden?: boolean }) {
             if (data?.logout) router.push('/login');
          },
       });
-   }
+   }, []);
 
    return (
       <Item

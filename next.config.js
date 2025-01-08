@@ -1,4 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
+const runtimeCaching = require('next-pwa/cache');
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const withPWA = require('next-pwa')({
    dest: 'public',
    disable: process.env.NODE_ENV === 'development',
@@ -33,4 +36,22 @@ const nextConfig = {
    // },
 };
 
-module.exports = withPWA(nextConfig);
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+   enabled: process.env.ANALYZE === 'true',
+   openAnalyzer: true,
+});
+
+module.exports = withBundleAnalyzer(
+   withPWA({
+      pwa: {
+         dest: 'public',
+         runtimeCaching,
+      },
+      poweredByHeader: false,
+   }),
+   {
+      reactStrictMode: true,
+      nextConfig,
+   },
+);
