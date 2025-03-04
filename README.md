@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# HabitUs 💪
+# Habitto.life 💪
 
-## Getting Started
+## 🧪 Technologies
 
-First, run the development server:
+This project was developed using the following technologies:
+
+- [NodeJS](https://nodejs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Fastify](https://www.fastify.io/)
+- [Prisma](https://www.prisma.io/)
+- [ViteJS](https://vitejs.dev/)
+- [ReactJS](https://reactjs.org/)
+- [TailwindCSS](https://tailwindcss.com/)
+- [React Native](https://reactnative.dev/)
+- [Expo](https://expo.io/)
+
+## 🧪 SOLID
+
+Principles:
+
+- Single Responsibility Principle: Each class has a unique responsibility;
+- Open/Closed Principle: Application classes must be open for extension but closed for modification;
+- Liskov Substitution Principle: We should be able to replace a parent class with an inheritance from it and everything still works;
+- Interface Segregation Principle: Segregate Interfaces;
+- Dependency Inversion Principle: Instead of the class fetching the dependencies it needs, the context informs the class of the required dependencies;
+
+## 🚀 Getting started
+
+Clone the project and access the folder.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+$ git clone https://github.com/lucasfontesgaspareto/nlw-setup-ignite.git
+$ cd nlw-setup-ignite
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Follow the steps below:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Web
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```bash
+# Install the web dependencies
+$ cd web
+$ npm install
 
-## Learn More
+# Start the web project
+$ npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Server
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Install the server dependencies
+$ cd server
+$ npm install
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+# Start the server project
+$ npx prisma migrate deploy
+$ npm run dev
+```
 
-## Deploy on Vercel
+### Mobile
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Install the mobile dependencies
+$ cd mobile
+$ npm install
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+# Start the mobile project
+$ npm start
+```
+
+## 🔖 Layout
+
+You can view the project layout through the links below:
+
+- [Layout](<https://www.figma.com/file/pJpaMSKVfCmPUMZJOVwquQ/Habits-(i)-(Community)?node-id=6%3A344&t=1UcC6dIPVGBxdhpz-1>)
+
+Remembering that you need to have a [Figma](http://figma.com/) account to access it.
+
+---

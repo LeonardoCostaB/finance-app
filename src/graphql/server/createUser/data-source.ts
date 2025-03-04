@@ -33,6 +33,9 @@ export class CreateUserApi extends RESTDataSource {
             subscriber(where: { id: $id }) {
                id,
                sessionToken,
+               refreshToken {
+                  id
+               }
             }
          }
       `;
@@ -56,6 +59,7 @@ export class CreateUserApi extends RESTDataSource {
          return {
             id: user.data.subscriber?.id ?? '',
             token: user.data.subscriber?.sessionToken ?? '',
+            refreshToken: user.data.subscriber?.refreshToken.id,
          };
       } catch (error: any) {
          console.log(error.response.data.errors);

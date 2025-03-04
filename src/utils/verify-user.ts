@@ -1,4 +1,5 @@
 import { CreateUserApi } from '@/graphql/server/createUser/data-source';
+import { RefreshTokenApi } from '@/graphql/server/refreshToken/data-sources';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
@@ -9,8 +10,13 @@ async function verifyJwtToken(token: string) {
       const userApi = new CreateUserApi();
       userApi.initialize({} as any);
       const foundUser = await userApi.getUserById(id);
+      const refreshToken = new RefreshTokenApi(foundUser.id);
 
-      if (foundUser.token !== token) return '';
+      if (foundUser.token !== token) {
+         await refreshToken.refreshToken(foundUser.refreshToken, token);
+
+         return foundUser.id;
+      }
 
       return id;
    } catch (error) {

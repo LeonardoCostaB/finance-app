@@ -10,6 +10,7 @@ import { userIsLoggedIn } from '@/utils/verify-user';
 import { UserApi } from '@/graphql/server/user/data-source';
 import { MonthApi } from '@/graphql/server/month/data-sources';
 import { EconomyApi } from '@/graphql/server/economy/data-sources';
+import { RefreshTokenApi } from '@/graphql/server/refreshToken/data-sources';
 
 interface CustomContext {
    dataSources: {
@@ -33,6 +34,7 @@ const handler = startServerAndCreateNextHandler<NextRequest, CustomContext>(apol
          userApi: new UserApi(),
          monthApi: new MonthApi(await userIsLoggedIn()),
          economyApi: new EconomyApi(),
+         refreshTokenApi: new RefreshTokenApi(await userIsLoggedIn()),
       },
       isLoggedIn: await userIsLoggedIn(),
    }),

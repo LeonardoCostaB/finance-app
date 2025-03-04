@@ -61,6 +61,11 @@ export class UserApi extends RESTDataSource {
                   expenses
                   earnings
                }
+               refreshToken {
+                  id
+                  userId
+                  expiresIn
+               }
             }
          }
       `;

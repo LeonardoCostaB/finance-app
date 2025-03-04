@@ -12,6 +12,7 @@ interface LoginApiResponse {
          subscriber: {
             id: string;
             password: string;
+            refreshToken: { id: string };
          };
       };
    };
@@ -37,6 +38,9 @@ export class LoginApi extends RESTDataSource {
             subscriber(where: { email: $email }) {
                id,
                password
+               refreshToken {
+                  id
+               }
             }
          }
       `;
@@ -58,13 +62,33 @@ export class LoginApi extends RESTDataSource {
       }
    }
 
-   private async saveCookieToDb(user: { id: string; email: string; password: string }) {
+   private async saveCookieToDb(user: {
+      id: string;
+      email: string;
+      password: string;
+      refreshToken: { id: string };
+   }) {
       const token = createJwtToken({ id: user.id });
 
       const query = `
-         mutation MyMutation($token: String!, $id: ID!) {
-            updateSubscriber(data: { sessionToken: $token }, where: { id: $id }) {
+         mutation UPDATE_SUBSCRIBER(
+            $token: String,
+            $createRefreshToken: RefreshTokenUpdateOneInlineInput,
+            $id:ID!
+         ) {
+            updateSubscriber(
+               data: {
+                  sessionToken: $token,
+                  refreshToken: $createRefreshToken
+               },
+               where: {
+                  id: $id
+               }
+            ) {
                id
+               refreshToken {
+                  id
+               }
             }
 
             publishManySubscribers(to: PUBLISHED, where: { id: $id }) {
@@ -72,13 +96,33 @@ export class LoginApi extends RESTDataSource {
             }
          }
       `;
+
+      const createRefreshToken = user?.refreshToken?.id
+         ? {
+              update: {
+                 where: {
+                    userId: user.id,
+                 },
+                 data: {
+                    expiresIn: Date.now() + 1000 * 60 * 60 * 24 * 7,
+                 },
+              },
+           }
+         : {
+              create: {
+                 userId: user.id,
+                 expiresIn: Date.now() + 1000 * 60 * 60 * 24 * 7,
+              },
+           };
+
       const variables = {
          token,
+         createRefreshToken,
          id: user.id,
       };
 
       try {
-         await axios.post(
+         const { data: cms } = await axios.post(
             this.baseURL as string,
             { query, variables },
             {
@@ -86,9 +130,12 @@ export class LoginApi extends RESTDataSource {
             },
          );
 
-         return token;
+         return {
+            token,
+            refreshToken: cms.data.updateSubscriber.refreshToken.id,
+         };
       } catch (error: any) {
-         console.log(error.response.data.errors[0].extensions.failedActions);
+         console.log(error.response.data);
 
          return { error: error.response.data.errors };
       }
@@ -145,14 +192,25 @@ export class LoginApi extends RESTDataSource {
          throw new GraphQLError('Email ou senha incorreta, tente novamente...');
       }
 
-      const token = await this.saveCookieToDb({ ...verifyUser, email });
+      const data = await this.saveCookieToDb({ ...verifyUser, email });
 
-      if (typeof token !== 'string')
+      console.log(data);
+
+      if (typeof data.token !== 'string')
          throw new GraphQLError('Obtivemos um error ao válidar o usuário');
 
       cookies().set({
+         name: 'refresh-token',
+         value: data.refreshToken,
+         secure: true,
+         httpOnly: true,
+         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+         path: '/', // onde o cookie vai ser válido,
+      });
+
+      cookies().set({
          name: 'auth-token',
-         value: token,
+         value: data.token,
          secure: true,
          httpOnly: true,
          maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
@@ -168,24 +226,16 @@ export class LoginApi extends RESTDataSource {
       });
 
       return {
-         token,
+         token: data.token,
       };
    }
 
    async logout(userId: string) {
-      // const user = await this.getUser(userName);
-
-      // if (user[0].id !== this.context.loggedUserId) {
-      //    throw new Error("You are not this user");
-      // }
-
-      // await this.patch(user[0].id, { token: "" }, { cacheOptions: { ttl: 0 } });
-      // this.context.res.clearCookie('jwtToken')
-
       await this.deleteCookieToDb(userId);
 
       cookies().delete('auth-token');
       cookies().delete('isLoggedIn');
+      cookies().delete('refresh-token');
 
       return true;
    }

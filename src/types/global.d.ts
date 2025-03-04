@@ -76,4 +76,12 @@ interface User {
    benefits: Array<CommonPaymentsAndBenefits>;
    monthlySalary: Array<MonthlySalary>;
    months: Array<Months>;
+   refreshToken: RefreshToken;
+}
+
+interface RefreshToken {
+   id: string;
+   token: string;
+   expiresIn: number;
+   userId: string;
 }
