@@ -9,11 +9,20 @@ const withPWA = require('next-pwa')({
    skipWaiting: true,
 });
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+   enabled: process.env.ANALYZE === 'true',
+   openAnalyzer: true,
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+   reactStrictMode: true,
+   poweredByHeader: false,
    images: {
       minimumCacheTTL: 60,
       disableStaticImages: true,
+      domains: ['media.graphassets.com'],
       remotePatterns: [
          {
             protocol: 'https',
@@ -27,31 +36,10 @@ const nextConfig = {
          },
       ],
    },
-   // withPWA,
-   // pwa: {
-   //    disabled: process.env.NODE_ENV !== 'production',
-   //    dest: 'public',
-   //    register: true,
-   //    sw: 'sw.js',
-   // },
+   pwa: {
+      dest: 'public',
+      runtimeCaching,
+   },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-   enabled: process.env.ANALYZE === 'true',
-   openAnalyzer: true,
-});
-
-module.exports = withBundleAnalyzer(
-   withPWA({
-      pwa: {
-         dest: 'public',
-         runtimeCaching,
-      },
-      poweredByHeader: false,
-   }),
-   {
-      reactStrictMode: true,
-      nextConfig,
-   },
-);
+module.exports = withBundleAnalyzer(withPWA(nextConfig));

@@ -31,6 +31,7 @@ export function Pagination({ pages, currentPage }: PaginationProps) {
       if (!currentPage.index) return;
 
       window.localStorage.setItem('pageRef', `?page=${currentPage.index}&year=${currentPage.year}`);
+      window.localStorage.setItem('currentActiveYear', `${currentPage.year}`);
    }, [currentPage]);
 
    if (pages.length <= 1) return <></>;

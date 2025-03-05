@@ -21,6 +21,11 @@ export function MonthPreview({
             <SwiperCustomSlide
                slides={months
                   .filter((month) => month.id !== currentMonth)
+                  .filter((month) => {
+                     const currentYearStorage = localStorage.getItem('currentActiveYear');
+                     const year = currentYearStorage ?? new Date().getFullYear();
+                     return new Date(month?.date).getFullYear() === Number(year);
+                  })
                   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                   .map((month) => {
                      return {

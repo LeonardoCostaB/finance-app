@@ -109,7 +109,7 @@ export function NewMonthCard({ onMonthCreated, forThePreview }: NewMonthCardProp
          }}
       >
          <Dialog.Trigger
-            className={`flex flex-col items-center ${forThePreview ? 'max-h-[106px] whitespace-nowrap rounded-md p-4 max-lg:w-32 max-lg:p-2' : 'gap-3 rounded-3xl p-5'} space-y-3 bg-slate-700 text-left outline-none hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400`}
+            className={`flex flex-col items-center ${forThePreview ? 'my-[2px] max-h-[106px] whitespace-nowrap rounded-md p-4 max-lg:w-32 max-lg:p-2' : 'gap-3 rounded-3xl p-5'} space-y-3 bg-slate-700 text-left outline-none hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400`}
          >
             <span
                className={`text-center text-lg font-medium text-slate-200 ${forThePreview ? 'max-lg:text-base' : ''}`}

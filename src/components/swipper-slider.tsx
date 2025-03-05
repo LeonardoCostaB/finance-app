@@ -44,7 +44,7 @@ export function SwiperCustomSlide({ slides, classNames }: SwiperCustomSlide) {
                spaceBetween: 16,
             },
          }}
-         loop
+         loop={slides.length > 4}
          autoplay={{
             delay: 0,
             pauseOnMouseEnter: true,
@@ -52,7 +52,7 @@ export function SwiperCustomSlide({ slides, classNames }: SwiperCustomSlide) {
          speed={2000}
       >
          {slides.map((slide) => (
-            <SwiperSlide key={slide.id} className="!flex">
+            <SwiperSlide key={slide.id} className="!flex first:pl-1">
                {slide.children}
             </SwiperSlide>
          ))}

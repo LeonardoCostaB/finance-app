@@ -74,7 +74,8 @@ export class LoginApi extends RESTDataSource {
          mutation UPDATE_SUBSCRIBER(
             $token: String,
             $createRefreshToken: RefreshTokenUpdateOneInlineInput,
-            $id:ID!
+            $id: ID!,
+            $userRefreshTokenId: String
          ) {
             updateSubscriber(
                data: {
@@ -91,8 +92,12 @@ export class LoginApi extends RESTDataSource {
                }
             }
 
-            publishManySubscribers(to: PUBLISHED, where: { id: $id }) {
+            publishSubscriber(to: PUBLISHED, where: { id: $id }) {
                __typename
+            }
+
+            publishRefreshToken(where: { userId: $userRefreshTokenId }) {
+               id
             }
          }
       `;
@@ -119,6 +124,7 @@ export class LoginApi extends RESTDataSource {
          token,
          createRefreshToken,
          id: user.id,
+         userRefreshTokenId: user.id,
       };
 
       try {

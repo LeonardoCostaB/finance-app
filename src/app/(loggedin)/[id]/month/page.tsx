@@ -34,6 +34,9 @@ export default function Month({ params }: { params: { id: string } }) {
    const [shouldShowModal, setShouldShowModal] = useState(false);
    const [shouldShowArrow, setShouldShowArrow] = useState(true);
 
+   const isCurrentYear =
+      window?.localStorage.getItem('currentActiveYear') === new Date().getFullYear().toString();
+
    function handleOnCreateBlock(e: FormEvent) {
       e.preventDefault();
 
@@ -159,7 +162,12 @@ export default function Month({ params }: { params: { id: string } }) {
                <>
                   <div className="flex w-[calc(100%-332px)] items-center justify-center max-lg:w-full">
                      <h1 className="flex-1 pl-[80px] text-center text-4xl capitalize max-lg:pl-0 max-lg:text-left max-lg:text-2xl">
-                        {month[0]?.title}
+                        {isCurrentYear
+                           ? month[0].title
+                           : new Date(month[0].date).toLocaleDateString('pt-BR', {
+                                month: 'short',
+                                year: 'numeric',
+                             })}
                      </h1>
 
                      <div className="flex items-center gap-4">
