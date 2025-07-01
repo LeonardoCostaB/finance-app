@@ -200,26 +200,24 @@ export class LoginApi extends RESTDataSource {
 
       const data = await this.saveCookieToDb({ ...verifyUser, email });
 
-      console.log(data);
-
       if (typeof data.token !== 'string')
          throw new GraphQLError('Obtivemos um error ao válidar o usuário');
 
-      cookies().set({
-         name: 'refresh-token',
-         value: data.refreshToken,
-         secure: true,
-         httpOnly: true,
-         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-         path: '/', // onde o cookie vai ser válido,
-      });
+      // cookies().set({
+      //    name: 'refresh-token',
+      //    value: data.refreshToken,
+      //    secure: true,
+      //    httpOnly: true,
+      //    maxAge: 1000 * 60 * 60 * 24 * 60, // 7 days
+      //    path: '/', // onde o cookie vai ser válido,
+      // });
 
       cookies().set({
          name: 'auth-token',
          value: data.token,
          secure: true,
          httpOnly: true,
-         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+         maxAge: 1000 * 60 * 60 * 24 * 60, // 7 days
          path: '/', // onde o cookie vai ser válido,
       });
 

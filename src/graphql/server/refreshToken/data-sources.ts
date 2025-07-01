@@ -42,7 +42,7 @@ export class RefreshTokenApi extends RESTDataSource {
 
       const variables = {
          refreshTokenId,
-         expiresIn: Date.now() + 1000 * 60 * 60 * 24 * 7,
+         expiresIn: Date.now() + 1000 * 60 * 60 * 24 * 60,
          updateSubsciber: {
             update: {
                where: {

@@ -22,11 +22,16 @@ const nextConfig = {
    images: {
       minimumCacheTTL: 60,
       disableStaticImages: true,
-      domains: ['media.graphassets.com'],
+      domains: ['media.graphassets.com', 'sa-east-1.graphassets.com'],
       remotePatterns: [
          {
             protocol: 'https',
             hostname: 'media.graphassets.com',
+            port: '',
+         },
+         {
+            protocol: 'https',
+            hostname: 'sa-east-1.graphassets.com',
             port: '',
          },
          {
