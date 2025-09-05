@@ -86,6 +86,7 @@ export default function Home({ searchParams }: HomePageSearchParams) {
 
                         return new Date(month?.date).getFullYear() === Number(year);
                      })
+                     .reverse()
                      .map((month) => (
                         <MonthCard
                            key={month.id}
