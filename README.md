@@ -5,7 +5,7 @@ O projeto centraliza todas as minhas contas, registros mensais e anotações fin
 
 Além de ser uma aplicação utilizada no dia a dia, este projeto funciona como um **laboratório técnico**, onde experimento novas tecnologias, padrões arquiteturais e abordagens conforme evoluo como desenvolvedor.
 
-🚀 Deploy: [https://finance-app.vercel.app *(exemplo)*](https://finance-app-orpin-eight.vercel.app/)
+🚀 Deploy: [finance-app deploy](https://finance-app-orpin-eight.vercel.app/)
 
 ---
 
