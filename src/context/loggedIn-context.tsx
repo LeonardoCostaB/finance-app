@@ -1,10 +1,8 @@
 'use client';
 
-import { createContext, ReactNode, useEffect, useState } from 'react';
+import { createContext, ReactNode, useState } from 'react';
 
 import { gql, useLazyQuery } from '@apollo/client';
-import Cookies from 'js-cookie';
-import { useRouter } from 'next/navigation';
 import { sortMonth } from '@/utils/client/sort-month';
 
 export const GET_USER_BY_EMAIL = gql`
@@ -107,19 +105,11 @@ const LoggedInContext = createContext<LoggedInContextProps>({
 
 function LoggedInProvider({ children }: LoggedInProviderProps) {
    const [getUserQuery] = useLazyQuery(GET_USER_BY_EMAIL);
-   const router = useRouter();
-
    const [user, setUser] = useState<User | null>(null);
 
    function getUser() {
       getUserQuery({
          variables: { email: '' },
-         onError: (error) => {
-            if (error.message === 'Unauthenticated') {
-               router.push('/unauthenticated');
-            }
-            console.log(error);
-         },
          onCompleted: (data) => {
             setUser({
                ...data.user,
@@ -136,12 +126,6 @@ function LoggedInProvider({ children }: LoggedInProviderProps) {
          months: sortMonth([...user.months]),
       });
    }
-
-   useEffect(() => {
-      if (!Cookies.get('isLoggedIn')) {
-         router.push('/unauthenticated');
-      }
-   }, []);
 
    return (
       <LoggedInContext.Provider

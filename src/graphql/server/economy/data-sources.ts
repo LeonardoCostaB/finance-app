@@ -77,8 +77,6 @@ export class EconomyApi extends RESTDataSource {
             { headers: this.headers },
          );
 
-         console.log(cms);
-
          await this.publishEconomy(cms.data.createEconomy.id);
 
          return cms.data.createEconomy;

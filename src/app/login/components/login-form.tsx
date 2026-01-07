@@ -15,7 +15,7 @@ import { Loader2Icon } from 'lucide-react';
 const LOGIN = gql`
    mutation Login($email: String!, $password: String!) {
       login(data: { email: $email, password: $password }) {
-         token
+         success
       }
    }
 `;
@@ -46,10 +46,11 @@ export function LoginForm() {
             password,
          },
          onError: (error) => {
+            console.error({ error });
             toast.error(error.message);
          },
          onCompleted: (data) => {
-            if (data?.login.token) {
+            if (data?.login.success) {
                window.location.reload();
             }
          },

@@ -61,11 +61,6 @@ export class UserApi extends RESTDataSource {
                   expenses
                   earnings
                }
-               refreshToken {
-                  id
-                  userId
-                  expiresIn
-               }
             }
          }
       `;
@@ -90,7 +85,10 @@ export class UserApi extends RESTDataSource {
                : user.data.subscriber.monthlySalary,
          };
       } catch (error: any) {
-         console.log(error);
+         console.error({
+            error,
+            errorJson: JSON.stringify(error.response.data, null, 2),
+         });
       }
    }
 

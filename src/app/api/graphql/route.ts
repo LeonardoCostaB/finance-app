@@ -10,7 +10,7 @@ import { userIsLoggedIn } from '@/utils/verify-user';
 import { UserApi } from '@/graphql/server/user/data-source';
 import { MonthApi } from '@/graphql/server/month/data-sources';
 import { EconomyApi } from '@/graphql/server/economy/data-sources';
-import { RefreshTokenApi } from '@/graphql/server/refreshToken/data-sources';
+// import { RefreshTokenApi } from '@/graphql/server/refreshToken/data-sources';
 
 interface CustomContext {
    dataSources: {
@@ -19,25 +19,36 @@ interface CustomContext {
       userApi: UserApi;
       monthApi: MonthApi;
    };
-   isLoggedIn: string;
+   isLoggedIn: string | null;
 }
 
 const apolloServer = new ApolloServer<CustomContext>({ typeDefs, resolvers });
 
 const handler = startServerAndCreateNextHandler<NextRequest, CustomContext>(apolloServer, {
-   context: async (req) => ({
-      req,
-      res: new NextResponse(),
-      dataSources: {
-         loginApi: new LoginApi(),
-         createUserApi: new CreateUserApi(),
-         userApi: new UserApi(),
-         monthApi: new MonthApi(await userIsLoggedIn()),
-         economyApi: new EconomyApi(),
-         refreshTokenApi: new RefreshTokenApi(await userIsLoggedIn()),
-      },
-      isLoggedIn: await userIsLoggedIn(),
-   }),
+   // eslint-disable-next-line require-await
+   context: async (req) => {
+      const cookiesFromHeader = req.headers.get('cookie');
+      const tokenFromCookies = cookiesFromHeader
+         ?.split('; ')
+         .find((cookie) => cookie.startsWith('auth-access-token='))
+         ?.split('=')[1];
+
+      const isLoggedIn = userIsLoggedIn(tokenFromCookies);
+
+      return {
+         req,
+         res: new NextResponse(),
+         isLoggedIn,
+         dataSources: {
+            loginApi: new LoginApi(),
+            createUserApi: new CreateUserApi(),
+            userApi: new UserApi(),
+            monthApi: new MonthApi(isLoggedIn),
+            economyApi: new EconomyApi(),
+            // refreshTokenApi: new RefreshTokenApi(userIsLoggedIn()),
+         },
+      };
+   },
 });
 
 export async function GET(request: NextRequest) {

@@ -7,9 +7,9 @@ import { randomUUID } from 'crypto';
 
 export class MonthApi extends RESTDataSource {
    private headers: { ['Content-Type']: string; Authorization: string };
-   private userId: string;
+   private userId: string | null;
 
-   constructor(isLoggedIn: string) {
+   constructor(isLoggedIn: string | null) {
       super();
       this.baseURL = process.env.BASE_URL;
       this.userId = isLoggedIn;
@@ -19,8 +19,8 @@ export class MonthApi extends RESTDataSource {
       };
    }
 
-   private verifyUserAuthenticity(currentUserId: string, dbUserId: string) {
-      if (currentUserId !== dbUserId) {
+   private verifyUserAuthenticity(currentUserId: string | null, dbUserId: string) {
+      if (!currentUserId || currentUserId !== dbUserId) {
          throw new Error('Você não tem permissão para acessar esse item');
       }
    }

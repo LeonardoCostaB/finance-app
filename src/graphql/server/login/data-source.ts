@@ -1,10 +1,13 @@
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import { GraphQLError } from 'graphql';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 import { RESTDataSource } from 'apollo-datasource-rest';
-import { createJwtToken } from './utils/login-repositories';
+import { createAccessToken, createRefeshToken } from './utils/login-repositories';
 import { cookies } from 'next/headers';
+import { hashToken } from './utils/create-hash';
 
 interface LoginApiResponse {
    getUser: {
@@ -17,6 +20,13 @@ interface LoginApiResponse {
       };
    };
 }
+
+type saveCookieToDbProps = {
+   id: string;
+   hashedRefreshToken: string | null;
+   expiresAt: string;
+   sessionId: string;
+};
 
 export class LoginApi extends RESTDataSource {
    private headers: { ['Content-Type']: string; Authorization: string };
@@ -38,7 +48,7 @@ export class LoginApi extends RESTDataSource {
             subscriber(where: { email: $email }) {
                id,
                password
-               refreshToken {
+               refreshTokens {
                   id
                }
             }
@@ -58,36 +68,42 @@ export class LoginApi extends RESTDataSource {
 
          return user.data.subscriber;
       } catch (error: any) {
-         console.log(error);
+         console.error({
+            error: error,
+            errorJson: JSON.stringify(error.response.data, null, 2),
+         });
       }
    }
 
-   private async saveCookieToDb(user: {
-      id: string;
-      email: string;
-      password: string;
-      refreshToken: { id: string };
-   }) {
-      const token = createJwtToken({ id: user.id });
-
+   private async saveCookieToDb(token: saveCookieToDbProps): Promise<{ success: boolean }> {
       const query = `
          mutation UPDATE_SUBSCRIBER(
-            $token: String,
-            $createRefreshToken: RefreshTokenUpdateOneInlineInput,
-            $id: ID!,
-            $userRefreshTokenId: String
+            $id: ID!
+            $tokenHash: String!
+            $expiresAt: String!
+            $sessionId: String!
          ) {
             updateSubscriber(
                data: {
-                  sessionToken: $token,
-                  refreshToken: $createRefreshToken
+                  refreshTokens: {
+                     create: {
+                        tokenHash: $tokenHash
+                        expiresAt: $expiresAt
+                        sessionId: $sessionId
+                        subscriber: {
+                           connect: {
+                              id: $id
+                           }
+                        }
+                     }
+                  }
                },
                where: {
                   id: $id
                }
             ) {
                id
-               refreshToken {
+               refreshTokens {
                   id
                }
             }
@@ -96,72 +112,17 @@ export class LoginApi extends RESTDataSource {
                __typename
             }
 
-            publishRefreshToken(where: { userId: $userRefreshTokenId }) {
+            publishRefreshToken(where: { tokenHash: $tokenHash}) {
                id
             }
-         }
+            }
       `;
 
-      const createRefreshToken = user?.refreshToken?.id
-         ? {
-              update: {
-                 where: {
-                    userId: user.id,
-                 },
-                 data: {
-                    expiresIn: Date.now() + 1000 * 60 * 60 * 24 * 7,
-                 },
-              },
-           }
-         : {
-              create: {
-                 userId: user.id,
-                 expiresIn: Date.now() + 1000 * 60 * 60 * 24 * 7,
-              },
-           };
-
       const variables = {
-         token,
-         createRefreshToken,
-         id: user.id,
-         userRefreshTokenId: user.id,
-      };
-
-      try {
-         const { data: cms } = await axios.post(
-            this.baseURL as string,
-            { query, variables },
-            {
-               headers: this.headers,
-            },
-         );
-
-         return {
-            token,
-            refreshToken: cms.data.updateSubscriber.refreshToken.id,
-         };
-      } catch (error: any) {
-         console.log(error.response.data);
-
-         return { error: error.response.data.errors };
-      }
-   }
-
-   private async deleteCookieToDb(userId: string) {
-      const query = `
-         mutation MyMutation($token: String!, $id: ID!) {
-            updateSubscriber(data: {sessionToken: $token}, where: {id: $id}) {
-               id
-            }
-
-            publishManySubscribers(to: PUBLISHED, where: {id: $id}) {
-               __typename
-            }
-         }
-      `;
-      const variables = {
-         token: '',
-         id: userId,
+         id: token.id,
+         tokenHash: token.hashedRefreshToken,
+         expiresAt: token.expiresAt,
+         sessionId: token.sessionId,
       };
 
       try {
@@ -172,18 +133,53 @@ export class LoginApi extends RESTDataSource {
                headers: this.headers,
             },
          );
-
-         return true;
+         return {
+            success: true,
+         };
       } catch (error: any) {
-         console.log(error.response.data.errors[0].extensions.failedActions);
+         console.error({
+            error: error,
+            errorJson: JSON.stringify(error.response.data, null, 2),
+         });
 
-         return { error: error.response.data.errors };
+         return {
+            success: false,
+         };
       }
+   }
+
+   private async deleteCookieToDb(userSession: { sub: string; tokenId: string } | null) {
+      const query = `
+         mutation UPDATE_TOKEN($tokenId: ID!, $revokedAt: String!) {
+            updateRefreshToken(
+               where: { id: $tokenId },
+               data: { revokedAt: $revokedAt }
+            ) {
+               id
+            }
+
+            publishRefreshToken(where: { id: $tokenId }) {
+               id
+            }
+         }
+      `;
+
+      const variables = {
+         tokenId: userSession?.tokenId,
+         revokedAt: new Date().toISOString(),
+      };
+
+      await axios.post(
+         this.baseURL as string,
+         { query, variables },
+         {
+            headers: this.headers,
+         },
+      );
    }
 
    async login(email: string, password: string) {
       const verifyUser = await this.verifyUser(email);
-
       if (!verifyUser) {
          throw new GraphQLError('Usuário não existe ou sua solicitação ainda não foi aprovada...', {
             extensions: {
@@ -193,54 +189,123 @@ export class LoginApi extends RESTDataSource {
       }
 
       const hash = await bcrypt.compare(password, verifyUser.password);
-
       if (!hash) {
          throw new GraphQLError('Email ou senha incorreta, tente novamente...');
       }
 
-      const data = await this.saveCookieToDb({ ...verifyUser, email });
+      const sessionId = crypto.randomUUID();
 
-      if (typeof data.token !== 'string')
-         throw new GraphQLError('Obtivemos um error ao válidar o usuário');
+      const accessToken = createAccessToken({
+         sub: verifyUser.id,
+         sessionId,
+      });
+      const refreshToken = createRefeshToken();
+      const hashedRefreshToken = hashToken(refreshToken);
 
-      // cookies().set({
-      //    name: 'refresh-token',
-      //    value: data.refreshToken,
-      //    secure: true,
-      //    httpOnly: true,
-      //    maxAge: 1000 * 60 * 60 * 24 * 60, // 7 days
-      //    path: '/', // onde o cookie vai ser válido,
-      // });
-
-      cookies().set({
-         name: 'auth-token',
-         value: data.token,
-         secure: true,
-         httpOnly: true,
-         maxAge: 1000 * 60 * 60 * 24 * 60, // 7 days
-         path: '/', // onde o cookie vai ser válido,
+      const { success } = await this.saveCookieToDb({
+         id: verifyUser.id,
+         hashedRefreshToken,
+         expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+         sessionId,
       });
 
-      cookies().set({
-         name: 'isLoggedIn',
-         value: 'true',
-         secure: true,
-         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-         path: '/', // onde o cookie vai ser válido,
+      if (!success) {
+         throw new GraphQLError('Error ao fazer login', {
+            extensions: {
+               code: 'INTERNAL_SERVER_ERROR',
+            },
+         });
+      }
+
+      cookies().set('auth-access-token', accessToken, {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === 'production',
+         sameSite: 'lax',
+         maxAge: 24 * 60 * 60, // 1 day
+         expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
+         path: '/',
+      });
+
+      cookies().set('refresh-token', refreshToken, {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === 'production',
+         sameSite: 'strict',
+         maxAge: 365 * 24 * 60 * 60, // 1 year
+         expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+         path: '/api/auth/refresh-token',
       });
 
       return {
-         token: data.token,
+         success: true,
       };
    }
 
-   async logout(userId: string) {
-      await this.deleteCookieToDb(userId);
+   async logout(accessToken: string) {
+      const decodedToken = jwt.decode(accessToken) as { sub: string; sessionId: string } | null;
 
-      cookies().delete('auth-token');
-      cookies().delete('isLoggedIn');
-      cookies().delete('refresh-token');
+      try {
+         const query = `
+            query GET_SUBSCRIBER($id: ID!, $sessionId: String!) {
+               subscriber(where: {
+                  id: $id
+               }) {
+                  id
+                  refreshTokens(where: {
+                     sessionId: $sessionId
+                  }) {
+                     id
+                  }
+               }
+            }
+         `;
 
-      return true;
+         const variables = { id: decodedToken?.sub, sessionId: decodedToken?.sessionId };
+
+         const { data: cms } = await axios.post(
+            this.baseURL as string,
+            {
+               query,
+               variables,
+            },
+            { headers: this.headers },
+         );
+
+         const subscriber = cms.data.subscriber as { id: string; refreshTokens: { id: string }[] };
+
+         if (subscriber.refreshTokens.length === 0) {
+            throw new GraphQLError('No active session found', {
+               extensions: {
+                  code: 'FORBIDDEN',
+               },
+            });
+         }
+
+         await this.deleteCookieToDb({
+            sub: subscriber.id,
+            tokenId: subscriber.refreshTokens[0].id,
+         });
+
+         cookies().delete({
+            name: 'refresh-token',
+            path: '/api/auth/refresh-token',
+         });
+         cookies().delete('auth-access-token');
+
+         return true;
+      } catch (error) {
+         if (error instanceof axios.AxiosError) {
+            const data = error.response?.data;
+
+            console.error('Axios error during logout:', JSON.stringify(data, null, 2));
+         } else if (error instanceof GraphQLError) {
+            throw error;
+         }
+
+         throw new GraphQLError('Error during logout process', {
+            extensions: {
+               code: 'INTERNAL_SERVER_ERROR',
+            },
+         });
+      }
    }
 }

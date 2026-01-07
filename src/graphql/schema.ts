@@ -11,8 +11,6 @@ import { monthResolvers } from './server/month/resolvers';
 import { monthTypeDefs } from './server/month/type-defs';
 import { economyTypeDefs } from './server/economy/type-defs';
 import { economyResolvers } from './server/economy/resolvers';
-import { refreshTokenResolvers } from './server/refreshToken/resolvers';
-import { refreshTopkenTypeDefs } from './server/refreshToken/type-defs';
 
 const rootTypeDefs = gql`
    type Query {
@@ -45,7 +43,6 @@ export const typeDefs = [
    userTypeDefs,
    monthTypeDefs,
    economyTypeDefs,
-   refreshTopkenTypeDefs,
 ];
 export const resolvers = [
    rootResolvers,
@@ -54,5 +51,4 @@ export const resolvers = [
    userResolvers,
    monthResolvers,
    economyResolvers,
-   refreshTokenResolvers,
 ];

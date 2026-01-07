@@ -12,6 +12,6 @@ export const loginTypeDefs = gql`
    }
 
    type Login {
-      token: String!
+      success: Boolean!
    }
 `;
