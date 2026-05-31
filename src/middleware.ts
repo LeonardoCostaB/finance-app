@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export default function middleware(req: NextRequest) {
-   const publicRoutes = ['/login', '/unauthenticated'];
+   const publicRoutes = ['/login', '/login/create-user', '/unauthenticated'];
    const { pathname } = req.nextUrl;
 
    const cookie = req.cookies.get('auth-access-token')?.value;
