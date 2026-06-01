@@ -138,9 +138,9 @@ export default function Month({ params }: { params: { id: string } }) {
    useEffect(() => {
       const filterMonth = user?.months.filter((month) => month.id === params.id);
 
-      const targetDate = new Date(filterMonth?.[0].date ?? '').getTime();
+      const targetDate = new Date(filterMonth?.[0]?.date ?? '').getTime();
 
-      const userMonthlySalary = user?.monthlySalary.reduce((closest, current) => {
+      const userMonthlySalary = user?.monthlySalary?.reduce((closest, current) => {
          const closestDiff = Math.abs(new Date(closest.createAt).getTime() - targetDate);
          const currentDiff = Math.abs(new Date(current.createAt).getTime() - targetDate);
 

@@ -1,4 +1,8 @@
 export function normalizeId(id: string): string {
+   if (!id) {
+      return '';
+   }
+
    return id
       .trim()
       .toLowerCase()
