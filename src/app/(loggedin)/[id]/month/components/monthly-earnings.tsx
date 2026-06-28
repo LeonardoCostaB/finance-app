@@ -70,6 +70,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
 
    const handleFormatPrice = useCallback((value: string) => {
       value = value.replace(/\D/g, '');
+      console.log(value);
       setValue('earningValue', +value);
 
       if (!value) {

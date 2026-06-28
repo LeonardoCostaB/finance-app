@@ -73,6 +73,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
    const handleFormatPrice = useCallback((value: string) => {
       value = value.replace(/\D/g, '');
       setValue('value', +value);
+      console.log(value);
 
       if (!value) {
          setValueWithMask('');

@@ -203,7 +203,7 @@ export class UserApi extends RESTDataSource {
                  ...(user.monthlySalary?.length ? user.monthlySalary : []),
                  {
                     id: randomUUID(),
-                    salary: monthlySalary * 100,
+                    salary: monthlySalary,
                     createAt: new Date().toISOString(),
                  },
               ],
@@ -294,7 +294,7 @@ export class UserApi extends RESTDataSource {
       if (
          type === 'update' &&
          normalizeId(findPayment?.name ?? '') === normalizeId(data.name) &&
-         findPayment?.value === data.value * 100
+         findPayment?.value === data.value
       ) {
          throw new GraphQLError('Você deve alterar algum dos valores para continuar');
       }
@@ -302,7 +302,7 @@ export class UserApi extends RESTDataSource {
       const commonPaymentJson = {
          id: normalizeId(data.name),
          name: data.name,
-         value: data.value * 100,
+         value: data.value,
          date: {
             published: new Date().toISOString(),
          },

@@ -35,7 +35,7 @@ const saveEconomy: UserResolvers['saveEconomy'] = async (
       economyId: data.economyId ?? '',
       extract: data.extract.map((extract) => ({
          date: extract.date,
-         value: +extract.value * 100,
+         value: +extract.value,
       })),
    });
 
