@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useForm } from 'react-hook-form';
@@ -23,6 +23,7 @@ import {
 } from '@/graphql/client/mutations/month';
 
 import { Check, ChevronDown, ChevronUp, Handshake, Loader2Icon, Trash2, X } from 'lucide-react';
+import { formatCurrency } from '@/utils/client/format-currency';
 
 interface MonthlyExpensesProps {
    monthId: string;
@@ -47,6 +48,7 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
    const {
       register,
       handleSubmit,
+      setValue,
       watch,
       reset,
       formState: { errors },
@@ -66,6 +68,23 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
    const [expenses, setExpenses] = useState<MonthlyExpensesProps['expense']['extract']>([]);
    const [shouldShowModal, setShouldShowModal] = useState(false);
    const [shouldShowListOptions, setShouldShowListOptions] = useState(false);
+   const [valueWithMask, setValueWithMask] = useState('');
+
+   const handleFormatPrice = useCallback((value: string) => {
+      value = value.replace(/\D/g, '');
+      setValue('value', +value);
+
+      if (!value) {
+         setValueWithMask('');
+         return;
+      }
+
+      const numberValue = Number(value);
+
+      const formattedValue = formatCurrency(numberValue);
+
+      setValueWithMask(formattedValue);
+   }, []);
 
    async function handleOnSubmit(data: CreateNewExpenseFormData) {
       await createExpenseItem({
@@ -502,16 +521,21 @@ export function MonthlyExpenses({ monthId, expense }: MonthlyExpensesProps) {
                            }}
                            inputProps={{
                               id: 'expense-value',
-                              type: 'number',
+                              type: 'text',
                               required: true,
                               classNames: 'bg-slate-700',
-                              register: { ...register('value', { valueAsNumber: true }) },
+                              register: {
+                                 value: valueWithMask,
+                                 onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                                    handleFormatPrice(e.target.value),
+                              },
                            }}
                            error={{
                               show: !!errors.value,
                               message: errors.value?.message,
                            }}
                         />
+                        <input type="hidden" {...register('value', { valueAsNumber: true })} />
 
                         <div>
                            <span className="mb-4 inline-block text-sm">Informações Adicionais</span>

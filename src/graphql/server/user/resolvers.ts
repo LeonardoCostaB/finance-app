@@ -18,7 +18,10 @@ interface UserResolvers {
    user: (
       _: any,
       __: any,
-      context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
+      context: {
+         isLoggedIn: string;
+         dataSources: { userApi: UserApi; loginApi: LoginApi };
+      },
    ) => any;
 
    updateUser: (
@@ -38,7 +41,10 @@ interface UserResolvers {
             };
          };
       },
-      context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
+      context: {
+         isLoggedIn: string;
+         dataSources: { userApi: UserApi; loginApi: LoginApi };
+      },
    ) => any;
 
    createCommonPayments: (
@@ -55,7 +61,10 @@ interface UserResolvers {
          };
          type: 'create' | 'update';
       },
-      context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
+      context: {
+         isLoggedIn: string;
+         dataSources: { userApi: UserApi; loginApi: LoginApi };
+      },
    ) => any;
 
    deleteCommonPayments: (
@@ -67,14 +76,24 @@ interface UserResolvers {
          userId: string;
          paymentName: string;
       },
-      context: { isLoggedIn: string; dataSources: { userApi: UserApi; loginApi: LoginApi } },
+      context: {
+         isLoggedIn: string;
+         dataSources: { userApi: UserApi; loginApi: LoginApi };
+      },
+   ) => any;
+
+   updateAllMonths: (
+      _: any,
+      { userId }: { userId: string },
+      context: {
+         isLoggedIn: string;
+         dataSources: { userApi: UserApi; loginApi: LoginApi };
+      },
    ) => any;
 }
 
 const user: UserResolvers['user'] = async (_, __, { isLoggedIn, dataSources }) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
-
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -89,8 +108,6 @@ const updateUser: UserResolvers['updateUser'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
-
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -100,7 +117,10 @@ const updateUser: UserResolvers['updateUser'] = async (
       );
    }
 
-   const userData = await dataSources.userApi.updateUserById({ userId: isLoggedIn, data });
+   const userData = await dataSources.userApi.updateUserById({
+      userId: isLoggedIn,
+      data,
+   });
 
    return userData;
 };
@@ -111,7 +131,6 @@ const createCommonPayments: UserResolvers['createCommonPayments'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -136,7 +155,6 @@ const deleteCommonPayments: UserResolvers['deleteCommonPayments'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -154,6 +172,26 @@ const deleteCommonPayments: UserResolvers['deleteCommonPayments'] = async (
    return createCommonPayment;
 };
 
+const updateAllMonths: UserResolvers['updateAllMonths'] = (_, { userId }, { isLoggedIn }) => {
+   if (!isLoggedIn) {
+      throw new GraphQLError('Unauthenticated');
+   }
+
+   if (userId !== isLoggedIn) {
+      throw new GraphQLError(
+         'Esse item pode não existir ou você não tem autorização para acessa-lo',
+      );
+   }
+
+   throw new GraphQLError('Not implemented yet');
+
+   // const updateAllMonths = await dataSources.userApi.updateAllMonths({
+   //    userId,
+   // });
+
+   // return updateAllMonths;
+};
+
 export const userResolvers = {
    Query: {
       user,
@@ -162,5 +200,6 @@ export const userResolvers = {
       updateUser,
       createCommonPayments,
       deleteCommonPayments,
+      updateAllMonths,
    },
 };

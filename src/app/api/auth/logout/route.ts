@@ -1,5 +1,6 @@
 import { LoginApi } from '@/graphql/server/login/data-source';
 import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 export async function POST() {
    const accessToken = cookies().get('accessToken')?.value || '';
@@ -14,6 +15,6 @@ export async function POST() {
          path: '/api/auth/refresh-token',
       });
 
-      return new Response(null, { status: 200 });
+      return NextResponse.json({ success: true });
    }
 }

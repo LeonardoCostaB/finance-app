@@ -21,7 +21,11 @@ interface MonthResolvers {
       { data }: { data: { month: string; year: string } },
       context: {
          isLoggedIn: string;
-         dataSources: { monthApi: MonthApi; loginApi: LoginApi; userApi: UserApi };
+         dataSources: {
+            monthApi: MonthApi;
+            loginApi: LoginApi;
+            userApi: UserApi;
+         };
       },
    ) => any;
 
@@ -30,32 +34,56 @@ interface MonthResolvers {
       { monthId }: { monthId: string },
       context: {
          isLoggedIn: string;
-         dataSources: { monthApi: MonthApi; loginApi: LoginApi; userApi: UserApi };
+         dataSources: {
+            monthApi: MonthApi;
+            loginApi: LoginApi;
+            userApi: UserApi;
+         };
       },
    ) => any;
 
    createEarningOrExpense: (
       _: any,
-      { data }: { data: { monthId: string; title: string; type: 'earnings' | 'expenses' } },
-      context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
+      {
+         data,
+      }: {
+         data: {
+            monthId: string;
+            title: string;
+            type: 'earnings' | 'expenses';
+         };
+      },
+      context: {
+         isLoggedIn: string;
+         dataSources: { monthApi: MonthApi; loginApi: LoginApi };
+      },
    ) => any;
 
    deleteEarning: (
       _: any,
       { data }: { data: { monthId: string; title: string } },
-      context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
+      context: {
+         isLoggedIn: string;
+         dataSources: { monthApi: MonthApi; loginApi: LoginApi };
+      },
    ) => any;
 
    deleteExpense: (
       _: any,
       { data }: { data: { monthId: string; title: string } },
-      context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
+      context: {
+         isLoggedIn: string;
+         dataSources: { monthApi: MonthApi; loginApi: LoginApi };
+      },
    ) => any;
 
    createEarningItem: (
       _: any,
       { data }: { monthId: string; data: AddExpenseItem['data'] },
-      context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
+      context: {
+         isLoggedIn: string;
+         dataSources: { monthApi: MonthApi; loginApi: LoginApi };
+      },
    ) => any;
 
    updateEarningItem: (
@@ -74,31 +102,58 @@ interface MonthResolvers {
          };
          type: 'earnings' | 'expenses';
       },
-      context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
+      context: {
+         isLoggedIn: string;
+         dataSources: { monthApi: MonthApi; loginApi: LoginApi };
+      },
    ) => any;
 
    deleteEarningItem: (
       _: any,
-      { data }: { data: { monthId: string; earningItemId: string; earningTitle: string } },
-      context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
+      {
+         data,
+      }: {
+         data: { monthId: string; earningItemId: string; earningTitle: string };
+      },
+      context: {
+         isLoggedIn: string;
+         dataSources: { monthApi: MonthApi; loginApi: LoginApi };
+      },
    ) => any;
 
    addExpenseItem: (
       _: any,
       { data }: { monthId: string; data: AddExpenseItem['data'] },
-      context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
+      context: {
+         isLoggedIn: string;
+         dataSources: { monthApi: MonthApi; loginApi: LoginApi };
+      },
    ) => any;
 
    payExpense: (
       _: any,
-      { data }: { data: { monthId: string; expenseItemId: string; expenseTitle: string } },
-      context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
+      {
+         data,
+      }: {
+         data: { monthId: string; expenseItemId: string; expenseTitle: string };
+      },
+      context: {
+         isLoggedIn: string;
+         dataSources: { monthApi: MonthApi; loginApi: LoginApi };
+      },
    ) => any;
 
    deleteExpenseItem: (
       _: any,
-      { data }: { data: { monthId: string; expenseItemId: string; expenseTitle: string } },
-      context: { isLoggedIn: string; dataSources: { monthApi: MonthApi; loginApi: LoginApi } },
+      {
+         data,
+      }: {
+         data: { monthId: string; expenseItemId: string; expenseTitle: string };
+      },
+      context: {
+         isLoggedIn: string;
+         dataSources: { monthApi: MonthApi; loginApi: LoginApi };
+      },
    ) => any;
 }
 
@@ -108,7 +163,6 @@ const createMonth: MonthResolvers['createMonth'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -123,13 +177,12 @@ const createMonth: MonthResolvers['createMonth'] = async (
    return createMonth;
 };
 
-const deleteMonth: MonthResolvers['deleteMonth'] = async (
+const deleteMonth: MonthResolvers['deleteMonth'] = (
    _,
    { monthId },
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -144,7 +197,6 @@ const createEarningOrExpense: MonthResolvers['createEarningOrExpense'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -163,7 +215,6 @@ const deleteEarning: MonthResolvers['deleteEarning'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -181,7 +232,6 @@ const deleteExpense: MonthResolvers['deleteExpense'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -199,12 +249,13 @@ const createEarningItem: MonthResolvers['createEarningItem'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
-
       throw new GraphQLError('Unauthenticated');
    }
 
-   const createEarningItem = await dataSources.monthApi.createEarningItem({ monthId, data });
+   const createEarningItem = await dataSources.monthApi.createEarningItem({
+      monthId,
+      data,
+   });
 
    return createEarningItem;
 };
@@ -215,12 +266,14 @@ const updateEarningItem: MonthResolvers['updateEarningItem'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
-
       throw new GraphQLError('Unauthenticated');
    }
 
-   const updateEarningItem = await dataSources.monthApi.updateEarningItem({ monthId, data, type });
+   const updateEarningItem = await dataSources.monthApi.updateEarningItem({
+      monthId,
+      data,
+      type,
+   });
 
    return updateEarningItem;
 };
@@ -231,8 +284,6 @@ const deleteEarningItem: MonthResolvers['deleteEarningItem'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
-
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -251,12 +302,13 @@ const addExpenseItem: MonthResolvers['addExpenseItem'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
-
       throw new GraphQLError('Unauthenticated');
    }
 
-   const updateMonthlyExpenseItem = await dataSources.monthApi.addExpenseItem({ monthId, data });
+   const updateMonthlyExpenseItem = await dataSources.monthApi.addExpenseItem({
+      monthId,
+      data,
+   });
 
    return updateMonthlyExpenseItem;
 };
@@ -267,8 +319,6 @@ const deleteExpenseItem: MonthResolvers['deleteExpenseItem'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
-
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -287,8 +337,6 @@ const payExpense: MonthResolvers['payExpense'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
-
       throw new GraphQLError('Unauthenticated');
    }
 

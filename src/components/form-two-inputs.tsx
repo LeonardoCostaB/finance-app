@@ -1,8 +1,9 @@
 import clsx from 'clsx';
 import { Input } from './input';
 import { Loader2, SendHorizontal, Trash2 } from 'lucide-react';
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { formatCurrency } from '@/utils/client/format-currency';
 
 interface FormTwoInputsProps {
    newInput?: {
@@ -34,11 +35,26 @@ interface FormTwoInputsProps {
 
 export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
    const [firstInputValue, setFirstInputValue] = useState(inputs.firstInput.value);
-   const [secondInputValue, setSecondInputValue] = useState(inputs.secondInput.value);
+   const [valueWithMask, setValueWithMask] = useState('');
 
    const [error, setError] = useState(false);
    const [isLoading, setIsLoading] = useState(false);
    const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+
+   const handleFormatPrice = useCallback((value: string) => {
+      value = value.replace(/\D/g, '');
+
+      if (!value) {
+         setValueWithMask('');
+         return;
+      }
+
+      const numberValue = Number(value);
+
+      const formattedValue = formatCurrency(numberValue);
+
+      setValueWithMask(formattedValue);
+   }, []);
 
    async function handleOnSubmit(e: FormEvent) {
       e.preventDefault();
@@ -74,6 +90,15 @@ export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
       await inputs.onDelete?.(inputs.firstInput.value);
       setIsDeleteLoading(false);
    }
+
+   useEffect(() => {
+      if (inputs.secondInput.type === 'number') {
+         handleFormatPrice(inputs.secondInput.value?.toString() ?? '');
+         return;
+      }
+
+      setValueWithMask('');
+   }, [inputs.secondInput.value, inputs.secondInput.type, handleFormatPrice]);
 
    return (
       <form
@@ -120,13 +145,12 @@ export function FormTwoInputs({ newInput, inputs }: FormTwoInputsProps) {
             }}
             inputProps={{
                id: inputs.secondInput.id,
-               type: inputs.secondInput.type ?? 'text',
+               type: 'text',
                classNames: 'bg-slate-900 lg:bg-slate-800 disabled:cursor-no-drop',
                register: {
                   name: inputs.secondInput.id,
-                  ...(inputs.secondInput.value ? { value: secondInputValue } : {}),
-                  onChange: (e: ChangeEvent<HTMLInputElement>) =>
-                     setSecondInputValue(e.target.value),
+                  ...(inputs.secondInput.value ? { value: valueWithMask } : {}),
+                  onChange: (e: ChangeEvent<HTMLInputElement>) => handleFormatPrice(e.target.value),
                },
             }}
             error={{

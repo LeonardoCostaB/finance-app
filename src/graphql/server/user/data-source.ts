@@ -203,7 +203,7 @@ export class UserApi extends RESTDataSource {
                  ...(user.monthlySalary?.length ? user.monthlySalary : []),
                  {
                     id: randomUUID(),
-                    salary: monthlySalary,
+                    salary: monthlySalary * 100,
                     createAt: new Date().toISOString(),
                  },
               ],
@@ -294,7 +294,7 @@ export class UserApi extends RESTDataSource {
       if (
          type === 'update' &&
          normalizeId(findPayment?.name ?? '') === normalizeId(data.name) &&
-         findPayment?.value === data.value
+         findPayment?.value === data.value * 100
       ) {
          throw new GraphQLError('Você deve alterar algum dos valores para continuar');
       }
@@ -302,7 +302,7 @@ export class UserApi extends RESTDataSource {
       const commonPaymentJson = {
          id: normalizeId(data.name),
          name: data.name,
-         value: data.value,
+         value: data.value * 100,
          date: {
             published: new Date().toISOString(),
          },
@@ -429,4 +429,138 @@ export class UserApi extends RESTDataSource {
          throw new GraphQLError('Tivemos um error ao atualizar seu dados, tente novamente');
       }
    }
+
+   // async updateAllMonths({ userId }: { userId: string }) {
+   //    const user = await this.getUserById(userId);
+
+   //    if (!user) {
+   //       throw new GraphQLError('User not found');
+   //    }
+
+   //    // atualizar todos os valores de earnings e expenses para o mesmo formato em * 100 para contabilizar centavos
+   //    const updatedMonths = user.months.map((month) => {
+   //       const updatedEarnings = month.earnings.map((earning) => {
+   //          const updatedExtract = earning.extract.map((extract) => ({
+   //             ...extract,
+   //             value: extract.value * 100,
+   //          }));
+   //          return {
+   //             ...earning,
+   //             extract: updatedExtract,
+   //          };
+   //       });
+
+   //       const updatedExpenses = month.expenses.map((expense) => {
+   //          const updatedExtract = expense.extract.map((extract) => ({
+   //             ...extract,
+   //             value: extract.value * 100,
+   //          }));
+   //          return {
+   //             ...expense,
+   //             extract: updatedExtract,
+   //          };
+   //       });
+
+   //       return {
+   //          ...month,
+   //          earnings: updatedEarnings,
+   //          expenses: updatedExpenses,
+   //       };
+   //    });
+
+   //    // atualizar todos os valores de commonPayment para o mesmo formato em * 100 para contabilizar centavos
+   //    const updatedCommonPayment = user.commonPayment.map((payment) => ({
+   //       ...payment,
+   //       value: payment.value / 100,
+   //    }));
+
+   //    // const updatedBenefits = user.benefits?.map((benefit) => ({
+   //    //    ...benefit,
+   //    //    value: benefit.value * 100,
+   //    // }));
+
+   //    // atualizar tambem os valores de monthlySalary para o mesmo formato em * 100 para contabilizar centavos
+   //    // const updatedMonthlySalary = user.monthlySalary.map((salary) => ({
+   //    //    ...salary,
+   //    //    salary: salary.salary / 100,
+   //    // }));
+
+   //    const updatedUser = {
+   //       ...user,
+   //       // months: {
+   //       //    update: [
+   //       //       ...updatedMonths.map((month) => ({
+   //       //          where: { id: month.id },
+   //       //          data: {
+   //       //             ...month,
+   //       //             id: undefined,
+   //       //             createdAt: undefined,
+   //       //          },
+   //       //       })),
+   //       //    ],
+   //       // },
+   //       commonPayment: updatedCommonPayment,
+   //       // benefits: updatedBenefits,
+   //       // monthlySalary: updatedMonthlySalary,
+   //    };
+
+   //    const query = `
+   //       mutation UpdateSubscriber($userId: ID!, $commonPayments: Json, $monthlySalary: Json) {
+   //          updateSubscriber(
+   //             data: {
+   //                commonPayment: $commonPayments,
+   //                monthlySalary: $monthlySalary
+   //             }
+   //             where: {
+   //                id: $userId
+   //             }
+   //          ) {
+   //             id
+   //             months {
+   //                id
+   //             }
+   //          }
+   //          publishSubscriber(where: {id: $userId}) {
+   //             id
+   //          }
+   //       }
+   //    `;
+
+   //    console.log('Updating user months:', updatedUser.months);
+
+   //    const variables = {
+   //       userId,
+   //       // months: updatedUser.months,
+   //       commonPayments: updatedUser.commonPayment,
+   //       // monthlySalary: updatedUser.monthlySalary,
+   //    };
+
+   //    // atualizar de 10 em 10 meses para não sobrecarregar o servidor
+   //    // const chunkSize = 10;
+   //    // const chunks = [];
+   //    // for (let i = 0; i < updatedUser.months.update.length; i += chunkSize) {
+   //    //    chunks.push(updatedUser.months.update.slice(i, i + chunkSize));
+   //    // }
+
+   //    // for (const chunk of chunks) {
+   //    //    variables.months = { update: chunk };
+
+   //    try {
+   //       const { data: cms } = await axios.post(
+   //          this.baseURL as string,
+   //          {
+   //             query,
+   //             variables,
+   //          },
+   //          { headers: this.headers },
+   //       );
+
+   //       console.log('Updated months:', cms.data.updateSubscriber.months);
+   //    } catch (error: any) {
+   //       console.log(error.response.data);
+
+   //       throw new GraphQLError('Tivemos um error ao atualizar seu dados, tente novamente');
+   //    }
+   //    // }
+   // }
 }

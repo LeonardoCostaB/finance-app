@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@apollo/client';
@@ -15,6 +15,7 @@ import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
 import { useLoggedIn } from '@/hooks/use-loggedIn';
 
 import { Clock, Handshake, Info, LinkIcon, NotebookPen, SquarePen, X } from 'lucide-react';
+import { formatCurrency } from '@/utils/client/format-currency';
 
 interface UpdateMonthSubItems {
    monthId: string;
@@ -42,6 +43,7 @@ export function UpdateMonthSubItems({ monthId, extract, blockTitle, type }: Upda
    const {
       register,
       handleSubmit,
+      setValue,
       watch,
       formState: { errors },
    } = useForm<CreateNewExpenseFormData>({
@@ -55,6 +57,23 @@ export function UpdateMonthSubItems({ monthId, extract, blockTitle, type }: Upda
    });
 
    const [shouldShowEditForm, setShouldShowEditForm] = useState(false);
+   const [valueWithMask, setValueWithMask] = useState('');
+
+   const handleFormatPrice = useCallback((value: string) => {
+      value = value.replace(/\D/g, '');
+      setValue('updateValue', +value);
+
+      if (!value) {
+         setValueWithMask('');
+         return;
+      }
+
+      const numberValue = Number(value);
+
+      const formattedValue = formatCurrency(numberValue);
+
+      setValueWithMask(formattedValue);
+   }, []);
 
    async function handleOnUpdateItem(data: CreateNewExpenseFormData) {
       const fieldsToCheck: Array<{
@@ -143,7 +162,11 @@ export function UpdateMonthSubItems({ monthId, extract, blockTitle, type }: Upda
       }
    }
 
-   useEffect(() => {}, [extract]);
+   useEffect(() => {
+      if (extract.value) {
+         handleFormatPrice(extract.value.toString());
+      }
+   }, [extract, handleFormatPrice]);
 
    return (
       <InformationModal
@@ -237,15 +260,20 @@ export function UpdateMonthSubItems({ monthId, extract, blockTitle, type }: Upda
                      }}
                      inputProps={{
                         id: 'update-value',
-                        type: 'number',
+                        type: 'text',
                         classNames: 'bg-slate-700',
-                        register: { ...register('updateValue', { valueAsNumber: true }) },
+                        register: {
+                           value: valueWithMask,
+                           onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                              handleFormatPrice(e.target.value),
+                        },
                      }}
                      error={{
                         show: !!errors.updateValue,
                         message: errors.updateValue?.message,
                      }}
                   />
+                  <input type="hidden" {...register('updateValue', { valueAsNumber: true })} />
 
                   <Input
                      labelProps={{

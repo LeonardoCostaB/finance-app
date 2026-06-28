@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@apollo/client';
@@ -22,6 +22,7 @@ import {
 } from '@/graphql/client/mutations/month';
 
 import { ChevronDown, ChevronUp, Trash2, X } from 'lucide-react';
+import { formatCurrency } from '@/utils/client/format-currency';
 
 interface MonthlyEarningsProps {
    monthId: string;
@@ -48,6 +49,7 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
       handleSubmit,
       watch,
       reset,
+      setValue,
       formState: { errors },
    } = useForm<CreateNewEarningsFormData>({
       resolver: zodResolver(createNewEarningsFormSchema),
@@ -64,6 +66,23 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
    const [shouldShowModal, setShouldShowModal] = useState(false);
    const [shouldShowListOptions, setShouldShowListOptions] = useState(false);
    const [earningsData, setEarningsData] = useState<Earnings['extract']>([]);
+   const [valueWithMask, setValueWithMask] = useState('');
+
+   const handleFormatPrice = useCallback((value: string) => {
+      value = value.replace(/\D/g, '');
+      setValue('earningValue', +value);
+
+      if (!value) {
+         setValueWithMask('');
+         return;
+      }
+
+      const numberValue = Number(value);
+
+      const formattedValue = formatCurrency(numberValue);
+
+      setValueWithMask(formattedValue);
+   }, []);
 
    async function handleOnSubmit(data: CreateNewEarningsFormData) {
       await createEarningItem({
@@ -421,15 +440,23 @@ export function MonthlyEarnings({ monthId, earnings }: MonthlyEarningsProps) {
                            }}
                            inputProps={{
                               id: 'earnings-value',
-                              type: 'number',
+                              type: 'text',
                               required: true,
                               classNames: 'bg-slate-700',
-                              register: { ...register('earningValue', { valueAsNumber: true }) },
+                              register: {
+                                 value: valueWithMask,
+                                 onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                                    handleFormatPrice(e.target.value),
+                              },
                            }}
                            error={{
                               show: !!errors.earningValue,
                               message: errors.earningValue?.message,
                            }}
+                        />
+                        <input
+                           type="hidden"
+                           {...register('earningValue', { valueAsNumber: true })}
                         />
 
                         <div>

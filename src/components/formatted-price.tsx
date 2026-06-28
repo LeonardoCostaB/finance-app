@@ -16,7 +16,10 @@ export function FormattedPrice({ price = 0, style, classNames }: FormattedPriceP
             'text-white': style === 'normal',
          })}
       >
-         {price.toLocaleString('pt-BR', { currency: 'BRL', style: 'currency' })}
+         {Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+         }).format(price / 100)}
       </span>
    );
 }

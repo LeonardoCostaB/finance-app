@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { z } from 'zod';
@@ -29,6 +29,7 @@ import { DELETE_COMMON_PAYMENT, UPDATE_USER } from '@/graphql/client/mutations/u
 import { CREATE_COMMON_PAYMENT } from '@/graphql/client/mutations/user';
 import { toast } from 'sonner';
 import { GET_USER_BY_EMAIL } from '@/context/loggedIn-context';
+import { formatCurrency } from '@/utils/client/format-currency';
 
 const updateUserFormSchema = z.object({
    name: z.string().min(3, 'Mínimo 3 caracteres'),
@@ -49,13 +50,13 @@ export default function MyAccount() {
    const {
       register,
       handleSubmit,
+      setValue,
       formState: { errors },
    } = useForm<UpdateUserFormData>({
       resolver: zodResolver(updateUserFormSchema),
       defaultValues: {
          name: user?.name ?? '',
          areaOfActivity: user?.profession ?? '',
-         monthlySalary: user?.monthlySalary?.[0]?.salary ?? 0,
          state: user?.location?.state ?? '',
          city: user?.location?.city ?? '',
       },
@@ -69,6 +70,27 @@ export default function MyAccount() {
    const [shouldShowAddNewPayment, setShouldShowAddNewPayment] = useState(false);
    // const [shouldShowAddNewBenefit, setShouldShowAddNewBenefit] = useState(false);
    const [file, setFile] = useState<string>('');
+   const [valueWithMask, setValueWithMask] = useState('');
+
+   const handleFormatPrice = useCallback(
+      (value: string) => {
+         value = value.replace(/\D/g, '');
+
+         setValue('monthlySalary', Number(value));
+
+         if (!value) {
+            setValueWithMask('');
+            return;
+         }
+
+         const numberValue = Number(value);
+
+         const formattedValue = formatCurrency(numberValue);
+
+         setValueWithMask(formattedValue);
+      },
+      [setValue],
+   );
 
    function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
       const currFile = e.target?.files?.[0];
@@ -95,7 +117,7 @@ export default function MyAccount() {
             data: {
                name: data.name,
                profession: data.areaOfActivity,
-               monthlySalary: data.monthlySalary,
+               monthlySalary: +data.monthlySalary,
                location: {
                   state: data.state,
                   city: data.city,
@@ -137,12 +159,17 @@ export default function MyAccount() {
       second: string;
       type: 'create' | 'update';
    }) {
+      const removeFormatting = (value: string) => {
+         const numericValue = value.replace(/\D/g, '');
+         return numericValue;
+      };
+
       await createCommonPayment({
          variables: {
             userId: user?.id,
             data: {
                name,
-               value: +value,
+               value: +removeFormatting(value),
             },
             type,
          },
@@ -217,7 +244,14 @@ export default function MyAccount() {
       });
    }
 
-   useEffect(() => {}, [user]);
+   useEffect(() => {
+      if (user?.monthlySalary?.[0]?.salary) {
+         handleFormatPrice(user.monthlySalary[0].salary.toString());
+         return;
+      }
+
+      setValueWithMask('');
+   }, [user, handleFormatPrice]);
 
    if (!user) return <></>;
 
@@ -431,7 +465,9 @@ export default function MyAccount() {
                               classNames:
                                  'bg-slate-900 lg:bg-slate-800 disabled:opacity-70 disabled:cursor-no-drop',
                               register: {
-                                 ...register('monthlySalary', { valueAsNumber: true }),
+                                 value: valueWithMask,
+                                 onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                                    handleFormatPrice(e.target.value),
                                  disabled: shouldShowSalveButton ? false : true,
                                  readOnly: shouldShowSalveButton ? false : true,
                               },
@@ -441,6 +477,7 @@ export default function MyAccount() {
                               message: errors.monthlySalary?.message,
                            }}
                         />
+                        <input type="hidden" {...register('monthlySalary')} />
 
                         <button
                            type="button"

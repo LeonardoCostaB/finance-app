@@ -27,7 +27,6 @@ const saveEconomy: UserResolvers['saveEconomy'] = async (
    { isLoggedIn, dataSources },
 ) => {
    if (!isLoggedIn) {
-      await dataSources.loginApi.logout(isLoggedIn);
       throw new GraphQLError('Unauthenticated');
    }
 
@@ -36,7 +35,7 @@ const saveEconomy: UserResolvers['saveEconomy'] = async (
       economyId: data.economyId ?? '',
       extract: data.extract.map((extract) => ({
          date: extract.date,
-         value: +extract.value,
+         value: +extract.value * 100,
       })),
    });
 

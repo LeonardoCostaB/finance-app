@@ -403,7 +403,7 @@ export class MonthApi extends RESTDataSource {
       const extract = {
          id: `${normalizeId(data.name)}-${randomUUID()}`,
          name: data.name,
-         value: data.value,
+         value: data.value * 100,
          date: {
             published: new Date().toISOString(),
          },
@@ -485,7 +485,7 @@ export class MonthApi extends RESTDataSource {
 
       const newExtract: MonthExtract = {
          ...verifyIfExist,
-         value: data.value,
+         value: data.value * 100,
          link: data.link,
          notes: data.notes,
          name: data.name,
@@ -772,7 +772,7 @@ export class MonthApi extends RESTDataSource {
       const extract = {
          id: `${normalizeId(data.name)}-${randomUUID()}`,
          name: data.name,
-         value: data.value,
+         value: data.value * 100,
          date: {
             published: new Date().toISOString(),
          },

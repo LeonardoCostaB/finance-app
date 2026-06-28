@@ -15,6 +15,8 @@ export const userTypeDefs = gql`
       ): [Extract]
 
       deleteCommonPayments(userId: String!, paymentName: String!): [Extract]
+
+      updateAllMonths(userId: String!): [Months]
    }
 
    enum CommonPaymentRequestType {
